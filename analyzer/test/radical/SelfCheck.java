@@ -14,6 +14,15 @@ public class SelfCheck {
         checkMeasure();
         checkScale();
         checkMusicRules();
+        {
+            var note = new MusicRules.Note(0.0, "C4", 0.12, "melody");
+            var plan = new MusicRules.FramePlan(0, 120.0, "major", "C", true, "harp", "bells", java.util.List.of(note));
+            var raw = new Measure.Raw(247.0, 0.2, new double[] { 0.2 }, 0.39, 99.8, 7.6, 2.5e-5);
+            String json = SongJson.write(java.util.List.of(new SongJson.FrameEntry(plan, raw, new double[] { 50, 1, 100, 50, 1, 100 }, 0.0, "2012", 0.0)));
+            assert json.startsWith("{\"version\":1") : "json starts with version";
+            assert json.contains("\"pitch\":\"C4\"") : "json has pitch";
+            assert SongJson.quote("a\"b").equals("\"a\\\"b\"") : "quote escapes";
+        }
         System.out.println("ALL CHECKS PASSED");
     }
 
