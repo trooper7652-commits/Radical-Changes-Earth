@@ -4,7 +4,7 @@
 
 ## Status and how to resume (update after every task)
 
-- **Status:** build started 2026-11-14 evening. Task 0 done. Next: Task 1.
+- **Status:** build started 2026-11-14 evening. Tasks 0-1 done. Next: Task 2.
 - **To resume in a new session:** open `C:\Users\troop\Radical changes\Radical-Changes`, run `git pull`, read this plan and the spec, and continue from the first unticked `- [ ]` step. Ticked boxes and the git log are the source of truth; each finished step is committed and pushed.
 
 **Goal:** Turn 7 frames of NASA SVS 5313 (night lights 2012-2023) into a 27-second song with the owner's six rules, ship it as a ≤30 s demo video, and host a themed website (radicalchanges.earth) with the video plus a live, instrument-pickable version.
@@ -88,7 +88,7 @@ Local project root `C:\Users\troop\Radical changes\` gets a `.graphifyignore` ex
 **Interfaces:**
 - Produces: `final class Frame { static Frame load(Path png, boolean changeMap); int width(); int height(); boolean isMasked(int x, int y); int rgb(int x, int y); int value(int x, int y); static Frame fromImage(BufferedImage img, Rectangle[] masks); }` (`value` = max(R,G,B)). Constants `YEAR_LABEL_MASKS`, `CHANGE_MAP_MASKS` (`Rectangle[]`, window coordinates). Frames 0-3 use year masks, 4-6 change-map masks.
 
-- [ ] **Step 1: failing checks** in `SelfCheck.main` (run with `-ea`):
+- [x] **Step 1: failing checks** in `SelfCheck.main` (run with `-ea`):
 ```java
 BufferedImage img = new BufferedImage(4, 2, BufferedImage.TYPE_INT_RGB);
 img.setRGB(1, 0, 0x102030);
@@ -96,10 +96,10 @@ Frame f = Frame.fromImage(img, new Rectangle[]{ new Rectangle(3, 0, 1, 2) });
 assert f.value(1, 0) == 0x30 : "value = max channel";
 assert f.isMasked(3, 1) && !f.isMasked(0, 0) : "mask";
 ```
-- [ ] **Step 2:** `javac -d analyzer/out analyzer/src/radical/*.java analyzer/test/radical/*.java` → fails (no `Frame`).
-- [ ] **Step 3:** Implement `Frame`: `load` reads the PNG, crops x 1920-5760 (3840x2160), applies the masks. Find the mask rectangles by saving `analyzer/out/mask-preview-f0.png` and `-f4.png` with masked areas painted red and checking that the year label and the legend bar are fully covered (manager checks the two previews by eye).
-- [ ] **Step 4:** Compile and `java -ea -cp analyzer/out radical.SelfCheck` → prints `ALL CHECKS PASSED`.
-- [ ] **Step 5:** Commit `feat(analyzer): frame loading, crop window, label masks`.
+- [x] **Step 2:** `javac -d analyzer/out analyzer/src/radical/*.java analyzer/test/radical/*.java` → fails (no `Frame`).
+- [x] **Step 3:** Implement `Frame`: `load` reads the PNG, crops x 1920-5760 (3840x2160), applies the masks. Find the mask rectangles by saving `analyzer/out/mask-preview-f0.png` and `-f4.png` with masked areas painted red and checking that the year label and the legend bar are fully covered (manager checks the two previews by eye).
+- [x] **Step 4:** Compile and `java -ea -cp analyzer/out radical.SelfCheck` → prints `ALL CHECKS PASSED`.
+- [x] **Step 5:** Commit `feat(analyzer): frame loading, crop window, label masks`.
 
 ### Task 2: The six measurements (Java)
 
