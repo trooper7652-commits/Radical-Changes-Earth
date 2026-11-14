@@ -1,18 +1,36 @@
-# Makes the site's muted visuals: the first 20.25 s of NASA SVS 5313, cropped to the analysis window,
-# slowed to 0.75x so it lasts the song's 27 s.
-# Run from the repo root:  powershell -ExecutionPolicy Bypass -File tools/render-video.ps1
+# Makes the site's muted 27 s visuals, then the judged 30 s video.
+#  -Mode held (default): each of the 7 chosen frames data/frames/f0..f6.png is held for its own 4 s of music
+#    (3 s still + 1 s crossfade to the next), cropped to the analysis window.
+#  -Mode continuous: the first 20.25 s of NASA SVS 5313, cropped to the window, slowed to 0.75x.
+# Run from the repo root:  powershell -ExecutionPolicy Bypass -File tools/render-video.ps1 [-Mode continuous]
+param([ValidateSet('held', 'continuous')][string]$Mode = 'held')
 $ErrorActionPreference = 'Stop'
 $video = '.cache/svs5313/nightlights_flat_series_and_change_wZooms_13_EIC_2160p30_h265.mp4'
-$visuals = 'site/media/nasa-5313-slowed.mp4'
+$visuals = 'site/media/radical-changes-visuals.mp4'
 if (-not (Test-Path $video)) {
   powershell -ExecutionPolicy Bypass -File tools/extract-frames.ps1   # downloads the video
 }
 New-Item -ItemType Directory -Force -Path site/media | Out-Null
 $ffmpeg = (uv run --quiet --no-project --with imageio-ffmpeg python -I -c "import imageio_ffmpeg;print(imageio_ffmpeg.get_ffmpeg_exe())").Trim()
 
-& $ffmpeg -hide_banner -loglevel error -y -t 20.25 -i $video `
-  -vf 'crop=3840:2160:1920:0,setpts=PTS/0.75,scale=1920:1080' `
-  -c:v libx264 -pix_fmt yuv420p -crf 23 -preset medium -an $visuals
+if ($Mode -eq 'continuous') {
+  & $ffmpeg -hide_banner -loglevel error -y -t 20.25 -i $video `
+    -vf 'crop=3840:2160:1920:0,setpts=PTS/0.75,scale=1920:1080' `
+    -c:v libx264 -pix_fmt yuv420p -crf 23 -preset medium -an $visuals
+} else {
+  $inputs = @(); $chain = ''
+  for ($i = 0; $i -lt 7; $i++) {
+    $d = if ($i -eq 0 -or $i -eq 6) { 4 } else { 5 }   # 3 s still + 1 s fade in, 1 s fade out
+    $inputs += '-loop', '1', '-t', $d, '-framerate', '30', '-i', "data/frames/f$i.png"
+    $chain += "[$i]crop=3840:2160:1920:0,scale=1920:1080,setsar=1,format=yuv420p[v$i];"
+  }
+  $prev = 'v0'
+  for ($i = 1; $i -lt 7; $i++) {
+    $chain += "[$prev][v$i]xfade=transition=fade:duration=1:offset=$(4 * $i - 1)[x$i];"; $prev = "x$i"
+  }
+  & $ffmpeg -hide_banner -loglevel error -y @inputs -filter_complex $chain.TrimEnd(';') -map "[$prev]" `
+    -r 30 -c:v libx264 -pix_fmt yuv420p -crf 23 -preset medium -an $visuals
+}
 if ($LASTEXITCODE -ne 0) { throw "ffmpeg failed making $visuals" }
 
 # ffmpeg prints the file's duration on stderr; cmd merges it so PowerShell 5.1 does not treat it as an error.
@@ -21,6 +39,17 @@ if ($info -notmatch 'Duration: (\d+):(\d+):(\d+\.\d+)') { throw "Could not read 
 $seconds = [int]$Matches[1] * 3600 + [int]$Matches[2] * 60 + [double]$Matches[3]
 if ([math]::Abs($seconds - 27.0) -gt 0.05) { throw "$visuals lasts $seconds s, expected 27.0 +/- 0.05" }
 Write-Output "OK $visuals $seconds s"
+
+if ($Mode -eq 'held') {   # each frame must be on screen mid-hold: sample at 4i+1.5 s and match to the stills
+  $tmp = '.cache/held-samples'
+  New-Item -ItemType Directory -Force -Path $tmp | Out-Null
+  for ($i = 0; $i -lt 7; $i++) {
+    & $ffmpeg -hide_banner -loglevel error -y -ss (4 * $i + 1.5) -i $visuals -frames:v 1 "$tmp/t$i.png"
+    if ($LASTEXITCODE -ne 0) { throw "could not sample $visuals at $(4 * $i + 1.5) s" }
+  }
+  python -I tools/check-held-frames.py $tmp
+  if ($LASTEXITCODE -ne 0) { throw "$visuals does not show frame i at 4i+1.5 s" }
+}
 
 # The judged video: the visuals, then the last frame fades into a black credit card, with the song
 # (WAV from site/render.html, see tests/site.spec.mjs "render-length") padded with silence to the end.

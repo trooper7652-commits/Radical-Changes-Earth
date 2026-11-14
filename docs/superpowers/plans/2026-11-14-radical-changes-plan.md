@@ -208,7 +208,7 @@ assert Arrays.equals(Scale.stretch(new double[]{7,7,7}), new double[]{50,50,50})
 
 ### Task 6: Live player synced to the video
 
-**Files:** Create `site/app.js`, minimal `site/index.html` test harness section, `tests/site.spec.mjs`, `site/media/nasa-5313-slowed.mp4` (muted visuals, from Task 7's script)
+**Files:** Create `site/app.js`, minimal `site/index.html` test harness section, `tests/site.spec.mjs`, `site/media/radical-changes-visuals.mp4` (muted visuals, from Task 7's script)
 
 **Interfaces:**
 - Consumes: `song-data.json`, `INSTRUMENTS`, `createInstrument`.
@@ -225,7 +225,7 @@ assert Arrays.equals(Scale.stretch(new double[]{7,7,7}), new double[]{50,50,50})
 
 ### Task 7: Render the song and build the judged MP4
 
-**Files:** Create `site/render.html`, `site/render.js`, `tools/render-video.ps1`; produce `site/media/radical-changes-30s.mp4`, `site/media/nasa-5313-slowed.mp4`, `site/media/radical-changes-song.wav`
+**Files:** Create `site/render.html`, `site/render.js`, `tools/render-video.ps1`; produce `site/media/radical-changes-30s.mp4`, `site/media/radical-changes-visuals.mp4`, `site/media/radical-changes-song.wav`
 
 **Interfaces:**
 - Consumes: `song-data.json`, `INSTRUMENTS` (default instruments per frame).
