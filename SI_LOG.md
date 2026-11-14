@@ -10,3 +10,4 @@ Every AI model used on this project, as it is used. The project idea, the six me
 | 2026-11-14 | Task 1 | Claude Sonnet 5.5 | Wrote Frame.java (load, crop, label masks) and SelfCheck; a second Sonnet instance reviewed it |
 | 2026-11-14 | Task 2 | Claude Sonnet 5.5 | Wrote Measure.java (the six measurements exactly as the team defined them) and checks; a second Sonnet instance reviewed it |
 | 2026-11-14 | Task 5 prep | Claude Haiku 5.5 | Looked up free-licensed instrument samples and their licenses |
+| 2026-11-14 | Task 3 | Claude Fable 5.2 | Wrote Scale.java and MusicRules.java (the team's scaling, change, tempo, key, note-length, instrument, melody and rhythm rules) and checks; Claude Sonnet 5.5 reviewed it |

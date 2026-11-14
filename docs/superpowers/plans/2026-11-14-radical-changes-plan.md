@@ -4,7 +4,7 @@
 
 ## Status and how to resume (update after every task)
 
-- **Status:** build started 2026-11-14 evening. Tasks 0-2 done. Next: Task 3.
+- **Status:** build started 2026-11-14 evening. Tasks 0-3 done. Next: Task 4.
 - **To resume in a new session:** open `C:\Users\troop\Radical changes\Radical-Changes`, run `git pull`, read this plan and the spec, and continue from the first unticked `- [ ]` step. Ticked boxes and the git log are the source of truth; each finished step is committed and pushed.
 
 **Goal:** Turn 7 frames of NASA SVS 5313 (night lights 2012-2023) into a 27-second song with the owner's six rules, ship it as a ≤30 s demo video, and host a themed website (radicalchanges.earth) with the video plus a live, instrument-pickable version.
@@ -154,7 +154,7 @@ Rules (spec):
 - Rhythm: note k is pushed half a beat late when `(k * 37) % 100 < distanceFromRedScaled` **[builder call: deterministic "more offbeat"]**.
 - Absolute times: frame i notes start at 4i s; nothing starts after 4i + 3 s.
 
-- [ ] **Step 1: failing checks:**
+- [x] **Step 1: failing checks:**
 ```java
 assert Arrays.equals(Scale.stretch(new double[]{2,4,6}), new double[]{1,50.5,100});
 assert Arrays.equals(Scale.stretch(new double[]{7,7,7}), new double[]{50,50,50});
@@ -165,10 +165,10 @@ assert Arrays.equals(Scale.stretch(new double[]{7,7,7}), new double[]{50,50,50})
 // score 0.0 → scale degree 0 ; 0.999 → 13
 // keyIndex: melodyScaled 1 → 0 (C major / A minor); 100 → last key of the list
 ```
-- [ ] **Step 2:** Compile → fails.
-- [ ] **Step 3:** Implement `Scale` and `MusicRules`.
-- [ ] **Step 4:** SelfCheck passes.
-- [ ] **Step 5:** Commit `feat(analyzer): scaling, change size, music rules`.
+- [x] **Step 2:** Compile → fails.
+- [x] **Step 3:** Implement `Scale` and `MusicRules`.
+- [x] **Step 4:** SelfCheck passes.
+- [x] **Step 5:** Commit `feat(analyzer): scaling, change size, music rules`.
 
 ### Task 4: song-data.json and the run command (Java)
 
