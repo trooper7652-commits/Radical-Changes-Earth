@@ -4,7 +4,7 @@
 
 ## Status and how to resume (update after every task)
 
-- **Status:** build started 2026-11-14 evening. Tasks 0-5 done (head-chef gate 1: YES). Next: Task 6.
+- **Status:** build started 2026-11-14 evening. Tasks 0-6 done (head-chef gate 1: YES). Next: Task 7. Repo: github.com/trooper7652-commits/Radical-Changes-Earth.
 - **To resume in a new session:** open `C:\Users\troop\Radical changes\Radical-Changes`, run `git pull`, read this plan and the spec, and continue from the first unticked `- [ ]` step. Ticked boxes and the git log are the source of truth; each finished step is committed and pushed.
 
 **Goal:** Turn 7 frames of NASA SVS 5313 (night lights 2012-2023) into a 27-second song with the owner's six rules, ship it as a ≤30 s demo video, and host a themed website (radicalchanges.earth) with the video plus a live, instrument-pickable version.
@@ -214,14 +214,14 @@ assert Arrays.equals(Scale.stretch(new double[]{7,7,7}), new double[]{50,50,50})
 - Consumes: `song-data.json`, `INSTRUMENTS`, `createInstrument`.
 - Produces: `class SongPlayer { constructor(video, songData, Tone); async load(); async play(); pause(); setInstrument(voice, name); activeFrameIndex(); }`. Music follows `video.currentTime`: on play/seek, schedule notes from the current song time; on pause, stop.
 
-- [ ] **Step 1: failing Playwright tests** (fresh isolated browser, local static server `npx http-server site -p 8080`):
+- [x] **Step 1: failing Playwright tests** (fresh isolated browser, local static server `npx http-server site -p 8080`):
   `play-starts-audio`: clicking Play sets a `data-state="playing"` attribute and `Tone.context.state === "running"`.
   `seek-follows-video`: set `video.currentTime = 12.5` → `activeFrameIndex() === 3`.
   `loading-state`: while samples load, Play is `disabled` and the status text reads "Loading sounds…"; a forced 404 shows "Couldn't load <instrument>".
-- [ ] **Step 2:** Run `npx playwright test tests/site.spec.mjs` → fails.
-- [ ] **Step 3:** Implement `SongPlayer` (Tone.Part per frame, rescheduled from `currentTime` on `play`/`seeked`).
-- [ ] **Step 4:** Tests pass; no console errors.
-- [ ] **Step 5:** Commit `feat(site): live player synced to video`.
+- [x] **Step 2:** Run `npx playwright test tests/site.spec.mjs` → fails.
+- [x] **Step 3:** Implement `SongPlayer` (Tone.Part per frame, rescheduled from `currentTime` on `play`/`seeked`).
+- [x] **Step 4:** Tests pass; no console errors.
+- [x] **Step 5:** Commit `feat(site): live player synced to video`.
 
 ### Task 7: Render the song and build the judged MP4
 
