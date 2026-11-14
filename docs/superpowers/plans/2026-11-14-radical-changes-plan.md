@@ -4,7 +4,7 @@
 
 ## Status and how to resume (update after every task)
 
-- **Status 2026-11-14 evening:** design and plan approved; **build not started** (waiting for the owner's "start the project"). Docs pushed to branch `build`.
+- **Status:** build started 2026-11-14 evening. Task 0 done. Next: Task 1.
 - **To resume in a new session:** open `C:\Users\troop\Radical changes\Radical-Changes`, run `git pull`, read this plan and the spec, and continue from the first unticked `- [ ]` step. Ticked boxes and the git log are the source of truth; each finished step is committed and pushed.
 
 **Goal:** Turn 7 frames of NASA SVS 5313 (night lights 2012-2023) into a 27-second song with the owner's six rules, ship it as a ≤30 s demo video, and host a themed website (radicalchanges.earth) with the video plus a live, instrument-pickable version.
@@ -75,11 +75,11 @@ Local project root `C:\Users\troop\Radical changes\` gets a `.graphifyignore` ex
 **Interfaces:**
 - Produces: `data/frames/f{0..6}.png` = full 7680x2160 frames at 0,3,6,9,12,15,18 s; `$env:FFMPEG` path printed by `tools/extract-frames.ps1`.
 
-- [ ] **Step 1:** `gh repo clone trooper7652-commits/Radical-Changes "C:\Users\troop\Radical changes\Radical-Changes"`; `git switch -c build`. Expected: README.md and brainstorm.md present.
-- [ ] **Step 2:** Install the vetted design skills **project-scoped** into `Radical-Changes/.claude/skills/` exactly as `decisions/skill-vetting.md` says: `emil-design-eng` only (commit 0f2e23b); taste-skill folder copied without its `hooks:` frontmatter block (commit f6b7657); ui-ux-pro-max core folder only, `${CLAUDE_PLUGIN_ROOT}` paths fixed (commit d643997); playwright-cli skill with the `allowed-tools` line removed (commit b217248). Do not install awesome-design-md (reference only). Verify: `git diff --stat` shows only those folders; grep finds no `hooks:` in taste-skill. Add `.claude/` to `.gitignore`.
-- [ ] **Step 3:** Write `tools/extract-frames.ps1`: download the 5313 MP4 into its own folder under `Radical-Changes/.cache/`, get ffmpeg via `uv run --no-project --with imageio-ffmpeg python -I -c "import imageio_ffmpeg;print(imageio_ffmpeg.get_ffmpeg_exe())"`, extract `-ss {t} -frames:v 1` for t in 0,3,6,9,12,15,18 to `data/frames/f{i}.png`. Write `data/frames/SOURCE.md` (NASA SVS 5313 URL, file name, times, "NASA Scientific Visualization Studio" credit).
-- [ ] **Step 4:** Run it. Expected: 7 PNGs, each 7680x2160. Verify world period: mean |pixel(x) − pixel(x+3840)| over the frame < 2 (confirms one copy per 3840 px).
-- [ ] **Step 5:** Create `SI_LOG.md` (table: date, task, model, what it did) and add the Task 0 row. Commit `chore: workspace, frames, vetted skills` and push `build`.
+- [x] **Step 1:** `gh repo clone trooper7652-commits/Radical-Changes "C:\Users\troop\Radical changes\Radical-Changes"`; `git switch -c build`. Expected: README.md and brainstorm.md present.
+- [x] **Step 2:** Install the vetted design skills **project-scoped** into `Radical-Changes/.claude/skills/` exactly as `decisions/skill-vetting.md` says: `emil-design-eng` only (commit 0f2e23b); taste-skill folder copied without its `hooks:` frontmatter block (commit f6b7657); ui-ux-pro-max core folder only, `${CLAUDE_PLUGIN_ROOT}` paths fixed (commit d643997); playwright-cli skill with the `allowed-tools` line removed (commit b217248). Do not install awesome-design-md (reference only). Verify: `git diff --stat` shows only those folders; grep finds no `hooks:` in taste-skill. Add `.claude/` to `.gitignore`.
+- [x] **Step 3:** Write `tools/extract-frames.ps1`: download the 5313 MP4 into its own folder under `Radical-Changes/.cache/`, get ffmpeg via `uv run --no-project --with imageio-ffmpeg python -I -c "import imageio_ffmpeg;print(imageio_ffmpeg.get_ffmpeg_exe())"`, extract `-ss {t} -frames:v 1` for t in 0,3,6,9,12,15,18 to `data/frames/f{i}.png`. Write `data/frames/SOURCE.md` (NASA SVS 5313 URL, file name, times, "NASA Scientific Visualization Studio" credit).
+- [x] **Step 4:** Run it. Expected: 7 PNGs, each 7680x2160. Verify world period: mean |pixel(x) − pixel(x+3840)| over the frame < 2 (confirms one copy per 3840 px).
+- [x] **Step 5:** Create `SI_LOG.md` (table: date, task, model, what it did) and add the Task 0 row. Commit `chore: workspace, frames, vetted skills` and push `build`.
 
 ### Task 1: Frame loading and label masks (Java)
 

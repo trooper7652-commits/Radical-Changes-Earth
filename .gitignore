@@ -1,0 +1,7 @@
+.superpowers/
+.claude/
+.cache/
+analyzer/out/
+node_modules/
+test-results/
+playwright-report/
