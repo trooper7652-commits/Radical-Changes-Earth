@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Radical changes</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/15.1.22/Tone.js"></script>
+</head>
+<body>
+  <main>
+    <h1>Radical changes</h1>
+    <!-- Test harness for the player; Task 8 brings the real design. -->
+    <section id="player" aria-label="Song player">
+      <video id="visuals" src="media/nasa-5313-slowed.mp4" muted playsinline preload="auto" width="960"></video>
+      <p>
+        <button id="play" type="button" data-state="paused" disabled>Play</button>
+        <span id="status" role="status"></span>
+      </p>
+    </section>
+  </main>
+
+  <script type="module">
+    import { SongPlayer } from "./app.js";
+
+    const video = document.getElementById("visuals");
+    const button = document.getElementById("play");
+    const status = document.getElementById("status");
+
+    function showState(state) {
+      button.dataset.state = state;
+      button.textContent = state === "playing" ? "Pause" : "Play";
+    }
+    video.addEventListener("playing", () => showState("playing"));
+    video.addEventListener("pause", () => showState("paused"));
+    video.addEventListener("ended", () => showState("paused"));
+
+    status.textContent = "Loading sounds…";
+    try {
+      const songData = await (await fetch("song-data.json")).json();
+      const player = new SongPlayer(video, songData, Tone);
+      window.songPlayer = player; // for the tests and the browser console
+      await player.load();
+      button.addEventListener("click", () =>
+        button.dataset.state === "playing" ? player.pause() : player.play());
+      button.disabled = false;
+      status.textContent = "Ready";
+    } catch (error) {
+      status.textContent = error.message;
+    }
+  </script>
+</body>
+</html>
