@@ -8,3 +8,5 @@ Every AI model used on this project, as it is used. The project idea, the six me
 | 2026-11-14 | Research | Claude Sonnet 5.5, Claude Haiku 5.5 | Looked up sonification methods, data sources and testing options; security-checked design skills; knowledge-graph extraction |
 | 2026-11-14 | Task 0 | Claude Opus 5.5 | Set up the repo, installed vetted design skills (project only), extracted the 7 frames with ffmpeg |
 | 2026-11-14 | Task 1 | Claude Sonnet 5.5 | Wrote Frame.java (load, crop, label masks) and SelfCheck; a second Sonnet instance reviewed it |
+| 2026-11-14 | Task 2 | Claude Sonnet 5.5 | Wrote Measure.java (the six measurements exactly as the team defined them) and checks; a second Sonnet instance reviewed it |
+| 2026-11-14 | Task 5 prep | Claude Haiku 5.5 | Looked up free-licensed instrument samples and their licenses |

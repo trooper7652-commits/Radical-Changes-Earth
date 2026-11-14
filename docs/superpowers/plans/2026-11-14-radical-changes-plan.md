@@ -4,7 +4,7 @@
 
 ## Status and how to resume (update after every task)
 
-- **Status:** build started 2026-11-14 evening. Tasks 0-1 done. Next: Task 2.
+- **Status:** build started 2026-11-14 evening. Tasks 0-2 done. Next: Task 3.
 - **To resume in a new session:** open `C:\Users\troop\Radical changes\Radical-Changes`, run `git pull`, read this plan and the spec, and continue from the first unticked `- [ ]` step. Ticked boxes and the git log are the source of truth; each finished step is committed and pushed.
 
 **Goal:** Turn 7 frames of NASA SVS 5313 (night lights 2012-2023) into a 27-second song with the owner's six rules, ship it as a ≤30 s demo video, and host a themed website (radicalchanges.earth) with the video plus a live, instrument-pickable version.
@@ -119,7 +119,7 @@ Formulas (spec + builder calls), unmasked pixels only:
 - `uniqueness` = mean V of the largest 8-connected region with V ≥ 127 ÷ max(1, mean V of the ring of pixels within 50 px of that region's bounding box but outside the region) **[builder call]**; no bright region → 1.0.
 - `contrast` = count(V = 255 pixels with ≥ 1 V = 255 neighbour) ÷ max(1, count(V < 127)).
 
-- [ ] **Step 1: failing checks** (tiny synthetic images built in code):
+- [x] **Step 1: failing checks** (tiny synthetic images built in code):
 ```java
 // happiness: 4x4, 4 pixels V=200, rest 0 → 75.0
 // contrast: two adjacent 255 pixels + one isolated 255, 13 dark pixels → 2/13
@@ -128,10 +128,10 @@ Formulas (spec + builder calls), unmasked pixels only:
 // uniqueness: uniform gray 100 → 1.0 ; 3x3 white block on black → > 50
 // columnScores: image equal to its main color → every score 0.0
 ```
-- [ ] **Step 2:** Compile → fails (no `Measure`).
-- [ ] **Step 3:** Implement `Measure` (flood fill with an `int[]` queue, no recursion).
-- [ ] **Step 4:** SelfCheck passes; also run `Measure.all` on `f0.png` and print the raw values. Expected near the spec's measured table (happiness ≈ 99.88, contrast ≈ 2.5e-5) after allowing for the new crop window.
-- [ ] **Step 5:** Commit `feat(analyzer): six measurements`.
+- [x] **Step 2:** Compile → fails (no `Measure`).
+- [x] **Step 3:** Implement `Measure` (flood fill with an `int[]` queue, no recursion).
+- [x] **Step 4:** SelfCheck passes; also run `Measure.all` on `f0.png` and print the raw values. Expected near the spec's measured table (happiness ≈ 99.88, contrast ≈ 2.5e-5) after allowing for the new crop window.
+- [x] **Step 5:** Commit `feat(analyzer): six measurements`.
 
 ### Task 3: Scaling, change size and music rules (Java)
 
