@@ -6,6 +6,7 @@ import { createInstrument } from "./instruments.js";
 
 const SONG_SECONDS = 27;
 const SAMPLE_RATE = 44100;
+const FADE_SECONDS = 0.4;
 
 // Returns a Promise of a Blob holding a 16-bit PCM WAV of the song.
 export async function renderSong(songData) {
@@ -20,6 +21,10 @@ export async function renderSong(songData) {
         bass: instruments[frame.bassInstrument],
       }, Tone, 0);
     }
+    // Fade out over the last 0.4 s so the ringing last notes do not cut off.
+    const out = Tone.getDestination().volume;
+    out.setValueAtTime(0, SONG_SECONDS - FADE_SECONDS);
+    out.linearRampToValueAtTime(-60, SONG_SECONDS);
     Tone.getTransport().start(0);
   }, SONG_SECONDS, 2, SAMPLE_RATE);
   return encodeWav(buffer.get());

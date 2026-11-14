@@ -59,6 +59,19 @@ export const INSTRUMENTS = {
   },
 };
 
+// One master chain per audio context (live or offline), shared by every instrument:
+// -6 dB of headroom, then a limiter at -1 dB so loud notes never clip.
+const masterChains = new WeakMap();
+function masterInput(Tone) {
+  const context = Tone.getContext();
+  if (!masterChains.has(context)) {
+    const volume = new Tone.Volume(-6);
+    volume.chain(new Tone.Limiter(-1), Tone.getDestination());
+    masterChains.set(context, volume);
+  }
+  return masterChains.get(context);
+}
+
 // Resolves to a Tone instrument connected to the output. Rejects for unknown names
 // or when a sampler fails to load its files.
 export function createInstrument(name, Tone) {
@@ -69,7 +82,7 @@ export function createInstrument(name, Tone) {
 
   if (spec.kind === "synth") {
     const synth = new Tone.PolySynth(Tone.Synth, { envelope: { release: spec.release } });
-    return Promise.resolve(synth.toDestination());
+    return Promise.resolve(synth.connect(masterInput(Tone)));
   }
 
   return new Promise((resolve, reject) => {
@@ -79,6 +92,6 @@ export function createInstrument(name, Tone) {
       release: spec.release,
       onload: () => resolve(sampler),
       onerror: reject,
-    }).toDestination();
+    }).connect(masterInput(Tone));
   });
 }
