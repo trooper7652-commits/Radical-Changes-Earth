@@ -1,3 +1,4 @@
+import fs from "node:fs";
 import { test, expect } from "@playwright/test";
 
 const playButton = (page) => page.getByRole("button", { name: /play|pause/i });
@@ -95,4 +96,103 @@ test("loading-state: a missing sample names the instrument", async ({ page }) =>
   await page.goto("/");
   await expect(page.getByRole("status")).toHaveText("Couldn't load Piano");
   await expect(playButton(page)).toBeDisabled();
+});
+
+test("instrument-swap-midplay", async ({ page }) => {
+  await page.goto("/");
+  await expect(playButton(page)).toBeEnabled();
+  await playButton(page).click();
+  await expect(playButton(page)).toHaveAttribute("data-state", "playing");
+  const eventCount = () =>
+    page.evaluate(() => window.songPlayer.parts.reduce((sum, part) => sum + part.length, 0));
+  const before = await eventCount();
+  expect(before).toBeGreaterThan(0);
+
+  await page.evaluate(() => window.songPlayer.setInstrument("melody", "piano"));
+  await expect(playButton(page)).toHaveAttribute("data-state", "playing");
+  expect(await eventCount()).toBeLessThanOrEqual(before); // restarted from now: never more events
+  expect(await page.evaluate(() => window.songPlayer.parts.length)).toBe(7);
+});
+
+test("play-pause-seek-no-duplicates", async ({ page }) => {
+  await page.goto("/");
+  await expect(playButton(page)).toBeEnabled();
+  const seekTo = (time) =>
+    page.evaluate(async (t) => {
+      const video = document.querySelector("video");
+      const seeked = new Promise((resolve) => video.addEventListener("seeked", resolve, { once: true }));
+      video.currentTime = t;
+      await seeked;
+    }, time);
+  const state = (value) => expect(playButton(page)).toHaveAttribute("data-state", value);
+
+  await playButton(page).click(); await state("playing");
+  await playButton(page).click(); await state("paused");
+  await playButton(page).click(); await state("playing");
+  await seekTo(5);
+  await playButton(page).click(); await state("paused");
+  await recordNotes(page);
+  await playButton(page).click(); await state("playing");
+  await page.waitForTimeout(1000);
+
+  const { played, expected } = await page.evaluate(() => {
+    const start = window.songPlayer.video.currentTime;
+    const all = window.songPlayer.songData.frames.flatMap((f) => f.notes);
+    all.sort((a, b) => a.time - b.time);
+    // Resumed from the paused position, so the first notes are those at or just before it.
+    const from = all.findIndex((n) => n.time >= start - 1.1);
+    return { played: window.triggered, expected: all.slice(from).map((n) => n.pitch) };
+  });
+  expect(played.length).toBeGreaterThan(0);
+  // Every sounded note, in order, with none repeated: a prefix of the song from the seek point on.
+  const offset = expected.findIndex((_, i) => played.every((p, j) => expected[i + j] === p));
+  expect(offset).toBeGreaterThanOrEqual(0);
+  expect(offset).toBeLessThan(3);
+});
+
+test("render-length", async ({ page }) => {
+  await page.goto("/render.html");
+  const download = page.waitForEvent("download", { timeout: 120000 });
+  await page.getByRole("button", { name: "Render WAV" }).click();
+  const file = await download;
+  expect(file.suggestedFilename()).toBe("radical-changes-song.wav");
+  await file.saveAs("site/media/radical-changes-song.wav");
+
+  const wav = fs.readFileSync("site/media/radical-changes-song.wav");
+  const rate = wav.readUInt32LE(24);
+  const channels = wav.readUInt16LE(22);
+  const seconds = wav.readUInt32LE(40) / (rate * channels * 2);
+  expect(rate).toBe(44100);
+  expect(channels).toBe(2);
+  expect(Math.abs(seconds - 27)).toBeLessThan(0.05);
+  // Not silence.
+  expect(wav.subarray(44).some((byte) => byte !== 0)).toBe(true);
+});
+
+const COULDNT_START = "Couldn't start the player";
+
+test("error: song-data.json fails", async ({ page }) => {
+  await page.route("**/song-data.json", (route) => route.fulfill({ status: 404 }));
+  await page.goto("/");
+  await expect(page.getByRole("status")).toHaveText(COULDNT_START);
+});
+
+test("error: song-data.json invalid", async ({ page }) => {
+  await page.route("**/song-data.json", (route) => route.fulfill({ status: 200, body: "{nope" }));
+  await page.goto("/");
+  await expect(page.getByRole("status")).toHaveText(COULDNT_START);
+});
+
+test("error: Tone CDN fails", async ({ page }) => {
+  await page.route("**/cdnjs.cloudflare.com/**", (route) => route.abort());
+  await page.goto("/");
+  await expect(page.getByRole("status")).toHaveText(COULDNT_START);
+});
+
+test("error: play rejected", async ({ page }) => {
+  await page.goto("/");
+  await expect(playButton(page)).toBeEnabled();
+  await page.evaluate(() => (window.songPlayer.video.play = () => Promise.reject(new Error("blocked"))));
+  await playButton(page).click();
+  await expect(page.getByRole("status")).toHaveText(COULDNT_START);
 });

@@ -34,14 +34,26 @@
     video.addEventListener("pause", () => showState("paused"));
     video.addEventListener("ended", () => showState("paused"));
 
+    const COULDNT_START = "Couldn't start the player";
     status.textContent = "Loading sounds…";
     try {
-      const songData = await (await fetch("song-data.json")).json();
+      if (typeof Tone === "undefined") throw new Error(COULDNT_START); // the Tone.js CDN failed
+      let songData;
+      try {
+        const response = await fetch("song-data.json");
+        if (!response.ok) throw new Error(response.status);
+        songData = await response.json();
+        if (!Array.isArray(songData.frames)) throw new Error("no frames");
+      } catch {
+        throw new Error(COULDNT_START);
+      }
       const player = new SongPlayer(video, songData, Tone);
       window.songPlayer = player; // for the tests and the browser console
       await player.load();
-      button.addEventListener("click", () =>
-        button.dataset.state === "playing" ? player.pause() : player.play());
+      button.addEventListener("click", () => {
+        const action = button.dataset.state === "playing" ? player.pause() : player.play();
+        Promise.resolve(action).catch(() => (status.textContent = COULDNT_START));
+      });
       button.disabled = false;
       status.textContent = "Ready";
     } catch (error) {

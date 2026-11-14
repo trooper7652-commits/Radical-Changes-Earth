@@ -32,7 +32,7 @@ export class SongPlayer {
     // Notes always follow what the video is really doing, including stalls and seeks.
     video.addEventListener("playing", () => this.#startNotes());
     video.addEventListener("seeked", () => !video.paused && !video.ended && this.#startNotes());
-    for (const event of ["pause", "waiting", "ended"]) {
+    for (const event of ["pause", "waiting", "ended", "seeking"]) {
       video.addEventListener(event, () => this.#stopNotes());
     }
   }

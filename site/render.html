@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Render the song</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/15.1.22/Tone.js"></script>
+</head>
+<body>
+  <!-- Dev page, not linked from the site: renders the song to radical-changes-song.wav. -->
+  <main>
+    <h1>Render the song</h1>
+    <p>
+      <button id="render" type="button">Render WAV</button>
+      <span id="status" role="status"></span>
+    </p>
+  </main>
+  <script type="module">
+    import { renderSong } from "./render.js";
+
+    const status = document.getElementById("status");
+    document.getElementById("render").addEventListener("click", async () => {
+      status.textContent = "Rendering…";
+      try {
+        const response = await fetch("song-data.json");
+        if (!response.ok) throw new Error("Couldn't load song-data.json");
+        const blob = await renderSong(await response.json());
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "radical-changes-song.wav";
+        link.click();
+        status.textContent = "Done";
+      } catch (error) {
+        status.textContent = error.message;
+      }
+    });
+  </script>
+</body>
+</html>
