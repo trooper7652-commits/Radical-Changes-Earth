@@ -4,7 +4,7 @@
 
 ## Status and how to resume (update after every task)
 
-- **Status:** build started 2026-11-14 evening. Tasks 0-3 done. Next: Task 4.
+- **Status:** build started 2026-11-14 evening. Tasks 0-5 done (head-chef gate 1: YES). Next: Task 6.
 - **To resume in a new session:** open `C:\Users\troop\Radical changes\Radical-Changes`, run `git pull`, read this plan and the spec, and continue from the first unticked `- [ ]` step. Ticked boxes and the git log are the source of truth; each finished step is committed and pushed.
 
 **Goal:** Turn 7 frames of NASA SVS 5313 (night lights 2012-2023) into a 27-second song with the owner's six rules, ship it as a ≤30 s demo video, and host a themed website (radicalchanges.earth) with the video plus a live, instrument-pickable version.
@@ -188,11 +188,11 @@ assert Arrays.equals(Scale.stretch(new double[]{7,7,7}), new double[]{50,50,50})
 ```
   Frame labels: 2012, 2017, 2022, 2023, "Change 2012-2023" ×3.
 
-- [ ] **Step 1: failing check:** `SongJson.write` on a 1-frame `FramePlan` produces text that starts with `{"version":1` and contains `"pitch":"C4"`; a string with a quote is escaped.
-- [ ] **Step 2:** Compile → fails.
-- [ ] **Step 3:** Implement `SongJson` (StringBuilder) and `Main` (`java -cp analyzer/out radical.Main data/frames site/song-data.json`; prints one table row per frame: raw, scaled, change, bpm, key, articulation, instruments).
-- [ ] **Step 4:** `analyzer/run.ps1` compiles, runs SelfCheck, then Main. Expected: `ALL CHECKS PASSED`, 7 table rows, a valid JSON (check with `python -I -c "import json;json.load(open('site/song-data.json'))"`).
-- [ ] **Step 5:** **Head-chef gate 1:** Fable reviews `analyzer/` against spec section 6 → YES/NO. Commit `feat(analyzer): song-data.json`. Show the owner the printed table.
+- [x] **Step 1: failing check:** `SongJson.write` on a 1-frame `FramePlan` produces text that starts with `{"version":1` and contains `"pitch":"C4"`; a string with a quote is escaped.
+- [x] **Step 2:** Compile → fails.
+- [x] **Step 3:** Implement `SongJson` (StringBuilder) and `Main` (`java -cp analyzer/out radical.Main data/frames site/song-data.json`; prints one table row per frame: raw, scaled, change, bpm, key, articulation, instruments).
+- [x] **Step 4:** `analyzer/run.ps1` compiles, runs SelfCheck, then Main. Expected: `ALL CHECKS PASSED`, 7 table rows, a valid JSON (check with `python -I -c "import json;json.load(open('site/song-data.json'))"`).
+- [x] **Step 5:** **Head-chef gate 1:** Fable reviews `analyzer/` against spec section 6 → YES/NO. Commit `feat(analyzer): song-data.json`. Show the owner the printed table.
 
 ### Task 5: Instrument sounds
 
@@ -201,10 +201,10 @@ assert Arrays.equals(Scale.stretch(new double[]{7,7,7}), new double[]{50,50,50})
 **Interfaces:**
 - Produces: `export const INSTRUMENTS = { harp:{...}, bells:{...}, synth:{...}, piano:{...}, flute:{...}, "sustain strings":{...} }` where each entry is `{ label, kind: "sampler"|"synth", urls?, baseUrl?, release }`; `export function createInstrument(name, Tone) → Promise<Tone.Instrument>`.
 
-- [ ] **Step 1:** Download only free-licensed samples (candidates: VSCO 2 Community Edition, CC0, for harp/bells(glockenspiel)/flute/strings; Salamander Grand Piano, CC-BY 3.0, for piano), at most ~8 notes per instrument (Tone.Sampler fills the gaps). Record source URL, author, license, and file list in `LICENSES.md`. Synth uses `Tone.PolySynth` (no samples). Verify each license from the source page, not memory; if one fails, stop and report to the manager.
-- [ ] **Step 2:** Write `instruments.js` (modular: adding an instrument = one entry).
-- [ ] **Step 3:** Verify: total samples ≤ 15 MB; every folder has a LICENSES.md row.
-- [ ] **Step 4:** Commit `feat(site): licensed instrument samples`.
+- [x] **Step 1:** Download only free-licensed samples (candidates: VSCO 2 Community Edition, CC0, for harp/bells(glockenspiel)/flute/strings; Salamander Grand Piano, CC-BY 3.0, for piano), at most ~8 notes per instrument (Tone.Sampler fills the gaps). Record source URL, author, license, and file list in `LICENSES.md`. Synth uses `Tone.PolySynth` (no samples). Verify each license from the source page, not memory; if one fails, stop and report to the manager.
+- [x] **Step 2:** Write `instruments.js` (modular: adding an instrument = one entry).
+- [x] **Step 3:** Verify: total samples ≤ 15 MB; every folder has a LICENSES.md row.
+- [x] **Step 4:** Commit `feat(site): licensed instrument samples`.
 
 ### Task 6: Live player synced to the video
 

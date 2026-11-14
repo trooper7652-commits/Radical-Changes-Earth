@@ -11,3 +11,7 @@ Every AI model used on this project, as it is used. The project idea, the six me
 | 2026-11-14 | Task 2 | Claude Sonnet 5.5 | Wrote Measure.java (the six measurements exactly as the team defined them) and checks; a second Sonnet instance reviewed it |
 | 2026-11-14 | Task 5 prep | Claude Haiku 5.5 | Looked up free-licensed instrument samples and their licenses |
 | 2026-11-14 | Task 3 | Claude Fable 5.2 | Wrote Scale.java and MusicRules.java (the team's scaling, change, tempo, key, note-length, instrument, melody and rhythm rules) and checks; Claude Sonnet 5.5 reviewed it |
+| 2026-11-14 | Task 4 | FreeLLMAPI free model (auto:line_cooks-coding chain) | Wrote SongJson.java from an exact blueprint; verified by Claude Opus 5.5 |
+| 2026-11-14 | Task 4 | Claude Sonnet 5.5 | Wrote Main.java and run.ps1; generated site/song-data.json |
+| 2026-11-14 | Gate 1 | Claude Fable 5.2 | Reviewed the whole analyzer against the team's design: YES |
+| 2026-11-14 | Task 5 | Claude Haiku 5.5 | Downloaded and converted free-licensed instrument samples, wrote instruments.js and LICENSES.md |
