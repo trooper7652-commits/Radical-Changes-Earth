@@ -17,7 +17,12 @@
 - **Hooktheory** is the source of the key order (confirmed, no change).
 - **Remove the Handpan picker.** It is the voice that only joins the harp, and no frame of this song uses the harp. The "Handpan (hang)" *sound* stays in every list, because it is the hang drum's sound.
 - **Credit the piano.** It is CC BY 3.0 and plays in frames 1-4 of the judged video. The site, CREDITS.md and LICENSES.md already credit it, but the video's end card does not.
-- The song and the website still need rework. The owner's answers come first (Part B).
+- The song and the website still need rework. The website is planned in `2026-11-15-website-design-plan.md`.
+- **Replace the flute** with a low-pitched synth and a handpan, "both of these instruments should play harmoniously". The reading of "harmoniously" is waiting on the owner (Task 1b).
+- **The oboe plays every melody note.** This replaces "D, F and A# only". The sampler re-pitches the nearest of its 9 recordings by at most 2.5 semitones.
+- **No tester request:** there isn't time for it.
+- **Vercel:** yes. Done on 2026-11-15. A new project's first deploy goes to production, so the site is live at https://radical-changes.vercel.app. Later `vercel deploy` runs from `site/` make private previews.
+- **Website:** each voice's picker starts on the instrument the video uses.
 
 ## Global Constraints
 
@@ -80,7 +85,35 @@
 - [ ] **Step 4: Run the checks and expect a pass.** The same command prints `ALL CHECKS PASSED` and `OK: site/song-data.json written and valid`.
 - [ ] **Step 5: Commit and push.** Commit `song: notes overlap by 1 beat (owner round 15)` with the analyzer files, README and `site/song-data.json`.
 
-### Task 2: Remove the Handpan picker
+### Task 1b: The flute becomes a low synth plus a handpan (waits on the owner's harmony answer)
+
+**Files:** `analyzer/src/radical/MusicRules.java` (`plan`: the `melodyInstrument` line and `boolean handpan`), `analyzer/test/radical/SelfCheck.java` (the flute-frame checks), `site/index.html` (the "Instrument family" rule text and the credits line naming the flute)
+
+- [ ] **Step 1: Write the failing self-checks.** For a low-contrast, long-note frame (the `scaled(1, 1, 70, 50, 10, 10)` frame already in `checkSongV3`):
+  - `melodyInstrument()` is `"synth"` and `handpanInstrument()` is `"handpan"`
+  - the handpan notes keep the melody's times and lengths
+  - the pitches follow the owner's harmony answer
+  - the flute appears in no frame
+- [ ] **Step 2: Change the rule in `plan`.** The low-contrast, long-note case gives `"synth"`, played low as the owner answers. `handpan` becomes true for the harp **or** this case. The harmony goes in as one named constant.
+- [ ] **Step 3: Update the page text.** The rule card reads: "low contrast gives harp, bells, a low synth with a handpan, and sustain strings". The flute leaves the credits line. The flute files stay in `site/samples/`, unused.
+- [ ] **Step 4: Run the checks and expect a pass.** `analyzer/run.ps1` prints ALL CHECKS PASSED. In `song-data.json`, frames 4-6 show `melodyInstrument: "synth"` and `handpanInstrument: "handpan"`.
+- [ ] **Step 5: Commit and push.** Commit `song: flute replaced by a low synth and a handpan (owner round 15)`.
+
+### Task 1c: The oboe doubles every melody note
+
+**Files:** `MusicRules.java` (the oboe block in `plan`), `SelfCheck.java` (the oboe checks in `checkSongV3`), `site/index.html` (the "Change voices" rule text), `README.md:22`
+
+- [ ] **Step 1: Write the failing self-checks.** For every frame, the oboe has one note per melody note, at the same time and length, at the melody's pitch moved by octaves into A#2..F5. Drop the "only D, F and A#" checks.
+- [ ] **Step 2: Change the rule.** Remove the pitch-class `if` around the oboe note. `oboeInstrument` becomes `"oboe"` in every frame.
+- [ ] **Step 3: Update the text.** The page and README say "The oboe doubles every melody note."
+- [ ] **Step 4: Run the checks and expect a pass.** `analyzer/run.ps1` prints ALL CHECKS PASSED.
+- [ ] **Step 5: Commit and push.** Commit `song: the oboe doubles every melody note (owner round 15)`.
+
+### Task 1d: Drop the tester request
+
+- [ ] Delete `docs/tester-request.md`. Remove its line from `docs/final-check.md` and `README.md`. Commit `docs: drop the tester request (owner)`.
+
+### Task 2: Remove the Handpan picker (on hold: the handpan now plays in frames 4-6, so the owner decides whether its picker comes back)
 
 **Files:**
 - Modify: `site/index.html:52` (delete the `<label>` holding `<select id="handpan">`)
@@ -118,26 +151,17 @@
   - Report the exact counts.
 - [ ] **Step 3: Gate (head chef, Opus max).** Review `git diff bdeab70..HEAD` (bdeab70 is the cloud run's last commit) against this plan and grill-log round 15. On NO, the fixes go back to the cook who wrote that code, then a second gate. On YES, push.
 
-### Task 6: A website link (manager, needs the owner's OK)
+### Task 6: Website link (manager). Done 2026-11-15
 
-There is no Vercel project for this site yet. The only project in the `helix-velocities` team is `spiral-node`.
-- [ ] **Step 1: Add `.vercel` to `.gitignore`.**
-- [ ] **Step 2: Deploy a preview.** From `site/`, run `vercel link --yes --scope helix-velocities --project radical-changes`, then `vercel deploy --yes`. That gives a **preview** URL, which Vercel Authentication keeps private to the owner's login.
-- [ ] **Step 3: Check the preview.** Open the URL with the protected-deployment skill. The page loads, Tone.js loads from cdnjs, and Play gives sound. Send the owner the URL.
-- [ ] Production, the radicalchanges.earth DNS (Porkbun) and making the repo public stay with the owner.
+- [x] `.vercel/` is in `.gitignore`. Vercel added `site/.gitignore` (`.vercel`, `.env*`).
+- [x] `vercel link` created project `radical-changes` (team helix-velocities), and the first `vercel deploy` went to **production**: https://radical-changes.vercel.app. Checked that `/.env.local` and `/.vercel/project.json` return 404.
+- [ ] After each finished change, run `vercel deploy --yes --scope helix-velocities` from `site/` (a private preview). Promote with `--prod` only on the owner's word.
+- [ ] The radicalchanges.earth DNS (Porkbun) and making the repo public stay with the owner.
 
 ---
 
-## Part B: Song and website rework (waiting on the owner)
+## Part B: still open
 
-The owner said the song and website "still need some rework" but has not said what. Under the team rule, Claude asks and does not suggest. These tasks get written once the owner answers these questions:
-
-1. **Song:** what sounds wrong or unfinished? Say which part (a time in the video or a year/frame) and what you want instead.
-2. **The high instrument in the second half:** this is the **flute** playing the melody in the three "Change 2012-2023" frames (16 s onward). It reaches C#6 and F6, but its recordings stop at C6, so F6 is stretched 5 semitones and sounds thinner. Do you want it changed, and if so, how?
-3. **Website:** which parts need rework, and what should each one do or look like?
-4. **Still open from PR #1:**
-   - the oboe (only on D, F and A#, 5 notes in the song, versus "same notes, same times" as the melody)
-   - the AI-log gaps
-   - "student team" in the tester request
-   - the disclosure link
-   - the disclosure checkbox
+- **Website:** see `2026-11-15-website-design-plan.md`. It waits on the owner's direction pick.
+- **Harmony (Task 1b):** what "play harmoniously" means for the low synth and the handpan, and how low the synth goes.
+- **Still open from PR #1:** the AI-log gaps, the disclosure link and the disclosure checkbox.

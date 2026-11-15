@@ -9,3 +9,4 @@ playwright-report/
 !.claude/skills/
 .claude/skills/design-taste-frontend/assets/
 .claude/skills/design-taste-frontend/scripts/
+.vercel/
