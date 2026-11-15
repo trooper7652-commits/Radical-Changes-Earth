@@ -7,21 +7,28 @@ const ready = async (page) => {
   await expect(page.locator("#melody")).toBeEnabled();
 };
 
-test("keyboard-reach: skip link, video 1, Play, both selects, in order, focus visible", async ({ page }) => {
+test("keyboard-reach: skip link, nav, demo action, Earth, video 1, Play, both selects, in order, focus visible", async ({ page }) => {
   await ready(page);
   const focusVisible = async (selector) => {
     const outline = await page.locator(selector).evaluate((el) => getComputedStyle(el).outlineStyle);
     expect(outline).not.toBe("none");
   };
-  for (const selector of ["a.skip", "#demo"]) {
-    await page.keyboard.press("Tab");
+  const tabTo = async (selector, most) => {
+    for (let i = 0; i < most && !(await page.locator(selector).evaluate((el) => el === document.activeElement)); i++) {
+      await page.keyboard.press("Tab");
+    }
+  };
+  await page.keyboard.press("Tab");
+  await expect(page.locator("a.skip")).toBeFocused();
+  await focusVisible("a.skip");
+  // The wordmark and the section links come first (five), then the demo action, the Earth and the demo.
+  for (const selector of ["#cta", "#earth", "#demo"]) {
+    await tabTo(selector, 7);
     await expect(page.locator(selector)).toBeFocused();
     await focusVisible(selector);
   }
   // The video's own controls take a few more Tab presses; then Play comes next.
-  for (let i = 0; i < 15 && !(await page.locator("#play").evaluate((el) => el === document.activeElement)); i++) {
-    await page.keyboard.press("Tab");
-  }
+  await tabTo("#play", 15);
   for (const selector of ["#play", "#melody", "#bass"]) {
     await expect(page.locator(selector)).toBeFocused();
     await focusVisible(selector);
@@ -98,16 +105,26 @@ test("choosing an instrument keeps focus on the select", async ({ page }) => {
 
 const VOICE_IDS = ["melody", "bass", "handpan", "panHang", "panBalafon", "stringBass", "oboe"];
 const VOICE_NAMES = ["Melody", "Bass", "Handpan", "Hang drum", "Balafon", "String bass", "Oboe"];
+// The first option names the instruments the video uses for that voice, in frame order (same derivation as page.js).
+const videoLabel = (song, labels, voice) => {
+  const names = [...new Set(song.frames.map((f) => f[`${voice}Instrument`]).filter(Boolean))].map((n) => labels[n]);
+  return names.length ? `${names.map((n, i) => (i ? n.toLowerCase() : n)).join(", then ")} (as in the video)` : "Silent (as in the video)";
+};
 const PICKER_LABELS = ["Sustain strings", "Harp", "Bells", "String bass", "Synth", "Piano", "Pipe organ", "Guitar",
   "Handpan (hang)", "Balafon", "Oboe", "Bagpipes", "Choir", "Whistle", "Pan pipes"];
 
-test("picker: one labelled select per voice, Song's choice first, exactly the listed instruments", async ({ page }) => {
+test("picker: one labelled select per voice, the video's instruments first, exactly the listed instruments", async ({ page }) => {
   await ready(page);
+  const song = JSON.parse(fs.readFileSync("site/song-data.json", "utf8"));
+  const labels = await page.evaluate(async () => Object.fromEntries(
+    Object.entries((await import("./instruments.js")).INSTRUMENTS).map(([key, spec]) => [key, spec.label])));
   await expect(page.locator(".voices select")).toHaveCount(7);
+  // The owner's example: the bass plays piano in 2012-2023 and sustain strings in the change maps.
+  await expect(page.locator("#bass option").first()).toHaveText("Piano, then sustain strings (as in the video)");
   for (const [i, id] of VOICE_IDS.entries()) {
     await expect(page.locator(`label:has(> span:text-is("${VOICE_NAMES[i]}")) select`)).toHaveAttribute("id", id);
     const options = await page.locator(`#${id} option`).evaluateAll((os) => os.map((o) => [o.value, o.textContent]));
-    expect(options[0]).toEqual(["", "Song's choice"]);
+    expect(options[0]).toEqual(["", videoLabel(song, labels, id)]);
     expect(options.slice(1).map((o) => o[1])).toEqual(PICKER_LABELS);
     expect(await page.locator(`#${id}`).inputValue()).toBe("");
   }
@@ -156,4 +173,74 @@ test("focus-reveal: every tabbed element is visible at 390x844 (no focus inside 
     })).toBe("1");
   }
   expect(steps).toBeGreaterThan(15);
+});
+
+test("score: the strip and the score mark the current frame while the visuals play", async ({ page }) => {
+  await ready(page);
+  await page.evaluate(async () => {
+    const video = document.getElementById("visuals");
+    const seeked = new Promise((resolve) => video.addEventListener("seeked", resolve, { once: true }));
+    video.currentTime = 12.5; // frame 4 of 7 (index 3), 2023
+    await seeked;
+  });
+  await page.locator("#play").click();
+  await expect(page.locator("#play")).toHaveAttribute("data-state", "playing");
+  await expect(page.locator("#timeline li").nth(3)).toHaveClass(/\bon\b/);
+  await expect(page.locator("#timeline li.on")).toHaveCount(1);
+  await expect(page.locator("#score .bar.on")).toHaveAttribute("data-bar", "3");
+  await expect.poll(() => page.locator("#score .note.on").count()).toBeGreaterThan(0); // notes light while they sound
+  expect(await page.locator("#score").evaluate((el) => el.closest("[aria-hidden]")?.getAttribute("aria-hidden"))).toBe("true");
+  await page.locator("#play").click();
+});
+
+test("side notes: they follow the demo's frame across a boundary", async ({ page }) => {
+  await ready(page);
+  const song = JSON.parse(fs.readFileSync("site/song-data.json", "utf8"));
+  const seekDemo = (time) => page.evaluate(async (t) => {
+    const video = document.getElementById("demo");
+    if (video.readyState < 1) { // preload="none": load its metadata first, as its controls would
+      video.preload = "metadata";
+      await new Promise((resolve) => { video.addEventListener("loadedmetadata", resolve, { once: true }); video.load(); });
+    }
+    const seeked = new Promise((resolve) => video.addEventListener("seeked", resolve, { once: true }));
+    video.currentTime = t;
+    await seeked;
+  }, time);
+  const tempo = page.locator('#notes li[data-rule="tempo"] .v');
+  const tempoOf = (f) => `${Math.round(f.bpm)} bpm · vibrancy ${Math.round(f.scaled.vibrancy)}`;
+  await seekDemo(3.9);
+  await expect(tempo).toHaveText(tempoOf(song.frames[0]));
+  await expect(page.locator("#now")).toHaveText("Frame 1 of 7 · 2012");
+  await seekDemo(4.1);
+  await expect(tempo).toHaveText(tempoOf(song.frames[1]));
+  await expect(page.locator("#now")).toHaveText(`Frame 2 of 7 · ${song.frames[1].label}`);
+  await expect(page.locator('#notes li[data-rule="key"] .v')).toContainText(song.frames[1].key);
+});
+
+test("earth: a labelled image that takes keyboard focus and turns with the arrow keys", async ({ page }) => {
+  await ready(page);
+  const earth = page.locator("canvas#earth");
+  await expect(earth).toHaveAttribute("role", "img");
+  await expect(earth).toHaveAttribute("aria-label", /Earth/);
+  await expect(earth).toHaveAttribute("tabindex", "0");
+  await earth.focus();
+  await expect(earth).toBeFocused();
+  const before = await earth.getAttribute("data-turn");
+  await page.keyboard.press("ArrowRight");
+  await expect(earth).not.toHaveAttribute("data-turn", before);
+  expect(await page.evaluate(() => scrollY)).toBe(0); // the arrow key turned the Earth, not the page
+});
+
+test("butterfly: it flies on scroll, and under reduced motion it stays a still satellite", async ({ page }) => {
+  await ready(page);
+  await expect(page.locator("#flight")).toBeHidden();
+  await page.evaluate(() => scrollTo(0, innerHeight * 0.4));
+  await expect(page.locator("#flight")).toBeVisible();
+  expect(await page.locator("#flight").evaluate((el) => getComputedStyle(el).pointerEvents)).toBe("none");
+
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await ready(page);
+  await page.evaluate(() => scrollTo(0, innerHeight * 0.4));
+  await page.waitForTimeout(300);
+  await expect(page.locator("#flight")).toBeHidden();
 });
