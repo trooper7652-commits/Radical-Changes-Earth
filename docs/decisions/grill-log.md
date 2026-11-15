@@ -251,3 +251,7 @@ Q1 Tempo rules disagree · Q2 Short vs long notes · Q3 Contrast vs uniqueness �
 - "The butterfly just flies across the screen without blocking much out. When the butterfly crosses the screen, make sure it envelopes and covers the whole screen. Also add more deatil to the butterfly, it looks too basic right now. After the butterfly covers the screen, there should be a little pause, and then the website should show the next section."
 - Built as: when leaving the hero downward, the butterfly covers the whole viewport, holds for about half a second, the page moves to the next section behind it, and it flies off to reveal it. Off under reduced motion.
 - The 4:30 PM cloud routine was cancelled before it was created (the owner's limits reset).
+
+## Round 19: the transition's pacing (owner, 2026-11-15 afternoon)
+- "The butterfly jumps out too fast during the transition and I want there to be a blank screen after the butterfly appears, and then after a little pause, have the "Hear the map change." section load in from the bottom."
+- Built as: an unhurried fly-in, then a cover hold, then a slower exit, then a blank night screen for a short pause, then "Hear the map change." rises in from the bottom.
