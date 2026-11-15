@@ -183,3 +183,86 @@ Author routes: plugin marketplace (`/plugin marketplace add nextlevelbuilder/ui-
 - Taste-skill's 11k-line `consistency.mjs` was reviewed by targeted pattern search (network, process, env, file-write, eval) rather than line by line; the same applies to its asset JS (searched for beacons, eval, cookies, external hosts). UI-ux-pro-max's 700+ data files were pattern-searched, not read in full.
 - Star counts come from third-party aggregators and disagree between snapshots; treat them as rough.
 - Mirrors and forks were not scanned.
+
+---
+
+## Batch 3: unslop and lemo-opuscar (2026-11-14)
+
+| Skill | Source | Commit | Score | Verdict | Reason | Safe-install steps |
+|---|---|---|---|---|---|---|
+| unslop | github.com/heydamir/unslop | 620163eedb3529d9cd23a3994ed8d287d06f760d | 96/100 CRITICAL (all 11 findings false positives) | CAUTION | Instruction-only skill plus two optional Playwright/ffmpeg scripts; scanner hits are README install text and test fixtures. Scripts can fetch arbitrary user-supplied URLs. | Copy only `skills/unslop/` to `.claude/skills/unslop`; delete its `scripts/` folder (and `agents/`) unless snapshot/video features are wanted; do not copy the repo root (examples, tests, README). No hooks or allowed-tools to strip. |
+| lemo-opuscar | github.com/lemomo-ai/lemo-opuscar | 3a7132b996be0241c1ea0ab180d519f06e6f10b6 | plugin/ only 24/100 MEDIUM; whole repo 100/100 CRITICAL (18.6% coverage) | REJECT | Skill is a bootstrapper: its setup.sh clones and hard-resets an unpinned `main` into ~/lemo-opuscar, runs npm install and pip install, downloads models, then tells the agent to obey AGENTS.md from that live clone. Vetted commit is not what runs. Also off-topic (film making) and partly CC-BY-NC. | Do not install. If ever wanted: pre-clone this exact commit yourself to a folder, set LEMO_OPUSCAR_HOME to it (no `lemo.managed` config so it never auto-updates), copy only `plugin/skills/lemo-opuscar/`, and review `deps` steps before running. |
+
+## 🛡️ Skill Inspector: `unslop`
+
+**Source:** https://github.com/heydamir/unslop @ 620163eedb3529d9cd23a3994ed8d287d06f760d
+**Verdict:** CAUTION usable with the scripts removed or consciously accepted
+**Risk:** 96/100 · CRITICAL · DO_NOT_INSTALL (scanner posture; judged false positives below)
+**Install posture:** Fine as a design-guidance skill. Do not run the bundled scripts without reading them for the target page.
+**License:** CC-BY-4.0 (attribution to Damir Sokolovsky must be kept in copies).
+
+### Bottom Line
+unslop is a UI-polish skill: SKILL.md plus markdown references and three small Node scripts. The 96 score comes from README install snippets and a test fixture, none of which sits inside the skill folder. The only real surface is optional: a Playwright page-snapshot script and a story-video renderer.
+
+### Signal Overview
+| Source | Result | Interpretation |
+|---|---|---|
+| SkillSpector static scan | 4 HIGH x2 rules, 5 MEDIUM; 83% coverage (4 JS files hit parser limit) | Noise from docs/tests |
+| Agent semantic review | Matches stated purpose; no hooks, no allowed-tools, no MCP, no prompt injection found | Clean |
+| Sensitive surface | Network (snapshot.mjs fetches the page the user names), local HTTP server on 127.0.0.1 (story.mjs), execFileSync ffmpeg | Documented, bounded |
+
+### Key Evidence
+| Rule | Severity | Location | Review judgment |
+|---|---|---|---|
+| AS1 | HIGH | README.md:54 | `~/.gemini/config/skills` appears only in manual install instructions; not read by any code. False positive. |
+| PE3 | HIGH x4 | test/story-path.test.mjs:19-57 | A fixture file named `secret.txt` in a temp dir to test symlink-escape protection. False positive; the code is a path-traversal defence. |
+| RA2 | MEDIUM | README.md:47,54 | `mkdir -p ~/.agents/skills` in install docs. False positive. |
+| RP1 | MEDIUM | README.md:63, scripts/snapshot.mjs:53, scripts/story.mjs:27 | Dynamic `import("playwright")` / require from cwd. Loads an npm package the user installs; note it resolves from the working directory. |
+
+### Diagnosis
+No code path reads credentials, agent config, or sends data anywhere except to URLs the user supplies to snapshot.mjs. story.mjs serves only from a realpath-checked root on loopback. SKILL.md has `license`/`metadata` frontmatter only. Description triggers are topical (UI looks AI-generated) and not hijack-prone. CAUTION rather than APPROVE only because of the scanner score and the optional browser/ffmpeg scripts.
+
+### Guardrails
+1. Install only `skills/unslop/` into `C:\Users\troop\Radical changes\Radical-Changes\.claude\skills\unslop`; remove `scripts/` unless needed.
+2. Never run `npm install`/`npx playwright install` without asking; the skill only suggests them.
+3. Keep the CC-BY credit lines in SKILL.md.
+
+## 🛡️ Skill Inspector: `lemo-opuscar`
+
+**Source:** https://github.com/lemomo-ai/lemo-opuscar @ 3a7132b996be0241c1ea0ab180d519f06e6f10b6
+**Verdict:** REJECT mutable remote bootstrap and unrelated to this project
+**Risk:** plugin/ only 24/100 MEDIUM CAUTION; whole repo 100/100 CRITICAL, 18.6% coverage (static scan incomplete on the large repo)
+**Install posture:** Not suitable for project install. Reconsider only as a pinned, manually pre-cloned copy.
+**License:** mixed; repo LICENSE routes MIT code plus CC-BY-NC-4.0 and third-party assets (plugin.json: "MIT AND CC-BY-NC-4.0").
+
+### Bottom Line
+The SKILL.md is only a launcher. Step 1 runs `scripts/setup.sh`, which (when `lemo.managed` is set, which the script itself sets) does `git fetch origin main` and `git reset --hard FETCH_HEAD` on every run, so the code and instructions the agent follows (AGENTS.md, DIRECTOR.md, tools) come from whatever main is at that time, not the commit reviewed here. Step 2 runs `npm install` and `pip install` into that clone and can download a TTS model via `tools/fetch.sh`. This is a rug-pull-capable supply chain, even though nothing malicious was found today.
+
+### Signal Overview
+| Source | Result | Interpretation |
+|---|---|---|
+| SkillSpector (plugin/) | 24/100, 1 HIGH TM2 | `rm -rf .venv` / lock cleanup in setup.sh:99; benign |
+| SkillSpector (whole repo) | 100/100, 3 CRITICAL TT5, HIGH SC9 (.git files), AR2/TM1 in maintainer docs | Mostly demo tools and git internals; coverage only 18.6% |
+| Agent semantic review | No exfiltration, obfuscation, or hooks found; purpose matches film-making | But execution is delegated to a mutable remote repo |
+| Sensitive surface | git network pull of main, npm/pip installs, curl downloads of release assets, Microsoft edge-tts (online, text leaves machine), reads `~/.codex` session logs in gen_image.py, writes `~/lemo-opuscar` and `~/lemo-my-styles` | Wide, outside the project folder |
+
+### Key Evidence
+| Rule | Severity | Location | Review judgment |
+|---|---|---|---|
+| TM2 | HIGH | plugin/skills/lemo-opuscar/scripts/setup.sh:99 | `rm -rf` of its own broken `.venv`; benign, but shows the script mutates files in the home library |
+| TT5 | CRITICAL x3 | styles/caption-news/demo/tools/{commons-tools/pdfpage.py:31, commons_thumb.py:29}, styles/city-symphony/demo/tools/pdfpage.py:31 | Wikimedia API URL passed as an argv element (list form, no shell) to a sibling script; low practical risk, but only reachable via demos. |
+| (manual) | n/a | setup.sh:34-40 | Unpinned `fetch` + `reset --hard` of `main` = update channel the owner does not control |
+| (manual) | n/a | setup.sh:97-98 (deps) | `npm install`, venv `pip install -r`, `fetch.sh voice` downloads |
+| (manual) | n/a | core/image/gen_image.py:154 | Reads `$CODEX_HOME/sessions` to harvest generated images; documented, but touches another agent's logs |
+
+### Diagnosis
+Individually the files look honest and documented (SECURITY.md lists exfiltration and out-of-folder writes as reportable). The blocker is structural: install-time review cannot cover run-time content, and the skill instructs the agent to follow a freshly pulled AGENTS.md. It also has no use in the Radical Changes project and carries NC-licensed material.
+
+### Guardrails
+1. Do not install the skill into `.claude/skills`.
+2. If a film tool is ever wanted: clone this exact commit manually, set `LEMO_OPUSCAR_HOME` to it, make sure `git config lemo.managed` is unset so setup.sh never updates it, read what `deps` will install first, and copy only `plugin/skills/lemo-opuscar/`.
+3. Review the CC-BY-NC terms before using any output commercially.
+
+### Batch 3 limits
+- Static scans ran with `--no-llm`, no provider set. Reports: `skill-vet/unslop/report.json`, `skill-vet/lemo-opuscar/report.json` (whole repo, 18.6% coverage) and `skill-vet/lemo-opuscar/report-plugin.json` (plugin/ only) in the session scratchpad.
+- Lemo's 100+ style demo folders and tools were pattern-searched, not read line by line. Nothing was installed or executed from either repo.

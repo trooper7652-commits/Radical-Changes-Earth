@@ -32,3 +32,6 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHEN IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+| Oboe | https://github.com/sgossner/VSCO-2-CE (Woodwinds/Oboe/Sus) | Versilian Studios — VSCO 2 Community Edition | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) | `oboe/`: A#2 D3 F3 A#3 D4 F4 A#4 D5 F5 (`Oboe_Sus_<N>_v1_Main.wav`) | trimmed to 5 s, faded, mono 96 kbps MP3. Played only at its recorded pitches (no pitch stretching), per the team |
+| Balafon | https://github.com/sgossner/VCSL (Idiophones/Struck Idiophones/Balafon/Hard Mallet) | Versilian Studios — Versilian Community Sample Library (VCSL) | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) | `balafon/`: C#3 F3 C4 F4 C5 F5 (`EthnicXylo_hardM_<N>_vl1_rr1_Mid.wav`) | trimmed to 5 s, faded, mono 96 kbps MP3 |

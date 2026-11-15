@@ -182,3 +182,41 @@ Q1 Tempo rules disagree · Q2 Short vs long notes · Q3 Contrast vs uniqueness �
 - **Key list size (owner):** (a): the score picks one of the 12 keys in the list happiness chose (≈8.33 score points per key).
 - **Quote credit (owner):** "— Niels Bohr, as portrayed in *Oppenheimer* (2023)", for accuracy.
 - Design fully settled; plan updated; waiting for the owner's "start the project".
+
+## Round 9: after Task 7 (2026-11-14)
+- **Picture alignment (owner):** (b): hold each of the 7 chosen frames on screen for its 3 s of music with a 1 s transition, to keep Validity (what viewers see is always the frame they hear). May revisit if it looks scuffed; the continuous slowed video stays available as an option.
+- **Fable (head chef):** owner asked for max effort on every Fable job.
+
+## Round 10: website and song (2026-11-14)
+- **Website (owner):** direction B "Horizon Glow". Must capture the judges' attention and be extremely memorable, jumping out without trying too hard. It should capture the challenge's theme, bridging NASA's Earth Information Center and people with low vision through an accessible, engaging, multi-sensory experience that unites scientific research, and convey it through visuals and effects ("show, don't tell").
+- **Song (owner):** sounds basic and not good yet; add more elements so it sounds well composed and intentional. Reference: "Dreiton" by C418 (well composed, synths fit well). Owner asked Claude to ask questions about what the owner wants (no ideas from Claude).
+
+## Round 11: song answers (owner, 2026-11-14)
+- **Q1 What sounds basic:** it hits one note at a time and the sound is not well blended together.
+- **Q2 From Dreiton:** use a **handpan**. Notes should be long, sustaining and fade out instead of cutting sharply: make BOTH the current short and long notes longer. Transitions must be smoother. It is fine for each frame's music to overlap several other frames.
+- **Q3/Q4 New instruments:** add **bagpipes** and **string bass**, both dictated by every variable at once, using the average-of-variables value that measures the change from one frame to the next.
+- **Q5 Transitions:** the two frames blend: the current frame gets quieter while the next frame gets louder.
+- **Q6 Drums:** stay out of the song for now.
+- **Q7 Instrument picker options:** strings, harp, bells, string bass, bagpipes, synth, drums (kick, hi-hat, click, snare, toms), piano, choir, pipes, guitar, whistle.
+- **Q8 Sounds:** yes, search for CC0/CC-BY sounds; check every license at the source and credit it.
+
+## Round 12: song details (owner, 2026-11-14)
+- **Note lengths:** short notes twice as long as before; long notes three times as long as before.
+- **Handpan:** as natural-sounding as possible. It is in the same category as the harp: both are controlled by the same variable in the same way. The hang drum (FreePats, CC0) stands in for the handpan.
+- **Bagpipes and string bass:** a bigger change makes them louder, adds more notes and raises the pitch. For now they play the same notes as the synth (may change later).
+- **Overlap:** one frame's sound may carry into at most one following frame. Some clash is OK, but keep the music as natural as possible.
+- **Picker:** no drums for now. Add pan pipes and pipe organ, and the handpan. Visitors can also change the new parts. Choir, whistle and pan pipes: keep searching; include them if a good, licensed source is found, otherwise drop them from the picker.
+- **Footer:** a small visible line about AI-assisted graphics and code.
+- **Owner:** the frames, the instrument recordings and the actual music must not be AI-made; the music is produced by the team's algorithm.
+- **Presence (owner):** make the bagpipes and string bass more present by a factor of 2 (applied to the change value that drives them; tempo unaffected).
+
+## Round 13: website polish directions (owner, 2026-11-14 night)
+- Install and use the `unslop` (heydamir) and `lemo-opuscar` (lemomo-ai) skills for the website, after the SkillSpector safety check, so it doesn't look like another AI-generated site and gets dedicated, polished animations per element. Also use ALL the other design skills: "this website is our main leverage to winning this competition."
+- The website's font must be easy on the eyes to read.
+
+## Round 14: instrument changes (owner, 2026-11-15)
+- Notes must overlap more and flow more smoothly; bagpipes and string bass louder (being built by a free model: notes ring 0.75 beat past the next note; +10 dB, capped at -3 dB).
+- **Replace the bagpipes** with hang drums / pan drums / handpans / any similar instrument; these play synchronously in tandem (together, the same notes at the same time).
+- **Add the aulos** (the instrument used in the Sirens scene of The Odyssey).
+- Chat stays a thin manager (option 1): Claude only when absolutely necessary; free models do the coding.
+- **Aulos role (owner):** plays the melody alongside the current melody instrument (same notes, same times).

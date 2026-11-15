@@ -1,8 +1,11 @@
 .superpowers/
-.claude/
 .cache/
 analyzer/out/
 node_modules/
 test-results/
 playwright-report/
 .impeccable/
+.claude/*
+!.claude/skills/
+.claude/skills/design-taste-frontend/assets/
+.claude/skills/design-taste-frontend/scripts/
