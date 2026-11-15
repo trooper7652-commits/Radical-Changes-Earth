@@ -1,6 +1,6 @@
 // Page wiring: the player, the instrument pickers, frame descriptions, one-plays-at-a-time,
 // and the sound-driven glow. The music itself lives in app.js.
-import { SongPlayer } from "./app.js";
+import { SongPlayer, VOICES } from "./app.js";
 import { INSTRUMENTS } from "./instruments.js";
 
 const $ = (id) => document.getElementById(id);
@@ -8,6 +8,11 @@ const demo = $("demo");
 const visuals = $("visuals");
 const button = $("play");
 const status = $("status");
+const VOICE_LABELS = { melody: "Melody", bass: "Bass", handpan: "Handpan", panHang: "Hang drum",
+  panBalafon: "Balafon", stringBass: "String bass", oboe: "Oboe" };
+// What the picker offers, in this order (keys of INSTRUMENTS).
+const PICKER = ["sustain strings", "harp", "bells", "string bass", "synth", "piano", "pipe organ", "guitar",
+  "handpan", "balafon", "oboe", "bagpipes", "choir", "whistle", "pan pipes"];
 const COULDNT_START = "Couldn't start the player";
 
 // Only one video makes sound at a time.
@@ -25,9 +30,25 @@ visuals.addEventListener("ended", () => showState("paused"));
 // Plain-words description of a frame, made from song-data.json.
 function describe(frame, total) {
   const name = (n) => INSTRUMENTS[n]?.label.toLowerCase() ?? n;
+  // Every voice that plays in this frame (a null instrument means that voice is silent).
+  const playing = VOICES.filter((voice) => frame[`${voice}Instrument`])
+    .map((voice) => `${VOICE_LABELS[voice].toLowerCase()} on ${name(frame[`${voice}Instrument`])}`).join(", ");
   return `Frame ${frame.index + 1} of ${total}, ${frame.label}. ${frame.key} ${frame.mode}, ` +
     `${Math.round(frame.bpm)} beats per minute, ${frame.shortNotes ? "short" : "long"} notes. ` +
-    `${name(frame.melodyInstrument).replace(/^./, (c) => c.toUpperCase())} melody over ${name(frame.bassInstrument)} bass.`;
+    `Playing: ${playing}.`;
+}
+
+// Each block eases in once as it scrolls into view (opacity and transform only). Never hides anything
+// without JavaScript, with reduced motion, or when IntersectionObserver is missing.
+function revealOnScroll() {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches || !("IntersectionObserver" in window)) return;
+  const items = document.querySelectorAll("main h2, main .lede, main .frame, main .timeline, main .controls, " +
+    "main .voices, .rules li, .frames, .small li, .small > p, .site-foot");
+  const watcher = new IntersectionObserver((entries) => {
+    for (const entry of entries) if (entry.isIntersecting) { entry.target.classList.add("in"); watcher.unobserve(entry.target); }
+  }, { rootMargin: "0px 0px -8% 0px" });
+  items.forEach((el, i) => { el.dataset.reveal = ""; el.style.setProperty("--i", i % 6); watcher.observe(el); });
+  document.documentElement.classList.add("reveal-ready");
 }
 
 // Sound level (0..1) drives the hero glow. Skipped when the visitor asks for less motion.
@@ -70,6 +91,7 @@ function driveGlow(songData) {
   })();
 }
 
+revealOnScroll();
 status.textContent = "Loading sounds…";
 try {
   if (typeof Tone === "undefined") throw new Error(COULDNT_START); // the Tone.js CDN failed
@@ -87,7 +109,7 @@ try {
   const descriptions = songData.frames.map((frame) => describe(frame, total));
   $("frames").innerHTML = songData.frames
     .map((f, i) => `<li><h3>${f.label}</h3><p>${descriptions[i]}</p></li>`).join("");
-  $("timeline").innerHTML = songData.frames.map(() => "<li></li>").join("");
+  $("timeline").innerHTML = songData.frames.map((f) => `<li><span>${f.label.replace("Change 2012-2023", "Change")}</span></li>`).join("");
 
   const player = new SongPlayer(visuals, songData, Tone);
   window.songPlayer = player; // for the tests and the browser console
@@ -99,17 +121,18 @@ try {
     if (index === shown) return;
     shown = index;
     $("timeline").querySelectorAll("li").forEach((li, i) => li.classList.toggle("on", i === index));
+    $("frames").querySelectorAll("li").forEach((li, i) => li.classList.toggle("now", i === index && !visuals.paused));
     if (!visuals.paused) $("heard").textContent = descriptions[index];
   };
   visuals.addEventListener("timeupdate", showFrame);
   visuals.addEventListener("playing", () => { shown = -1; showFrame(); });
 
   // Instrument pickers, built from INSTRUMENTS.
-  const options = (voice) => `<option value="">Song's own choice</option>` +
-    Object.entries(INSTRUMENTS).map(([key, { label }]) => `<option value="${key}">${label}</option>`).join("");
-  for (const voice of ["melody", "bass"]) {
+  const options = () => `<option value="">Song's choice</option>` +
+    PICKER.map((key) => `<option value="${key}">${INSTRUMENTS[key].label}</option>`).join("");
+  for (const voice of VOICES) {
     const select = $(voice);
-    select.innerHTML = options(voice);
+    select.innerHTML = options();
     let current = select.value;
     select.addEventListener("change", () => {
       // aria-busy, not disabled: a disabled select drops keyboard focus.
@@ -128,7 +151,7 @@ try {
     Promise.resolve(action).catch(() => (status.textContent = COULDNT_START));
   });
   button.disabled = false;
-  $("melody").disabled = $("bass").disabled = false;
+  for (const voice of VOICES) $(voice).disabled = false;
   status.textContent = "Ready";
   driveGlow(songData);
 } catch (error) {
