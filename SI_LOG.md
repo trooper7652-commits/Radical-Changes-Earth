@@ -24,3 +24,6 @@ Every AI model used on this project, as it is used. The project idea, the six me
 | 2026-11-14 | Task 10 | Claude Fable 5.2 (stopped), Claude Opus 5.5 (max effort) | Song v2 from the team's rules: longer notes, handpan with harp, bagpipes + string bass driven by change (2x presence), per-frame crossfades; fixed a doubled-first-note bug; Claude Sonnet 5.5 reviewed it |
 | 2026-11-15 | Task 10b | Claude Haiku 5.5 | Downloaded/converted 8 more licensed instruments (CC0; picker-only choir/whistle/pan pipes MIT) |
 | 2026-11-15 | Media | Claude Opus 5.5 | Re-rendered the song and rebuilt the demo video with the project scripts |
+| 2026-11-15 | Cloud run: management | Claude Opus (manager) | Ran the cloud run: split the work, checked results against the team's design |
+| 2026-11-15 | Cloud run: song v3, final gate | Claude Opus (max effort, head chef) | Wrote song v3 in Java and JavaScript (overlap, louder change voices, hang drum + balafon, oboe) and ran the final gate |
+| 2026-11-15 | Cloud run: website polish, docs | Claude Sonnet (line cook) | Polished the website; wrote README, CREDITS, the tester request and the final check; updated the disclosure |
