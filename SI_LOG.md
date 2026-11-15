@@ -27,3 +27,6 @@ Every AI model used on this project, as it is used. The project idea, the six me
 | 2026-11-15 | Cloud run: management | Claude Opus (manager) | Ran the cloud run: split the work, checked results against the team's design |
 | 2026-11-15 | Cloud run: song v3, final gate | Claude Opus (max effort, head chef) | Wrote song v3 in Java and JavaScript (overlap, louder change voices, hang drum + balafon, oboe) and ran the final gate |
 | 2026-11-15 | Cloud run: website polish, docs | Claude Sonnet (line cook) | Polished the website; wrote README, CREDITS, the tester request and the final check; updated the disclosure |
+| 2026-11-15 | Plans: rework + website design | Claude Opus 5.5 (manager) | Wrote the rework plan and the website design plan (audit, fabric.vc rhythm, three directions; the owner picked A and added round 16); drafted the site copy for the owner to approve |
+| 2026-11-15 | Song round 15 | Claude Sonnet 5.5 (line cook) | Java: 1-beat overlap including into the next frame, low synth + handpan in place of the flute, oboe on every melody note, piano credit line in the video script |
+| 2026-11-15 | Transition, media | Claude Opus 5.5 (manager) | Player fade timing changed to the owner's "fade both at once"; re-rendered the song WAV and the 30 s video; checked there are no silent gaps |

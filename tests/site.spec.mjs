@@ -222,7 +222,7 @@ test("change voices (hang, balafon, string bass): their volume follows the chang
   await expect.poll(onChangeVoices).toEqual(expected);
 });
 
-test("frame-volumes: full until 4i+3, about -12 dB at 4i+4, silent at 4i+8, next frame fades in", async ({ page }) => {
+test("frame-volumes: full until 4i+4, about -12 dB at 4i+5 while the next frame fades in, silent at 4i+8", async ({ page }) => {
   await page.goto("/");
   await expect(playButton(page)).toBeEnabled();
   const levels = await page.evaluate(async () => {
@@ -240,18 +240,20 @@ test("frame-volumes: full until 4i+3, about -12 dB at 4i+4, silent at 4i+8, next
     };
     const copies = window.songPlayer.instruments;
     return {
-      first: volumeOf(frames[0], 0, [0, 3, 4, 8]),
-      third: volumeOf(frames[2], 0, [8, 8.5, 9, 11, 12, 14, 16, 20]),
-      thirdFrom13: volumeOf(frames[2], 13, [13, 14, 16]),
+      first: volumeOf(frames[0], 0, [0, 3, 4, 5, 8]),
+      third: volumeOf(frames[2], 0, [8, 8.5, 9, 11, 12, 12.5, 13, 14.5, 16, 20]),
+      thirdFrom14: volumeOf(frames[2], 14, [14, 14.5, 16]),
       // Frames 1 and 2 overlap, so they must not share an instrument (both play the synth melody).
       separate: frameInstruments(frames[1], copies).melody !== frameInstruments(frames[2], copies).melody,
     };
   });
   const low = 10 ** (-12 / 20);
   const db = (gain) => expect.closeTo(20 * Math.log10(gain), 3);
-  expect(levels.first).toEqual([db(1), db(1), db(low), -Infinity]); // frame 0 starts at full volume
-  expect(levels.third).toEqual([db(low), db(low + (1 - low) / 2), db(1), db(1), db(low), db(low / 2), -Infinity, -Infinity]);
-  expect(levels.thirdFrom13).toEqual([db(low * 0.75), db(low / 2), -Infinity]); // resumed mid-fade
+  expect(levels.first).toEqual([db(1), db(1), db(1), db(low), -Infinity]); // frame 0 starts at full volume
+  // frame 2 (8..12 s): fades in over 8..9, full until 12, -12 dB at 13 while frame 3 fades in, silent at 16
+  expect(levels.third).toEqual([db(low), db(low + (1 - low) / 2), db(1), db(1), db(1), db((1 + low) / 2), db(low),
+    db(low / 2), -Infinity, -Infinity]);
+  expect(levels.thirdFrom14).toEqual([db(low * 2 / 3), db(low / 2), -Infinity]); // resumed mid-fade
   expect(levels.separate).toBe(true);
 });
 

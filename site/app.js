@@ -21,12 +21,13 @@ export const INSTRUMENT_COPIES = 2;
 const TRANSITION_GAIN = 10 ** (-12 / 20);
 
 // A frame's volume over song time, as [time, gain] points joined by straight ramps (design section 15):
-// from frame 1 on it fades in from about -12 dB over its first second; it is full until its music ends
-// (4i+3 s), falls to about -12 dB by the end of the transition (4i+4 s) and is silent by the end of the
-// next frame (4i+8 s), so its sound never carries past one following frame.
+// from frame 1 on it fades in from about -12 dB over its first second. It stays full until the next frame
+// starts (4i+4 s), then falls to about -12 dB over that frame's first second (4i+5 s), so the two fade at
+// the same time with no dip (owner: "absolutely no pauses"). It is silent by the end of the next frame
+// (4i+8 s), so its sound never carries past one following frame.
 function frameEnvelope(frame) {
   const t = frame.startTime;
-  return [[t, frame.index === 0 ? 1 : TRANSITION_GAIN], [t + 1, 1], [t + 3, 1], [t + 4, TRANSITION_GAIN], [t + 8, 0]];
+  return [[t, frame.index === 0 ? 1 : TRANSITION_GAIN], [t + 1, 1], [t + 4, 1], [t + 5, TRANSITION_GAIN], [t + 8, 0]];
 }
 
 // The envelope's gain at a song time between its first and last points.

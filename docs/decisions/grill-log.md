@@ -220,3 +220,22 @@ Q1 Tempo rules disagree · Q2 Short vs long notes · Q3 Contrast vs uniqueness �
 - **Add the aulos** (the instrument used in the Sirens scene of The Odyssey).
 - Chat stays a thin manager (option 1): Claude only when absolutely necessary; free models do the coding.
 - **Aulos role (owner):** plays the melody alongside the current melody instrument (same notes, same times).
+
+## Round 15: PR #1 answers (owner, 2026-11-15)
+- **Overlap:** "Make the notes overlap by 1 beat now."
+- **Balafon** is the second pan instrument; **Hooktheory** is the source of the key order.
+- **Credit the piano** (CC BY 3.0) in the video, not only on the site.
+- **Flute:** "Replace the flute with a low pitched synth and a handpan, both of these instruments should play harmoniously." Then: "the low synth and handpan should play the same notes, with the synth an octave or two lower" (builder call: one octave, `LOW_SYNTH_OCTAVES = 1`).
+- **Oboe:** "have the oboe play every melody note."
+- **Pickers:** "have the instruments for each voice prepicked, with the instruments used in the video as the default"; the bass picker starts on piano (piano, then sustain strings, as in the video); "Bring handpan back."
+- **No pauses:** "each frame should flow smoothly into the other one ... Make the music so that there is absolutely no pauses whatsoever." Built as: each voice's last note in a frame rings 1 beat into the next frame. On the transition, the owner chose "fade both at once": a frame stays full until the next starts, then fades to about -12 dB over the next frame's first second while the next fades in.
+- **Tester request:** dropped ("I don't think we will have time").
+- **Vercel:** yes.
+- **Website:** direction A "The Score" with B's full-width dark band (design plan `docs/superpowers/plans/2026-11-15-website-design-plan.md`); built by a head-chef subagent, Claude Opus 5.5 at effort xhigh.
+
+## Round 16: more life on the website (owner, 2026-11-15)
+- "I don't like how much blank space there is ... The website honestly looks dead."
+- A rotating, interactable Earth on the landing page that belongs to the site's look.
+- A butterfly in the site's colours that looks like one of the satellites orbiting the Earth at first, then flies from the bottom left up and to the right, covering the screen as the visitor scrolls down.
+- The video in the middle, with the notes on how the music is made on the sides, while the visitor sees the video and hears the music.
+- "REMEMBER TO USE GOOD ANIMATIONS."
