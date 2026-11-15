@@ -1,7 +1,8 @@
 // Renders the whole song offline (no speakers, faster than real time) to a WAV file.
-// Uses the same scheduleFrame as the live player, with each frame's own default instruments.
+// Uses the same scheduleFrame as the live player (notes, volumes and crossfades), with each
+// frame's own default instruments.
 
-import { scheduleFrame } from "./app.js";
+import { INSTRUMENT_COPIES, frameInstruments, instrumentNames, scheduleFrame } from "./app.js";
 import { createInstrument } from "./instruments.js";
 
 const SONG_SECONDS = 27;
@@ -11,16 +12,14 @@ const FADE_SECONDS = 0.4;
 // Returns a Promise of a Blob holding a 16-bit PCM WAV of the song.
 export async function renderSong(songData) {
   const buffer = await Tone.Offline(async () => {
-    // Created inside the callback, so they belong to the offline context.
-    const names = songData.frames.flatMap((f) => [f.melodyInstrument, f.bassInstrument]);
-    const instruments = {};
-    for (const name of new Set(names)) instruments[name] = await createInstrument(name, Tone);
-    for (const frame of songData.frames) {
-      scheduleFrame(frame, {
-        melody: instruments[frame.melodyInstrument],
-        bass: instruments[frame.bassInstrument],
-      }, Tone, 0);
+    // Created inside the callback, so they belong to the offline context. Copies as in the player.
+    const copies = [];
+    for (let i = 0; i < INSTRUMENT_COPIES; i++) {
+      const copy = {};
+      for (const name of instrumentNames(songData)) copy[name] = await createInstrument(name, Tone);
+      copies.push(copy);
     }
+    for (const frame of songData.frames) scheduleFrame(frame, frameInstruments(frame, copies), Tone, 0, 0);
     // Fade out over the last 0.4 s so the ringing last notes do not cut off.
     const out = Tone.getDestination().volume;
     out.setValueAtTime(0, SONG_SECONDS - FADE_SECONDS);

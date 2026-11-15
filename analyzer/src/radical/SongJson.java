@@ -42,6 +42,9 @@ final class SongJson {
             sb.append(",\"shortNotes\":").append(e.plan().shortNotes());
             sb.append(",\"melodyInstrument\":").append(quote(e.plan().melodyInstrument()));
             sb.append(",\"bassInstrument\":").append(quote(e.plan().bassInstrument()));
+            sb.append(",\"handpanInstrument\":").append(quoteOrNull(e.plan().handpanInstrument()));
+            sb.append(",\"bagpipesInstrument\":").append(quoteOrNull(e.plan().bagpipesInstrument()));
+            sb.append(",\"stringBassInstrument\":").append(quoteOrNull(e.plan().stringBassInstrument()));
             sb.append(",\"notes\":[");
 
             for (int j = 0; j < e.plan().notes().size(); j++) {
@@ -52,6 +55,7 @@ final class SongJson {
                 sb.append(",\"pitch\":").append(quote(note.pitch()));
                 sb.append(",\"duration\":").append(num(note.duration()));
                 sb.append(",\"voice\":").append(quote(note.voice()));
+                sb.append(",\"volumeDb\":").append(num(note.volumeDb()));
                 sb.append("}");
             }
 
@@ -60,6 +64,10 @@ final class SongJson {
 
         sb.append("],\"sources\":[\"https://svs.gsfc.nasa.gov/5313/\"]}");
         return sb.toString();
+    }
+    /** A voice that does not play in a frame has no instrument: JSON null. */
+    static String quoteOrNull(String s) {
+        return s == null ? "null" : quote(s);
     }
     static String quote(String s) {
         StringBuilder sb = new StringBuilder();
