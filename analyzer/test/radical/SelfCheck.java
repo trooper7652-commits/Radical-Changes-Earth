@@ -131,8 +131,17 @@ public class SelfCheck {
         for (MusicRules.Note n : q.notes()) assert n.volumeDb() == 0 : "melody, bass and handpan play at full volume";
 
         MusicRules.FramePlan r = MusicRules.plan(0, scaled(1, 1, 70, 50, 10, 10), 0, cols);
-        assert r.melodyInstrument().equals("flute") && r.bassInstrument().equals("sustain strings") : "long calm";
-        assert r.handpanInstrument() == null && voice(r, "handpan").isEmpty() : "no handpan without the harp";
+        assert r.melodyInstrument().equals("synth") && r.bassInstrument().equals("sustain strings")
+                && "handpan".equals(r.handpanInstrument()) : "long calm: low synth + handpan";
+        List<MusicRules.Note> rMelody = voice(r, "melody"), rPan = voice(r, "handpan");
+        assert rPan.size() == rMelody.size() : "a handpan note for every melody note";
+        for (int k = 0; k < rPan.size(); k++) {
+            String pan = rPan.get(k).pitch();
+            assert rPan.get(k).time() == rMelody.get(k).time() && rPan.get(k).duration() == rMelody.get(k).duration()
+                    : "handpan has its melody note's time and duration";
+            assert rMelody.get(k).pitch().equals(pan.substring(0, pan.length() - 1) + (pan.charAt(pan.length() - 1) - '0' - 1))
+                    : "the low synth plays the handpan's note one octave lower";
+        }
     }
 
     /** Song v2 (design section 15): the handpan, and the change voices that follow the change (v3: hang and balafon). */
@@ -179,9 +188,11 @@ public class SelfCheck {
         int[] spread = { 0, 1, 3 };
         for (int j = 0; j < 3; j++) {
             MusicRules.Note from = melody.get(spread[j]);
-            // long notes (2.85 beats) already ring past the next note + 0.75 beat, so the overlap keeps them
+            // each change note rings until OVERLAP_BEATS after the next note of its voice (the last keeps the melody note's length)
+            double expected = j < 2 ? Math.max(from.duration(), hang.get(j + 1).time() - from.time() + MusicRules.OVERLAP_BEATS * 60 / changed.bpm())
+                    : from.duration();
             for (MusicRules.Note n : List.of(hang.get(j), balafon.get(j), stringBass.get(j)))
-                assert n.time() == from.time() && n.duration() == from.duration()
+                assert n.time() == from.time() && Math.abs(n.duration() - expected) < 1e-9
                         && Math.abs(n.volumeDb() - (-20 + 24 * 63 / 99.0)) < 1e-9 : "evenly spread, together, at the change volume";
         }
         // A minor: melody steps 0, 13, 13 raised 4 steps are E5, D7, D7. The hang moves them into A3..D5
@@ -213,23 +224,23 @@ public class SelfCheck {
             for (MusicRules.Note n : voice(big, v)) assert n.volumeDb() == -3 : "loudest at full presence, capped at -3 dB";
     }
 
-    /** Song v3 (team): notes overlap, louder change voices, the oboe on the melody's D, F and A#. */
+    /** Round 15: 1-beat overlap, louder change voices, the oboe on every melody note, no pauses between frames. */
     private static void checkSongV3() {
         // Overlap. Harp frame: short notes (0.5 beat), red 100 pushes every melody note half a beat, one beat apart.
-        // Each note rings 0.75 beat past the next note of its voice: melody 1.75 beats, bass (beats 0 and 4) 4.75.
+        // Each note rings 1 beat past the next note of its voice: melody 2 beats, bass (beats 0 and 4) 5.
         MusicRules.FramePlan harp = MusicRules.plan(0, scaled(100, 100, 70, 50, 80, 10), 0,
                 new double[]{ 0.0, 0.999, 0.5, 1.0, 0.0, 0.0 });
         double beat = 60 / harp.bpm();
         List<MusicRules.Note> melody = voice(harp, "melody"), bass = voice(harp, "bass"), handpan = voice(harp, "handpan");
-        assert MusicRules.OVERLAP_BEATS == 0.75 : "overlap 0.75 beat";
+        assert MusicRules.OVERLAP_BEATS == 1.0 : "overlap 1 beat";
         for (int k = 0; k < 5; k++)
-            assert Math.abs(melody.get(k).duration() - 1.75 * beat) < 1e-9 && handpan.get(k).duration() == melody.get(k).duration()
-                    : "melody and handpan ring 0.75 beat past their next note";
+            assert Math.abs(melody.get(k).duration() - 2.0 * beat) < 1e-9 && handpan.get(k).duration() == melody.get(k).duration()
+                    : "melody and handpan ring 1 beat past their next note";
         assert Math.abs(melody.get(5).duration() - 0.5 * beat) < 1e-9 && Math.abs(handpan.get(5).duration() - 0.5 * beat) < 1e-9
                 : "the last note of a voice keeps its length";
-        assert Math.abs(bass.get(0).duration() - 4.75 * beat) < 1e-9 && Math.abs(bass.get(1).duration() - 0.5 * beat) < 1e-9
-                : "the bass rings to 0.75 beat past the next bass note";
-        // Long notes (2.85 beats) that already ring past the next note + 0.75 beat (1.75 beats) keep their length.
+        assert Math.abs(bass.get(0).duration() - 5.0 * beat) < 1e-9 && Math.abs(bass.get(1).duration() - 0.5 * beat) < 1e-9
+                : "the bass rings to 1 beat past the next bass note";
+        // Long notes (2.85 beats) that already ring past the next note + 1 beat (2 beats) keep their length.
         MusicRules.FramePlan flute = MusicRules.plan(0, scaled(1, 1, 70, 50, 10, 10), 0, new double[6]);
         assert Math.abs(voice(flute, "melody").get(1).duration() - 2.85 * 60 / flute.bpm()) < 1e-9 : "long notes keep 2.85 beats";
 
@@ -239,25 +250,40 @@ public class SelfCheck {
                 : "-20 dB at 1, 10 dB above the v2 volume below the cap";
         assert MusicRules.boostedChangeVoiceDb(80) == -3 && MusicRules.boostedChangeVoiceDb(100) == -3 : "capped at -3 dB";
 
-        // Oboe. B♭ major (melody 60), melody A#4 C5 A#5 D6 F6 F5: only the D, F and A# get an oboe note, at the
-        // nearest recorded octave (A#2 D3 F3 A#3 D4 F4 A#4 D5 F5): A#4, A#4, D5, F5, F5. C5 gets none.
+        // Oboe. B♭ major (melody 60), melody A#4 C5 A#5 D6 F6 F5: the oboe doubles every note, inside A#2..F5.
         MusicRules.FramePlan bflat = MusicRules.plan(0, scaled(1, 60, 70, 50, 10, 50), 0,
                 new double[]{ 0.0, 0.1, 0.5, 0.68, 0.8, 0.3 });
         melody = voice(bflat, "melody");
         List<MusicRules.Note> oboe = voice(bflat, "oboe");
         assert bflat.key().equals("B♭") && pitches(melody).equals(List.of("A#4", "C5", "A#5", "D6", "F6", "F5")) : "B♭ major melody";
-        assert "oboe".equals(bflat.oboeInstrument()) && pitches(oboe).equals(List.of("A#4", "A#4", "D5", "F5", "F5"))
-                : "the oboe doubles D, F and A# at the nearest recorded octave, nothing else";
-        int[] doubled = { 0, 2, 3, 4, 5 };
-        for (int j = 0; j < 5; j++) {
-            MusicRules.Note from = melody.get(doubled[j]);
+        assert "oboe".equals(bflat.oboeInstrument()) && pitches(oboe).equals(List.of("A#4", "C5", "A#4", "D5", "F5", "F5"))
+                : "the oboe doubles every melody note, moved by octaves into A#2..F5";
+        for (int j = 0; j < 6; j++) {
+            MusicRules.Note from = melody.get(j);
             assert oboe.get(j).time() == from.time() && oboe.get(j).duration() == from.duration()
                     && oboe.get(j).volumeDb() == from.volumeDb() : "oboe at the melody note's time, length and volume";
         }
-        // A minor melody A4 G6 A5 G6 A4 A4: no D, F or A#, so no oboe.
-        MusicRules.FramePlan noOboe = MusicRules.plan(0, scaled(1, 1, 70, 49, 10, 50), 0, new double[]{ 0.0, 0.999, 0.5, 1.0, 0.0, 0.0 });
-        assert pitches(voice(noOboe, "melody")).equals(List.of("A4", "G6", "A5", "G6", "A4", "A4"))
-                && noOboe.oboeInstrument() == null && voice(noOboe, "oboe").isEmpty() : "no oboe without D, F or A#";
+        // A minor melody A4 G6 A5 G6 A4 A4: the oboe plays them all too.
+        MusicRules.FramePlan aMinor = MusicRules.plan(0, scaled(1, 1, 70, 49, 10, 50), 0, new double[]{ 0.0, 0.999, 0.5, 1.0, 0.0, 0.0 });
+        assert pitches(voice(aMinor, "melody")).equals(List.of("A4", "G6", "A5", "G6", "A4", "A4"))
+                && pitches(voice(aMinor, "oboe")).equals(List.of("A4", "G4", "A4", "G4", "A4", "A4"))
+                && "oboe".equals(aMinor.oboeInstrument()) : "the oboe plays every melody note";
+
+        // No pauses: joinNextFrame makes the last note of each voice ring to OVERLAP_BEATS after the next frame starts.
+        MusicRules.FramePlan join = MusicRules.plan(1, scaled(1, 1, 70, 49, 10, 50), 32, new double[]{ 0.0, 0.999, 0.5, 1.0, 0.0 });
+        List<MusicRules.Note> before = new java.util.ArrayList<>(join.notes());
+        MusicRules.joinNextFrame(join);
+        double joinBeat = 60 / join.bpm();
+        assert join.notes().size() == before.size() : "joinNextFrame keeps every note";
+        for (int i = 0; i < before.size(); i++) {
+            MusicRules.Note old = before.get(i), now = join.notes().get(i);
+            boolean isLast = true;
+            for (int k = i + 1; k < before.size(); k++) if (before.get(k).voice().equals(old.voice())) isLast = false;
+            double expected = isLast ? Math.max(old.duration(), 8.0 - old.time() + joinBeat) : old.duration();
+            assert now.time() == old.time() && now.pitch().equals(old.pitch()) && now.voice().equals(old.voice())
+                    && now.volumeDb() == old.volumeDb() && Math.abs(now.duration() - expected) < 1e-9
+                    : "the last note of each voice reaches the next frame + 1 beat, others unchanged";
+        }
     }
 
     private static List<MusicRules.Note> voice(MusicRules.FramePlan plan, String voice) {

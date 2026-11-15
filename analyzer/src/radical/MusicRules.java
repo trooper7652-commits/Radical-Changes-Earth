@@ -34,8 +34,11 @@ final class MusicRules {
     private static final double SECONDS_OF_MUSIC = 3; // per frame; the 4th second is the transition
     private static final double SHORT_NOTE = 0.5, LONG_NOTE = 2.85; // in beats
 
-    /** Song v3 (team): every note but the last of its voice rings this many beats past the next note of its voice. */
-    static final double OVERLAP_BEATS = 0.75;
+    /** Owner: "Make the notes overlap by 1 beat now". Every note rings this many beats past the next note of its voice. */
+    static final double OVERLAP_BEATS = 1.0;
+
+    /** The low synth plays the handpan's notes this many octaves lower (owner: "an octave or two lower"). */
+    static final int LOW_SYNTH_OCTAVES = 1;
 
     /**
      * The change voices: panHang and panBalafon (the same notes, together) and stringBass.
@@ -49,8 +52,7 @@ final class MusicRules {
     /** The ranges the recordings cover, in semitones above C0 (octave * 12 + semitones above C). */
     private static final int HANDPAN_LOW = 3 * 12 + 9, HANDPAN_HIGH = 5 * 12 + 2;   // A3..D5
     private static final int BALAFON_LOW = 3 * 12 + 1, BALAFON_HIGH = 5 * 12 + 5;   // C#3..F5
-    // The oboe recordings are every D, F and A# from A#2 to F5, so a D, F or A# moved by octaves
-    // into this range lands on its nearest recorded octave.
+    // The oboe recordings are D, F and A# from A#2 to F5; the player re-pitches the nearest recording for other notes.
     private static final int OBOE_LOW = 2 * 12 + 10, OBOE_HIGH = 5 * 12 + 5;        // A#2..F5
 
     private MusicRules() {}
@@ -111,9 +113,10 @@ final class MusicRules {
 
         boolean shortNotes = scaled[UNIQUENESS] >= 50;
         boolean energetic = scaled[CONTRAST] >= 50;
-        String melodyInstrument = energetic ? "synth" : shortNotes ? "harp" : "flute";
+        String melodyInstrument = !energetic && shortNotes ? "harp" : "synth";
         String bassInstrument = energetic ? "piano" : shortNotes ? "bells" : "sustain strings";
-        boolean handpan = melodyInstrument.equals("harp"); // the handpan joins whenever the harp plays the melody
+        boolean lowSynth = !energetic && !shortNotes;
+        boolean handpan = !energetic; // the handpan joins the harp and the low synth
 
         // The change voices follow the change from the previous frame. Frame 0 has none, so they stay out.
         boolean changeVoices = change > 0;
@@ -127,7 +130,6 @@ final class MusicRules {
         double duration = (shortNotes ? SHORT_NOTE : LONG_NOTE) * beat;
         List<Note> notes = new ArrayList<>();
         int placed = 0; // notes of each change voice added so far
-        boolean oboe = false;
         for (int k = 0; k < melodyNotes; k++) {
             if (k % 4 == 0) notes.add(new Note(start + k * beat, pitch(tonic, 2), duration, "bass", 0));
 
@@ -136,12 +138,11 @@ final class MusicRules {
             double time = start + k * beat;
             boolean offbeat = (k * 37) % 100 < scaled[DISTANCE_FROM_RED];
             if (offbeat && time + beat / 2 <= start + SECONDS_OF_MUSIC) time += beat / 2;
-            notes.add(new Note(time, pitch(semitones, 4), duration, "melody", 0));
+            int handpanPitch = intoRange(4 * 12 + semitones, HANDPAN_LOW, HANDPAN_HIGH);
+            String melodyPitch = lowSynth ? pitch(handpanPitch - 12 * LOW_SYNTH_OCTAVES, 0) : pitch(semitones, 4);
+            notes.add(new Note(time, melodyPitch, duration, "melody", 0));
 
-            if (handpan) {
-                int inRange = intoRange(4 * 12 + semitones, HANDPAN_LOW, HANDPAN_HIGH);
-                notes.add(new Note(time, pitch(inRange, 0), duration, "handpan", 0));
-            }
+            if (handpan) notes.add(new Note(time, pitch(handpanPitch, 0), duration, "handpan", 0));
 
             // Evenly spread: the j-th of these notes goes with melody note j * melodyNotes / changeNotes (rounded down).
             if (placed < changeNotes && k == placed * melodyNotes / changeNotes) {
@@ -154,23 +155,18 @@ final class MusicRules {
                 notes.add(new Note(time, pitch(raised % 12, 2), duration, "stringBass", changeDb));
             }
 
-            // The oboe doubles only the melody's D, F and A# (the pitches it was recorded at).
-            int pitchClass = semitones % 12;
-            if (pitchClass == 2 || pitchClass == 5 || pitchClass == 10) {
-                int inRange = intoRange(4 * 12 + semitones, OBOE_LOW, OBOE_HIGH);
-                notes.add(new Note(time, pitch(inRange, 0), duration, "oboe", 0));
-                oboe = true;
-            }
+            // Owner: "have the oboe play every melody note".
+            notes.add(new Note(time, pitch(intoRange(4 * 12 + semitones, OBOE_LOW, OBOE_HIGH), 0), duration, "oboe", 0));
         }
         overlap(notes, beat);
         return new FramePlan(index, bpm, mode, (major ? MAJOR_KEYS : MINOR_KEYS)[keyIndex], shortNotes,
                 melodyInstrument, bassInstrument, handpan ? "handpan" : null,
                 changeVoices ? "handpan" : null, changeVoices ? "balafon" : null, changeVoices ? "string bass" : null,
-                oboe ? "oboe" : null, notes);
+                "oboe", notes);
     }
 
     /**
-     * Song v3 (team): notes overlap. Each note that has a next note in its voice lasts at least until
+     * Owner: notes overlap. Each note that has a next note in its voice lasts at least until
      * OVERLAP_BEATS after that next note starts; the last note of each voice keeps its length.
      */
     private static void overlap(List<Note> notes, double beat) {
@@ -184,6 +180,20 @@ final class MusicRules {
                 notes.set(i, new Note(note.time(), note.pitch(), duration, note.voice(), note.volumeDb()));
                 break;
             }
+        }
+    }
+
+    /** Owner round 15, no pauses: the last note of each voice rings until OVERLAP_BEATS after the next frame starts. */
+    static void joinNextFrame(FramePlan plan) {
+        double nextStart = 4.0 * (plan.index() + 1);
+        double beat = 60 / plan.bpm();
+        List<Note> notes = plan.notes();
+        java.util.Map<String, Integer> last = new java.util.HashMap<>();
+        for (int i = 0; i < notes.size(); i++) last.put(notes.get(i).voice(), i); // sorted by time: last index is latest
+        for (int i : last.values()) {
+            Note n = notes.get(i);
+            double duration = Math.max(n.duration(), nextStart - n.time() + OVERLAP_BEATS * beat);
+            notes.set(i, new Note(n.time(), n.pitch(), duration, n.voice(), n.volumeDb()));
         }
     }
 

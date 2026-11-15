@@ -19,7 +19,7 @@ A Java analyzer measures 7 frames of SVS 5313 (at 0, 3, 6, 9, 12, 15 and 18 s; o
 
 Change size is the difference between consecutive frames' average of the six values (frame 0 has none). It drives the tempo, and the "change voices" (hang drum, balafon and string bass): bigger change means more notes, higher pitch and louder.
 
-Song v3: notes overlap by 0.75 beat; change voices are 10 dB louder, capped at -3 dB; a hang drum and a balafon play the same notes together (replacing the bagpipes); an oboe doubles the melody's D, F and A# only, at its recorded pitches. See `analyzer/src/radical/MusicRules.java` and `docs/superpowers/specs/2026-11-14-radical-changes-design.md`.
+Song (round 15): notes overlap by 1 beat, including into the next frame, so the music never pauses; change voices are 10 dB louder, capped at -3 dB; a hang drum and a balafon play the same notes together; a low synth plays one octave below a handpan in place of the flute; the oboe doubles every melody note. See `analyzer/src/radical/MusicRules.java` and `docs/superpowers/specs/2026-11-14-radical-changes-design.md`.
 
 ## Run the analyzer
 

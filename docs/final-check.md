@@ -22,4 +22,3 @@ From design spec section 12, plus the 2026-11-15 cloud-run items. "OWNER" means 
 - OWNER: Point the radicalchanges.earth DNS (Porkbun) at it
 - OWNER: Make the Radical-Changes-Earth repo public
 - OWNER: Submit on the Space Apps site
-- OWNER: Post the tester request (`docs/tester-request.md`)

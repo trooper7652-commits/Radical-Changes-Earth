@@ -54,6 +54,7 @@ public final class Main {
             double[] mine = new double[6];
             for (int v = 0; v < 6; v++) mine[v] = scaled[v][i];
             MusicRules.FramePlan plan = MusicRules.plan(i, mine, change[i], stretched[i]);
+            if (i < FRAMES - 1) MusicRules.joinNextFrame(plan); // no pauses between frames
             entries.add(new SongJson.FrameEntry(plan, raw[i], mine, change[i], LABELS[i], 3.0 * i));
 
             // Each voice shows its instrument and note count; the last column is the change voices' volume.

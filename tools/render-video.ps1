@@ -60,7 +60,8 @@ $total = 29.4   # 27.0 s visuals + 2.4 s credit card
 $font = 'fontfile=''C\:/Windows/Fonts/arial.ttf'':fontcolor=white:fontsize=44:x=(w-text_w)/2'
 $filter = "tpad=stop_mode=clone:stop_duration=2.4,fade=t=out:st=27:d=0.8," +
   "drawtext=${font}:y=h/2-60:text='Visuals\: NASA Scientific Visualization Studio, SVS 5313':enable='gte(t,27.8)'," +
-  "drawtext=${font}:y=h/2+10:text='Music\: Radical changes':enable='gte(t,27.8)'"
+  "drawtext=${font}:y=h/2+10:text='Music\: Radical changes':enable='gte(t,27.8)'," +
+  "drawtext=${font}:y=h/2+80:text='Piano\: Salamander Grand Piano by Alexander Holm, CC BY 3.0':enable='gte(t,27.8)'"
 # A filter script file avoids PowerShell 5.1 mangling the quotes inside the filter.
 $filterFile = '.cache/credit-filter.txt'
 Set-Content -Path $filterFile -Value $filter -Encoding ASCII
