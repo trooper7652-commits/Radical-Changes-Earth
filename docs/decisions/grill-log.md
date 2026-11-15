@@ -255,3 +255,8 @@ Q1 Tempo rules disagree · Q2 Short vs long notes · Q3 Contrast vs uniqueness �
 ## Round 19: the transition's pacing (owner, 2026-11-15 afternoon)
 - "The butterfly jumps out too fast during the transition and I want there to be a blank screen after the butterfly appears, and then after a little pause, have the "Hear the map change." section load in from the bottom."
 - Built as: an unhurried fly-in, then a cover hold, then a slower exit, then a blank night screen for a short pause, then "Hear the map change." rises in from the bottom.
+
+## Round 20: rhythm (owner, 2026-11-15 afternoon)
+- "Does rhythm change at all during the song? If not, remove the rhythm variable entirely."
+- Finding: the main color's distance from red is 247.258974 in all seven frames (scaled 50 each time), so the off-beat pattern never changed.
+- Owner's choice: **remove it entirely**: the measurement, the off-beat rule, and its place in the change average. There are now five measurements. Notes sit on the beat. The change values grow by about 20 %, tempos rise by 0-3 bpm (the first change map goes from 75.8 to 79.0 bpm), and the change voices get slightly louder and busier.
