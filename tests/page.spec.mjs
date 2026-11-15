@@ -77,3 +77,20 @@ test("content: quote, AI meta, announced frame descriptions, instrument picker",
   await page.locator("#play").click();
   await expect(page.locator("#heard")).toContainText("Frame 1 of 7");
 });
+
+test("one h1, and the demo is not silenced by the audio routing", async ({ page }) => {
+  await ready(page);
+  await expect(page.locator("h1")).toHaveCount(1);
+  await page.evaluate(() => document.getElementById("demo").play());
+  await expect(page.locator("#demo")).not.toHaveAttribute("data-routed", "pending");
+  expect(await page.evaluate(() => document.getElementById("demo").muted)).toBe(false);
+  expect(["running", "skipped"]).toContain(await page.locator("#demo").getAttribute("data-routed"));
+});
+
+test("choosing an instrument keeps focus on the select", async ({ page }) => {
+  await ready(page);
+  await page.locator("#melody").focus();
+  await page.locator("#melody").selectOption("harp");
+  await expect.poll(() => page.evaluate(() => window.songPlayer.chosen.melody)).toBe("harp");
+  await expect(page.locator("#melody")).toBeFocused();
+});

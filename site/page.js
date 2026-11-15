@@ -37,9 +37,16 @@ function driveGlow(songData) {
   // Live song: each note flashes the glow, then it fades (read from the data, so the audio graph is untouched).
   const noteTimes = songData.frames.flatMap((f) => f.notes.map((n) => n.time)).sort((a, b) => a - b);
   let analyser, samples;
-  demo.addEventListener("play", () => {
-    if (analyser) return;
+  demo.addEventListener("play", async () => {
+    if (analyser || demo.dataset.routed) return;
+    demo.dataset.routed = "pending";
     const context = new AudioContext();
+    await context.resume().catch(() => {}); // runs from the visitor's click
+    if (context.state !== "running") { // never silence the demo: play it unrouted
+      demo.dataset.routed = "skipped";
+      return;
+    }
+    demo.dataset.routed = "running";
     analyser = context.createAnalyser();
     samples = new Float32Array(analyser.fftSize);
     context.createMediaElementSource(demo).connect(analyser);
@@ -103,11 +110,15 @@ try {
   for (const voice of ["melody", "bass"]) {
     const select = $(voice);
     select.innerHTML = options(voice);
+    let current = select.value;
     select.addEventListener("change", () => {
-      select.disabled = true;
+      // aria-busy, not disabled: a disabled select drops keyboard focus.
+      if (select.getAttribute("aria-busy")) { select.value = current; return; }
+      current = select.value;
+      select.setAttribute("aria-busy", "true");
       player.setInstrument(voice, select.value)
         .catch((error) => (status.textContent = error.message))
-        .finally(() => (select.disabled = false));
+        .finally(() => select.removeAttribute("aria-busy"));
     });
   }
 

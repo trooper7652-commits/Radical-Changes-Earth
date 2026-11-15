@@ -42,7 +42,7 @@ main { max-width: 1000px; margin: 0 auto; padding: 4vh 6vw 10vh; }
 section { padding: 8vh 0; scroll-margin-top: 16px; }
 h2 { font: 800 clamp(28px, 4vw, 48px) / 1.1 Syne, sans-serif; margin-bottom: 16px; text-wrap: balance; }
 .lede { color: var(--mut); max-width: 55ch; margin-bottom: 28px; }
-.frame { border-radius: 18px; overflow: hidden; box-shadow: 0 0 0 1px #2b3150, 0 30px 120px rgba(255,138,43,.18); }
+.frame { border-radius: 18px; overflow: hidden; box-shadow: 0 0 0 1px #2b3150, 0 24px 60px rgba(0,0,0,.55); }
 
 /* Seven segments, one per frame; the playing frame lights up */
 .timeline { list-style: none; display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 14px; padding: 0; }
@@ -64,7 +64,7 @@ select { background: #0d1022; color: var(--led); font: 600 17px "Hanken Grotesk"
 
 .rules { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 .rules li { background: #0b0e1d; border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
-.bar { display: block; height: 4px; width: var(--w); background: linear-gradient(90deg, var(--sod), var(--led)); border-radius: 4px; margin-bottom: 16px; }
+.bar { display: block; height: 4px; width: 48px; background: linear-gradient(90deg, var(--sod), var(--led)); border-radius: 4px; margin-bottom: 16px; }
 .rules h3 { font: 800 20px Syne, sans-serif; margin-bottom: 6px; }
 .rules p { color: var(--mut); font-size: 16px; }
 

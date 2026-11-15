@@ -156,9 +156,10 @@ test("render-length", async ({ page }) => {
   await page.getByRole("button", { name: "Render WAV" }).click();
   const file = await download;
   expect(file.suggestedFilename()).toBe("radical-changes-song.wav");
-  await file.saveAs("site/media/radical-changes-song.wav");
+  // Rendering the committed WAV is a manual step: open /render.html, click "Render WAV", save to site/media/.
+  await file.saveAs("test-results/radical-changes-song.wav");
 
-  const wav = fs.readFileSync("site/media/radical-changes-song.wav");
+  const wav = fs.readFileSync("test-results/radical-changes-song.wav");
   const rate = wav.readUInt32LE(24);
   const channels = wav.readUInt16LE(22);
   const seconds = wav.readUInt32LE(40) / (rate * channels * 2);
