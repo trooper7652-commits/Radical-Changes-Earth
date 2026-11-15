@@ -21,3 +21,6 @@ Every AI model used on this project, as it is used. The project idea, the six me
 | 2026-11-14 | Task 8 step 1 | Claude Sonnet 5.5 | Made three visual-direction mockups with the design skills for the owner to choose from |
 | 2026-11-14 | Task 8 | Claude Sonnet 5.5 | Built the website from the team's chosen direction B with the impeccable, frontend-design, emil-design-eng, design-taste-frontend and web-design-guidelines skills; fixed review findings; other Sonnet instances reviewed it |
 | 2026-11-14 | Docs | Claude Opus 5.5 | Wrote SI_DISCLOSURE.md from this log |
+| 2026-11-14 | Task 10 | Claude Fable 5.2 (stopped), Claude Opus 5.5 (max effort) | Song v2 from the team's rules: longer notes, handpan with harp, bagpipes + string bass driven by change (2x presence), per-frame crossfades; fixed a doubled-first-note bug; Claude Sonnet 5.5 reviewed it |
+| 2026-11-15 | Task 10b | Claude Haiku 5.5 | Downloaded/converted 8 more licensed instruments (CC0; picker-only choir/whistle/pan pipes MIT) |
+| 2026-11-15 | Media | Claude Opus 5.5 | Re-rendered the song and rebuilt the demo video with the project scripts |
