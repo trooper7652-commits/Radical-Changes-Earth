@@ -19,3 +19,5 @@ Every AI model used on this project, as it is used. The project idea, the six me
 | 2026-11-14 | Task 7 | Claude Sonnet 5.5 | Wrote the offline renderer (render.js), WAV encoder, video build script, extra player fixes and tests; added a master limiter after manager review; a second Sonnet instance reviewed it |
 | 2026-11-14 | Task 7b | Claude Sonnet 5.5 | Switched the video to hold each chosen frame during its music (owner decision), added an alignment check |
 | 2026-11-14 | Task 8 step 1 | Claude Sonnet 5.5 | Made three visual-direction mockups with the design skills for the owner to choose from |
+| 2026-11-14 | Task 8 | Claude Sonnet 5.5 | Built the website from the team's chosen direction B with the impeccable, frontend-design, emil-design-eng, design-taste-frontend and web-design-guidelines skills; fixed review findings; other Sonnet instances reviewed it |
+| 2026-11-14 | Docs | Claude Opus 5.5 | Wrote SI_DISCLOSURE.md from this log |

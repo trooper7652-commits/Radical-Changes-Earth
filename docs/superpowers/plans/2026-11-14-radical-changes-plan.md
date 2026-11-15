@@ -4,7 +4,7 @@
 
 ## Status and how to resume (update after every task)
 
-- **Status:** build started 2026-11-14 evening. Tasks 0-7 done (gate 1 YES). Owner checkpoint open: listen; picture alignment (a continuous / b held frames); AMPLIFY. Next: Task 8. Repo: github.com/trooper7652-commits/Radical-Changes-Earth.
+- **Status:** build started 2026-11-14 evening. Tasks 0-7 done (gate 1 YES). Owner checkpoint open: listen; picture alignment (a continuous / b held frames); AMPLIFY. Task 8 built (direction B), head-chef gate 2 waits for the song update. Song update in design (owner Q&A). Repo: github.com/trooper7652-commits/Radical-Changes-Earth.
 - **To resume in a new session:** open `C:\Users\troop\Radical changes\Radical-Changes`, run `git pull`, read this plan and the spec, and continue from the first unticked `- [ ]` step. Ticked boxes and the git log are the source of truth; each finished step is committed and pushed.
 
 **Goal:** Turn 7 frames of NASA SVS 5313 (night lights 2012-2023) into a 27-second song with the owner's six rules, ship it as a ≤30 s demo video, and host a themed website (radicalchanges.earth) with the video plus a live, instrument-pickable version.
@@ -245,10 +245,10 @@ assert Arrays.equals(Scale.stretch(new double[]{7,7,7}), new double[]{50,50,50})
 - Consumes: `SongPlayer`, `INSTRUMENTS`, media files.
 - Produces: final page. Front page (hero) carries the owner's chosen quote, exact text: "The important thing isn't can you read music, it's can you hear it. Can you hear the music, Robert?" credited exactly as: "— Niels Bohr, as portrayed in *Oppenheimer* (2023)" (owner confirmed; also listed in CREDITS.md). Section 1: the 30 s MP4 (sound on, user starts it). Section 2 (scroll): muted visuals + `SongPlayer` + instrument picker (melody and bass `<select>` from `INSTRUMENTS`; a choice replaces the contrast rule, note lengths unchanged). Also: "How the music is made" (the six rules in plain words), per-frame text descriptions of what is heard, Sources/Credits, AI disclosure, `<meta name="radical-changes:ai-assistance" content="…">`.
 
-- [ ] **Step 1:** Run the impeccable skill (with frontend-design, taste-skill, emil-design-eng) to produce **2-3 visual directions** themed on light pollution and the night sky (mockup screenshots). **Owner picks one** (the look is the owner's call). Record the pick in `DESIGN.md`.
-- [ ] **Step 2: failing tests** (Review Focus 5): `keyboard-reach`: Tab reaches skip link, video 1 controls, Play, both selects, in that order with visible focus. `labels`: every button/select has an accessible name. `reduced-motion`: with `prefers-reduced-motion: reduce`, decorative animations have `animation: none`. `one-plays`: starting video 1 pauses section 2 and vice versa. `no-overflow`: no horizontal scroll at 360, 768, 1440 px.
-- [ ] **Step 3:** Run → fail.
-- [ ] **Step 4:** Build the page per `DESIGN.md`; animations eased (transform/opacity only); then run web-design-guidelines review and fix findings.
+- [x] **Step 1:** Run the impeccable skill (with frontend-design, taste-skill, emil-design-eng) to produce **2-3 visual directions** themed on light pollution and the night sky (mockup screenshots). **Owner picks one** (the look is the owner's call). Record the pick in `DESIGN.md`.
+- [x] **Step 2: failing tests** (Review Focus 5): `keyboard-reach`: Tab reaches skip link, video 1 controls, Play, both selects, in that order with visible focus. `labels`: every button/select has an accessible name. `reduced-motion`: with `prefers-reduced-motion: reduce`, decorative animations have `animation: none`. `one-plays`: starting video 1 pauses section 2 and vice versa. `no-overflow`: no horizontal scroll at 360, 768, 1440 px.
+- [x] **Step 3:** Run → fail.
+- [x] **Step 4:** Build the page per `DESIGN.md`; animations eased (transform/opacity only); then run web-design-guidelines review and fix findings.
 - [ ] **Step 5:** Tests pass; Playwright screenshots at 3 widths for the owner. **Head-chef gate 2:** Fable reviews site + video against the spec and the judging criteria → YES/NO. Commit `feat(site): themed website`.
 
 ### Task 9: Docs, deploy, final check
