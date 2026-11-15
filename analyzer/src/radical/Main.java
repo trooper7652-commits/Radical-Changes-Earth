@@ -27,16 +27,15 @@ public final class Main {
         }
 
         // Stretch each variable across the 7 frames: scaled[variable][frame].
-        double[][] scaled = new double[6][FRAMES];
+        double[][] scaled = new double[5][FRAMES];
         for (int i = 0; i < FRAMES; i++) {
-            scaled[MusicRules.DISTANCE_FROM_RED][i] = raw[i].distanceFromRed();
             scaled[MusicRules.MELODY][i] = raw[i].melodyMean();
             scaled[MusicRules.VIBRANCY][i] = raw[i].vibrancy();
             scaled[MusicRules.HAPPINESS][i] = raw[i].happiness();
             scaled[MusicRules.UNIQUENESS][i] = raw[i].uniqueness();
             scaled[MusicRules.CONTRAST][i] = raw[i].contrast();
         }
-        for (int v = 0; v < 6; v++) scaled[v] = Scale.stretch(scaled[v]);
+        for (int v = 0; v < 5; v++) scaled[v] = Scale.stretch(scaled[v]);
 
         double[] change = Scale.changes(Scale.frameScores(scaled), Scale.AMPLIFY);
 
@@ -51,16 +50,16 @@ public final class Main {
 
         List<SongJson.FrameEntry> entries = new ArrayList<>();
         for (int i = 0; i < FRAMES; i++) {
-            double[] mine = new double[6];
-            for (int v = 0; v < 6; v++) mine[v] = scaled[v][i];
+            double[] mine = new double[5];
+            for (int v = 0; v < 5; v++) mine[v] = scaled[v][i];
             MusicRules.FramePlan plan = MusicRules.plan(i, mine, change[i], stretched[i]);
             if (i < FRAMES - 1) MusicRules.joinNextFrame(plan); // no pauses between frames
             entries.add(new SongJson.FrameEntry(plan, raw[i], mine, change[i], LABELS[i], 3.0 * i));
 
             // Each voice shows its instrument and note count; the last column is the change voices' volume.
-            console.printf("%-17s | %6.1f %6.1f %6.1f %6.1f %6.1f %6.1f | chg %6.1f | %5.1f bpm | %s %s | %s"
+            console.printf("%-17s | %6.1f %6.1f %6.1f %6.1f %6.1f | chg %6.1f | %5.1f bpm | %s %s | %s"
                     + " | melody %s | bass %s | handpan %s | panHang %s | panBalafon %s | string bass %s | oboe %s | %s%n",
-                LABELS[i], mine[0], mine[1], mine[2], mine[3], mine[4], mine[5], change[i], plan.bpm(),
+                LABELS[i], mine[0], mine[1], mine[2], mine[3], mine[4], change[i], plan.bpm(),
                 plan.mode(), plan.key(), plan.shortNotes() ? "short" : "long",
                 voice(plan, "melody", plan.melodyInstrument()), voice(plan, "bass", plan.bassInstrument()),
                 voice(plan, "handpan", plan.handpanInstrument()), voice(plan, "panHang", plan.panHangInstrument()),

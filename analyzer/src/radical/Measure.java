@@ -4,9 +4,9 @@ import java.awt.Color;
 import java.util.HashMap;
 import java.util.Map;
 
-/** The six measurements of one frame. Masked pixels are ignored everywhere. */
+/** The five measurements of one frame. Masked pixels are ignored everywhere. */
 final class Measure {
-    record Raw(double distanceFromRed, double melodyMean, double[] columnScores,
+    record Raw(double melodyMean, double[] columnScores,
                double vibrancy, double happiness, double uniqueness, double contrast) {}
 
     static final int MELODY_GROUPS = 32;
@@ -16,11 +16,9 @@ final class Measure {
     private Measure() {}
 
     static Raw all(Frame f, int columnGroups) {
-        int[] main = mainColor(f);
-        double dr = Math.sqrt(Math.pow(main[0] - 255, 2) + main[1] * main[1] + main[2] * main[2]);
         double mean = 0;
         for (double s : columnScores(f, MELODY_GROUPS)) mean += s / MELODY_GROUPS;
-        return new Raw(dr, mean, columnScores(f, columnGroups), vibrancy(f), happiness(f),
+        return new Raw(mean, columnScores(f, columnGroups), vibrancy(f), happiness(f),
                 uniqueness(f), contrast(f));
     }
 

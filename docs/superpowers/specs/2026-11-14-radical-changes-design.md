@@ -54,6 +54,8 @@ Status: draft for owner approval, 2026-11-14. All ideas below are the owner's (s
 
 **Scaling to 1-100 (owner: option b):** each variable is stretched across the 7 frames: the frame with the lowest value → 1, the highest → 100, the rest in proportion. If all 7 frames have the same value (e.g., distance from red = 247 everywhere), every frame gets 50 **[builder call]**.
 
+**Removed 2026-11-15 (owner round 20):** variable 1, distance from red (rhythm, the off-beat rule), is gone: it was 247 in every frame, so it scaled to 50 every time. Five variables remain: melody, vibrancy, happiness, uniqueness, contrast; the change-size average below uses these five.
+
 **Change size:** average the six 1-100 values → one number per frame; change = difference between consecutive frames, **amplified** "a little so the change matches how much it actually is" (owner) → a single `AMPLIFY` constant the owner tunes by ear. Change affects tempo only (owner, "keep it as it is"). Frame 1 has no previous frame and uses only its own values.
 
 **Tempo:** average of vibrancy (1-100) and change size (1-100), mapped to a BPM range **[builder call: 60-160 BPM]**.

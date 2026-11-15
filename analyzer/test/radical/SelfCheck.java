@@ -22,8 +22,8 @@ public class SelfCheck {
             var hang = new MusicRules.Note(0.0, "G4", 0.12, "panHang", -29.5);
             var plan = new MusicRules.FramePlan(0, 120.0, "major", "C", true, "harp", "bells", "handpan", "handpan", "balafon",
                     null, "oboe", java.util.List.of(note, hang));
-            var raw = new Measure.Raw(247.0, 0.2, new double[] { 0.2 }, 0.39, 99.8, 7.6, 2.5e-5);
-            String json = SongJson.write(java.util.List.of(new SongJson.FrameEntry(plan, raw, new double[] { 50, 1, 100, 50, 1, 100 }, 0.0, "2012", 0.0)));
+            var raw = new Measure.Raw(0.2, new double[] { 0.2 }, 0.39, 99.8, 7.6, 2.5e-5);
+            String json = SongJson.write(java.util.List.of(new SongJson.FrameEntry(plan, raw, new double[] { 1, 100, 50, 1, 100 }, 0.0, "2012", 0.0)));
             assert json.startsWith("{\"version\":1") : "json starts with version";
             assert json.contains("\"pitch\":\"C4\"") : "json has pitch";
             assert SongJson.quote("a\"b").equals("\"a\\\"b\"") : "quote escapes";
@@ -54,8 +54,6 @@ public class SelfCheck {
         c.setRGB(0, 0, 0xFFFFFF); c.setRGB(1, 0, 0xFFFFFF); c.setRGB(3, 3, 0xFFFFFF);
         assert Math.abs(Measure.contrast(fromImg(c)) - 2.0 / 13) < 1e-9 : "contrast";
 
-        Frame blue = solid(4, 4, 0x0000FF);
-        assert Math.abs(Measure.all(blue, 4).distanceFromRed() - 350.1) < 0.5 : "distanceFromRed (blue quantizes to 8,8,248)";
         assert Measure.vibrancy(solid(4, 4, 0)) == 0.0 : "vibrancy black";
         assert Math.abs(Measure.vibrancy(solid(4, 4, 0xFF0000)) - 1.0) < 1e-6 : "vibrancy red";
 
@@ -83,9 +81,9 @@ public class SelfCheck {
     }
 
     /** scaled values in the fixed variable order. */
-    private static double[] scaled(double red, double melody, double vibrancy, double happiness,
+    private static double[] scaled(double melody, double vibrancy, double happiness,
                                    double uniqueness, double contrast) {
-        return new double[]{ red, melody, vibrancy, happiness, uniqueness, contrast };
+        return new double[]{ melody, vibrancy, happiness, uniqueness, contrast };
     }
 
     private static void checkMusicRules() {
@@ -100,7 +98,7 @@ public class SelfCheck {
 
         // vibrancy 70 & change 60 -> 124.6 bpm -> 6 notes, frame 2 starts at 8 s
         double[] cols = { 0.0, 0.999, 0.5, 1.0, 0.0, 0.0 };
-        MusicRules.FramePlan p = MusicRules.plan(2, scaled(1, 1, 70, 49, 10, 50), 60, cols);
+        MusicRules.FramePlan p = MusicRules.plan(2, scaled(1, 70, 49, 10, 50), 60, cols);
         assert p.mode().equals("minor") && p.key().equals("A") : "happiness 49 -> minor, melody 1 -> A";
         assert !p.shortNotes() && p.melodyInstrument().equals("synth") && p.bassInstrument().equals("piano")
                 : "contrast 50 -> synth/piano";
@@ -111,10 +109,10 @@ public class SelfCheck {
         // A natural minor from A4: degree 0 = A4, 13 = G6, floor(0.5*14) = 7 = A5, score 1.0 caps at 13
         assert p.notes().get(0) == bass.get(0) && bass.get(0).pitch().equals("A2") : "bass tonic";
         assert pitches(melody).subList(0, 4).equals(List.of("A4", "G6", "A5", "G6")) : "degrees";
-        assert Math.abs(melody.get(1).time() - (8 + beat)) < 1e-9 : "one note per beat, not pushed at red 1";
+        assert Math.abs(melody.get(1).time() - (8 + beat)) < 1e-9 : "one note per beat";
         assert Math.abs(melody.get(0).duration() - 2.85 * beat) < 1e-9 : "long notes";
 
-        MusicRules.FramePlan q = MusicRules.plan(0, scaled(100, 100, 70, 50, 80, 10), 0, cols);
+        MusicRules.FramePlan q = MusicRules.plan(0, scaled(100, 70, 50, 80, 10), 0, cols);
         assert q.mode().equals("major") && q.key().equals("A♭") : "happiness 50 -> major, melody 100 -> last key";
         assert q.shortNotes() && q.melodyInstrument().equals("harp") && q.bassInstrument().equals("bells")
                 : "contrast 10, uniqueness 80 -> harp/bells";
@@ -122,15 +120,13 @@ public class SelfCheck {
         bass = voice(q, "bass");
         assert bass.get(0).pitch().equals("G#2") && melody.get(0).pitch().equals("G#4") : "sharp pitch names";
         double qBeat = 60 / q.bpm();
-        // red 100 pushes every note half a beat
-        assert Math.abs(melody.get(0).time() - 0.5 * qBeat) < 1e-9 : "pushed half a beat late";
-        assert Math.abs(bass.get(0).time()) < 1e-9 : "bass stays on the beat";
+        assert Math.abs(melody.get(0).time()) < 1e-9 && Math.abs(bass.get(0).time()) < 1e-9 : "melody and bass start on the beat";
         MusicRules.Note last = melody.get(melody.size() - 1);
-        assert Math.abs(last.time() - 5.5 * qBeat) < 1e-9 && last.time() <= 3 : "pushed last note still inside 3 s";
+        assert Math.abs(last.time() - 5 * qBeat) < 1e-9 && last.time() <= 3 : "last note on its beat, inside 3 s";
         assert Math.abs(last.duration() - 0.5 * qBeat) < 1e-9 : "short notes";
         for (MusicRules.Note n : q.notes()) assert n.volumeDb() == 0 : "melody, bass and handpan play at full volume";
 
-        MusicRules.FramePlan r = MusicRules.plan(0, scaled(1, 1, 70, 50, 10, 10), 0, cols);
+        MusicRules.FramePlan r = MusicRules.plan(0, scaled(1, 70, 50, 10, 10), 0, cols);
         assert r.melodyInstrument().equals("synth") && r.bassInstrument().equals("sustain strings")
                 && "handpan".equals(r.handpanInstrument()) : "long calm: low synth + handpan";
         List<MusicRules.Note> rMelody = voice(r, "melody"), rPan = voice(r, "handpan");
@@ -149,7 +145,7 @@ public class SelfCheck {
         double[] cols = { 0.0, 0.999, 0.5, 1.0, 0.0, 0.0 };
 
         // Handpan: joins the harp (contrast 10, uniqueness 80) with the same notes, moved by octaves into A3..D5.
-        MusicRules.FramePlan harp = MusicRules.plan(0, scaled(100, 100, 70, 50, 80, 10), 0, cols);
+        MusicRules.FramePlan harp = MusicRules.plan(0, scaled(100, 70, 50, 80, 10), 0, cols);
         List<MusicRules.Note> melody = voice(harp, "melody"), handpan = voice(harp, "handpan");
         assert "handpan".equals(harp.handpanInstrument()) && handpan.size() == 6 : "handpan joins the harp, note for note";
         for (int k = 0; k < 6; k++)
@@ -160,7 +156,7 @@ public class SelfCheck {
         assert MusicRules.intoRange(40, 45, 62) == 52 && MusicRules.intoRange(79, 45, 62) == 55
                 && MusicRules.intoRange(56, 45, 62) == 56 : "below the range goes up, above comes down, inside stays";
         // C major: melody steps 0, 8, 9 are C4, D5, E5; D5 is the handpan's top note, E5 comes down to E4
-        MusicRules.FramePlan edges = MusicRules.plan(0, scaled(1, 1, 70, 50, 80, 10), 0,
+        MusicRules.FramePlan edges = MusicRules.plan(0, scaled(1, 70, 50, 80, 10), 0,
                 new double[]{ 0.0, 0.6, 0.68, 0.0, 0.0, 0.0 });
         assert pitches(voice(edges, "melody")).subList(0, 3).equals(List.of("C4", "D5", "E5"))
                 && pitches(voice(edges, "handpan")).subList(0, 3).equals(List.of("C4", "D5", "E4")) : "handpan range ends at D5";
@@ -175,7 +171,7 @@ public class SelfCheck {
 
         // vibrancy 70 & change 32 -> 110.5 bpm -> 5 melody notes. Presence 64 -> round(5 * 0.64) = 3 notes
         // (melody notes 0, 1 and 3), raised round(0.64 * 7) = 4 scale steps, at -30 + 24 * 63 / 99 + 10 dB.
-        MusicRules.FramePlan changed = MusicRules.plan(1, scaled(1, 1, 70, 49, 10, 50), 32,
+        MusicRules.FramePlan changed = MusicRules.plan(1, scaled(1, 70, 49, 10, 50), 32,
                 new double[]{ 0.0, 0.999, 0.5, 1.0, 0.0 });
         assert Math.abs(changed.bpm() - (60 + 50 * 100 / 99.0)) < 1e-9 : "tempo keeps the plain change";
         assert "handpan".equals(changed.panHangInstrument()) && "balafon".equals(changed.panBalafonInstrument())
@@ -202,13 +198,13 @@ public class SelfCheck {
         assert pitches(stringBass).equals(List.of("E2", "D2", "D2")) : "string bass raised, in octave 2";
 
         // change 1 -> presence 2 -> round(4 * 0.02) = 0 notes, so the floor of one; raised round(0.14) = 0 steps
-        MusicRules.FramePlan calm = MusicRules.plan(1, scaled(1, 1, 70, 49, 10, 50), 1, new double[]{ 0.5, 0.0, 0.0, 0.0 });
+        MusicRules.FramePlan calm = MusicRules.plan(1, scaled(1, 70, 49, 10, 50), 1, new double[]{ 0.5, 0.0, 0.0, 0.0 });
         assert pitches(voice(calm, "panHang")).equals(List.of("A4")) && pitches(voice(calm, "panBalafon")).equals(List.of("A4"))
                 && pitches(voice(calm, "stringBass")).equals(List.of("A2")) : "never fewer than one note; melody A5 not raised";
         assert Math.abs(voice(calm, "panHang").get(0).volumeDb() - (-20 + 24 / 99.0)) < 1e-9 : "quiet at a small change";
         // Range tops, in C major at change 1: a melody F5 stays F5 on the balafon (F4 on the hang); G5 is G4 on both
-        MusicRules.FramePlan atF5 = MusicRules.plan(1, scaled(1, 1, 70, 50, 10, 50), 1, new double[]{ 0.75, 0.0, 0.0, 0.0 });
-        MusicRules.FramePlan atG5 = MusicRules.plan(1, scaled(1, 1, 70, 50, 10, 50), 1, new double[]{ 0.8, 0.0, 0.0, 0.0 });
+        MusicRules.FramePlan atF5 = MusicRules.plan(1, scaled(1, 70, 50, 10, 50), 1, new double[]{ 0.75, 0.0, 0.0, 0.0 });
+        MusicRules.FramePlan atG5 = MusicRules.plan(1, scaled(1, 70, 50, 10, 50), 1, new double[]{ 0.8, 0.0, 0.0, 0.0 });
         assert pitches(voice(atF5, "melody")).get(0).equals("F5") && pitches(voice(atG5, "melody")).get(0).equals("G5")
                 : "melody F5 and G5";
         assert pitches(voice(atF5, "panBalafon")).equals(List.of("F5")) && pitches(voice(atF5, "panHang")).equals(List.of("F4"))
@@ -216,7 +212,7 @@ public class SelfCheck {
                 : "balafon range ends at F5";
 
         // change 60 -> presence capped at 100: every melody note, raised 7 steps (one octave), at -6 + 10 capped to -3 dB
-        MusicRules.FramePlan big = MusicRules.plan(2, scaled(1, 1, 70, 49, 10, 50), 60, cols);
+        MusicRules.FramePlan big = MusicRules.plan(2, scaled(1, 70, 49, 10, 50), 60, cols);
         assert pitches(voice(big, "panHang")).equals(List.of("A4", "G4", "A4", "G4", "A4", "A4"))
                 && pitches(voice(big, "panBalafon")).equals(List.of("A4", "G4", "A4", "G4", "A4", "A4")) : "all notes, an octave up";
         assert pitches(voice(big, "stringBass")).equals(List.of("A2", "G2", "A2", "G2", "A2", "A2")) : "string bass follows";
@@ -226,9 +222,9 @@ public class SelfCheck {
 
     /** Round 15: 1-beat overlap, louder change voices, the oboe on every melody note, no pauses between frames. */
     private static void checkSongV3() {
-        // Overlap. Harp frame: short notes (0.5 beat), red 100 pushes every melody note half a beat, one beat apart.
+        // Overlap. Harp frame: short notes (0.5 beat), melody notes one beat apart.
         // Each note rings 1 beat past the next note of its voice: melody 2 beats, bass (beats 0 and 4) 5.
-        MusicRules.FramePlan harp = MusicRules.plan(0, scaled(100, 100, 70, 50, 80, 10), 0,
+        MusicRules.FramePlan harp = MusicRules.plan(0, scaled(100, 70, 50, 80, 10), 0,
                 new double[]{ 0.0, 0.999, 0.5, 1.0, 0.0, 0.0 });
         double beat = 60 / harp.bpm();
         List<MusicRules.Note> melody = voice(harp, "melody"), bass = voice(harp, "bass"), handpan = voice(harp, "handpan");
@@ -241,7 +237,7 @@ public class SelfCheck {
         assert Math.abs(bass.get(0).duration() - 5.0 * beat) < 1e-9 && Math.abs(bass.get(1).duration() - 0.5 * beat) < 1e-9
                 : "the bass rings to 1 beat past the next bass note";
         // Long notes (2.85 beats) that already ring past the next note + 1 beat (2 beats) keep their length.
-        MusicRules.FramePlan flute = MusicRules.plan(0, scaled(1, 1, 70, 50, 10, 10), 0, new double[6]);
+        MusicRules.FramePlan flute = MusicRules.plan(0, scaled(1, 70, 50, 10, 10), 0, new double[6]);
         assert Math.abs(voice(flute, "melody").get(1).duration() - 2.85 * 60 / flute.bpm()) < 1e-9 : "long notes keep 2.85 beats";
 
         // Louder change voices: 10 dB above -30..-6 dB, never above -3 dB (reached at presence 71.125).
@@ -251,7 +247,7 @@ public class SelfCheck {
         assert MusicRules.boostedChangeVoiceDb(80) == -3 && MusicRules.boostedChangeVoiceDb(100) == -3 : "capped at -3 dB";
 
         // Oboe. B♭ major (melody 60), melody A#4 C5 A#5 D6 F6 F5: the oboe doubles every note, inside A#2..F5.
-        MusicRules.FramePlan bflat = MusicRules.plan(0, scaled(1, 60, 70, 50, 10, 50), 0,
+        MusicRules.FramePlan bflat = MusicRules.plan(0, scaled(60, 70, 50, 10, 50), 0,
                 new double[]{ 0.0, 0.1, 0.5, 0.68, 0.8, 0.3 });
         melody = voice(bflat, "melody");
         List<MusicRules.Note> oboe = voice(bflat, "oboe");
@@ -264,13 +260,13 @@ public class SelfCheck {
                     && oboe.get(j).volumeDb() == from.volumeDb() : "oboe at the melody note's time, length and volume";
         }
         // A minor melody A4 G6 A5 G6 A4 A4: the oboe plays them all too.
-        MusicRules.FramePlan aMinor = MusicRules.plan(0, scaled(1, 1, 70, 49, 10, 50), 0, new double[]{ 0.0, 0.999, 0.5, 1.0, 0.0, 0.0 });
+        MusicRules.FramePlan aMinor = MusicRules.plan(0, scaled(1, 70, 49, 10, 50), 0, new double[]{ 0.0, 0.999, 0.5, 1.0, 0.0, 0.0 });
         assert pitches(voice(aMinor, "melody")).equals(List.of("A4", "G6", "A5", "G6", "A4", "A4"))
                 && pitches(voice(aMinor, "oboe")).equals(List.of("A4", "G4", "A4", "G4", "A4", "A4"))
                 && "oboe".equals(aMinor.oboeInstrument()) : "the oboe plays every melody note";
 
         // No pauses: joinNextFrame makes the last note of each voice ring to OVERLAP_BEATS after the next frame starts.
-        MusicRules.FramePlan join = MusicRules.plan(1, scaled(1, 1, 70, 49, 10, 50), 32, new double[]{ 0.0, 0.999, 0.5, 1.0, 0.0 });
+        MusicRules.FramePlan join = MusicRules.plan(1, scaled(1, 70, 49, 10, 50), 32, new double[]{ 0.0, 0.999, 0.5, 1.0, 0.0 });
         List<MusicRules.Note> before = new java.util.ArrayList<>(join.notes());
         MusicRules.joinNextFrame(join);
         double joinBeat = 60 / join.bpm();

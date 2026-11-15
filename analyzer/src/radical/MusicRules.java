@@ -18,8 +18,8 @@ final class MusicRules {
                      String panHangInstrument, String panBalafonInstrument, String stringBassInstrument,
                      String oboeInstrument, List<Note> notes) {}
 
-    /** Positions of the six variables in every scaled array. */
-    static final int DISTANCE_FROM_RED = 0, MELODY = 1, VIBRANCY = 2, HAPPINESS = 3, UNIQUENESS = 4, CONTRAST = 5;
+    /** Positions of the five variables in every scaled array. */
+    static final int MELODY = 0, VIBRANCY = 1, HAPPINESS = 2, UNIQUENESS = 3, CONTRAST = 4;
 
     /** The team's key lists, in their order, with each tonic's semitones above C. */
     private static final String[] MAJOR_KEYS = { "C", "D", "G", "A", "E", "F", "E♭", "B♭", "D♭", "B", "F♯", "A♭" };
@@ -96,7 +96,7 @@ final class MusicRules {
     }
 
     /**
-     * scaled: the frame's six 1-100 values (see the index constants). change: its change size.
+     * scaled: the frame's five 1-100 values (see the index constants). change: its change size.
      * columnScores: one 0..1 score per melody note, already stretched over all frames.
      */
     static FramePlan plan(int index, double[] scaled, double change, double[] columnScores) {
@@ -136,8 +136,6 @@ final class MusicRules {
             int degree = Math.min(13, (int) Math.floor(columnScores[k] * 14));
             int semitones = semitones(tonic, scale, degree);
             double time = start + k * beat;
-            boolean offbeat = (k * 37) % 100 < scaled[DISTANCE_FROM_RED];
-            if (offbeat && time + beat / 2 <= start + SECONDS_OF_MUSIC) time += beat / 2;
             int handpanPitch = intoRange(4 * 12 + semitones, HANDPAN_LOW, HANDPAN_HIGH);
             String melodyPitch = lowSynth ? pitch(handpanPitch - 12 * LOW_SYNTH_OCTAVES, 0) : pitch(semitones, 4);
             notes.add(new Note(time, melodyPitch, duration, "melody", 0));

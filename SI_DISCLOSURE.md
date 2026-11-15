@@ -5,7 +5,7 @@ NASA Space Apps 2026 asks teams to state where and how they used AI. This is the
 ## What is the team's own work (no AI)
 
 - **The idea:** turning NASA's night-lights visualization into a song so people with low vision can hear how light pollution is changing.
-- **The six measurements and what each one controls in the music** (main color's distance from red → rhythm; main color vs each column's average → melody pitch and key; vibrancy and the size of change → tempo; happiness → major or minor; uniqueness → note length; contrast → instruments), all their definitions, thresholds, and the 1–100 scaling.
+- **The five measurements and what each one controls in the music** (main color vs each column's average → melody pitch and key; vibrancy and the size of change → tempo; happiness → major or minor; uniqueness → note length; contrast → instruments), all their definitions, thresholds, and the 1–100 scaling (rhythm, the distance from red, was removed on 2026-11-15 because it was the same in every frame).
 - **The data choice:** NASA SVS 5313 and the 7 frames at 0, 3, 6, 9, 12, 15 and 18 seconds.
 - **The website direction** (picked from three AI-made mockups), the front-page quote, and how the video lines up with the music.
 
