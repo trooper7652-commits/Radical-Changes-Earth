@@ -246,3 +246,8 @@ Q1 Tempo rules disagree · Q2 Short vs long notes · Q3 Contrast vs uniqueness �
 - "Also the font in the seven rules in the white background part seems out of place, make it more consistent with the black background part of the website."
 - "Also make the Oppenheimer quote one of the first things the user sees when landing on the website."
 - DESIGN.md: overwrite with the new system after the fixes. Public Vercel link: update to the new site after the fixes pass review.
+
+## Round 18: the butterfly (owner, 2026-11-15 afternoon)
+- "The butterfly just flies across the screen without blocking much out. When the butterfly crosses the screen, make sure it envelopes and covers the whole screen. Also add more deatil to the butterfly, it looks too basic right now. After the butterfly covers the screen, there should be a little pause, and then the website should show the next section."
+- Built as: when leaving the hero downward, the butterfly covers the whole viewport, holds for about half a second, the page moves to the next section behind it, and it flies off to reveal it. Off under reduced motion.
+- The 4:30 PM cloud routine was cancelled before it was created (the owner's limits reset).
