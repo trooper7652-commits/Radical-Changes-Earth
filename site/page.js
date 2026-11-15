@@ -172,11 +172,10 @@ try {
 
   // The rules, with what each did in the first frame and in the last.
   const first = ruleValues(frames[0]), lastValues = ruleValues(frames[total - 1]);
-  const inSentence = (rule, text) => (rule === "key" ? text : text[0].toLowerCase() + text.slice(1)); // keys stay capitals
   document.querySelectorAll(".rules li").forEach((li) => {
     const rule = li.dataset.rule;
-    li.querySelector(".fact").textContent =
-      `In this song: ${frames[0].label}, ${inSentence(rule, first[rule])}; the last change map, ${inSentence(rule, lastValues[rule])}.`;
+    li.querySelector(".fact").innerHTML = `<div><dt>${frames[0].label}</dt><dd>${first[rule]}</dd></div>` +
+      `<div><dt>Last change map</dt><dd>${lastValues[rule]}</dd></div>`;
   });
 
   // Side notes beside the demo: what each rule does in the frame on screen, following whichever video plays.
@@ -186,7 +185,7 @@ try {
     if (index === noted) return;
     noted = index;
     const values = ruleValues(frames[index]);
-    for (const li of $("notes").children) {
+    for (const li of $("notes").querySelectorAll("li")) {
       const value = li.querySelector(".v");
       value.textContent = values[li.dataset.rule];
       if (!reduced) value.animate([{ opacity: 0, transform: "translateY(6px)" }, { opacity: 1, transform: "none" }], { duration: 260, easing: EASE });

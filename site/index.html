@@ -31,6 +31,10 @@
       <section class="hero wrap" aria-labelledby="h-hero">
         <div class="hero-copy">
           <h1 id="h-hero">Eleven years of Earth at night, played as music.</h1>
+          <blockquote>
+            <p>The important thing isn’t can you read music, it’s can you hear it. Can you hear the music, Robert?</p>
+            <footer><cite>Niels Bohr, as portrayed in <i>Oppenheimer</i> (2023)</cite></footer>
+          </blockquote>
           <p class="lede">We measured seven frames of NASA’s night-lights map: 2012, 2017, 2022, 2023 and three maps of the change. Each measurement drives one rule of the music. More light pulls the song toward a minor key, and bigger changes between years bring in the hang drum, balafon and string bass, louder and higher. You don’t have to see the map to hear it change.</p>
           <div class="hero-act">
             <a class="cta" id="cta" href="#listen">Play the 30-second demo <span>(sound on)</span></a>
@@ -54,15 +58,19 @@
             <video id="demo" controls preload="none" poster="img/f6.jpg" src="media/radical-changes-30s.mp4" aria-label="30-second demo with sound: the night-lights change map and its song"></video>
             <figcaption>Each NASA frame stays on screen for its own four seconds of music, so what you see is always what you hear.</figcaption>
           </figure>
-          <ul class="notes" id="notes" aria-label="What each rule does in the frame on screen">
+          <div class="notes" id="notes" role="group" aria-label="What each rule does in the frame on screen">
+          <ul>
             <li data-rule="rhythm"><span class="k">Rhythm</span><span class="v"></span><span class="w">How far the main color is from red. Farther means more offbeat.</span></li>
             <li data-rule="key"><span class="k">Melody and key</span><span class="v"></span><span class="w">The main color against each column, left to right, sets the pitch and the key.</span></li>
             <li data-rule="tempo"><span class="k">Tempo</span><span class="v"></span><span class="w">Vibrancy, averaged 50/50 with the size of change.</span></li>
             <li data-rule="mode"><span class="k">Major or minor</span><span class="v"></span><span class="w">Happiness 50 or more gives major. More light means less happy.</span></li>
+          </ul>
+          <ul>
             <li data-rule="length"><span class="k">Short or long notes</span><span class="v"></span><span class="w">Uniqueness: a bright spot against the light around it.</span></li>
             <li data-rule="family"><span class="k">Instrument family</span><span class="v"></span><span class="w">Contrast between full-brightness and dark pixels picks the instruments.</span></li>
             <li data-rule="change"><span class="k">Change voices</span><span class="v"></span><span class="w">Hang drum, balafon and string bass grow with the change. The oboe doubles every melody note.</span></li>
           </ul>
+          </div>
         </div>
       </section>
 
@@ -101,13 +109,13 @@
     <section class="how wrap" id="how" aria-labelledby="h-rules">
       <h2 id="h-rules">Seven rules, measured from the pixels.</h2>
       <ol class="rules">
-        <li data-rule="rhythm"><h3>Rhythm</h3><p>How far the frame’s main color is from red. The farther, the more offbeat the rhythm.</p><p class="fact"></p></li>
-        <li data-rule="key"><h3>Melody and key</h3><p>The main color is compared with the average color of each column, left to right. That sets the melody’s pitch and the key within the list of keys (key order from <a href="https://www.hooktheory.com/cheat-sheet/key-popularity">Hooktheory, “Key popularity”</a>).</p><p class="fact"></p></li>
-        <li data-rule="tempo"><h3>Tempo</h3><p>Vibrancy is averaged 50/50 with the size of change from the previous frame.</p><p class="fact"></p></li>
-        <li data-rule="mode"><h3>Major or minor</h3><p>Happiness is 100 minus the share of pixels at brightness 127 or more, stretched across the seven frames to 1 to 100. More light means less happy. 50 or more gives a major key; below 50, a minor key.</p><p class="fact"></p></li>
-        <li data-rule="length"><h3>Short or long notes</h3><p>Uniqueness compares a bright spot with the light around it. It sets short or long notes. Every note rings 1 beat past the next note of its voice, and each frame’s last notes ring 1 beat into the next frame, so the music never pauses.</p><p class="fact"></p></li>
-        <li data-rule="family"><h3>Instrument family</h3><p>Contrast compares connected full-brightness pixels with dark pixels. High contrast gives synth and piano. Low contrast with short notes gives harp and bells, and the handpan joins the harp. Low contrast with long notes gives a low synth and a handpan playing the same notes, the synth one octave below the handpan, over sustain strings.</p><p class="fact"></p></li>
-        <li data-rule="change"><h3>Change voices</h3><p>The size of change from the previous frame, doubled and capped at 100, drives the hang drum, balafon and string bass: the bigger the change, the louder, busier and higher they play. They are silent in the first frame. The oboe doubles every melody note.</p><p class="fact"></p></li>
+        <li data-rule="rhythm"><h3>Rhythm</h3><p>How far the frame’s main color is from red. The farther, the more offbeat the rhythm.</p><dl class="fact"></dl></li>
+        <li data-rule="key"><h3>Melody and key</h3><p>The main color is compared with the average color of each column, left to right. That sets the melody’s pitch and the key within the list of keys (key order from <a href="https://www.hooktheory.com/cheat-sheet/key-popularity">Hooktheory, “Key popularity”</a>).</p><dl class="fact"></dl></li>
+        <li data-rule="tempo"><h3>Tempo</h3><p>Vibrancy is averaged 50/50 with the size of change from the previous frame.</p><dl class="fact"></dl></li>
+        <li data-rule="mode"><h3>Major or minor</h3><p>Happiness is 100 minus the share of pixels at brightness 127 or more, stretched across the seven frames to 1 to 100. More light means less happy. 50 or more gives a major key; below 50, a minor key.</p><dl class="fact"></dl></li>
+        <li data-rule="length"><h3>Short or long notes</h3><p>Uniqueness compares a bright spot with the light around it. It sets short or long notes. Every note rings 1 beat past the next note of its voice, and each frame’s last notes ring 1 beat into the next frame, so the music never pauses.</p><dl class="fact"></dl></li>
+        <li data-rule="family"><h3>Instrument family</h3><p>Contrast compares connected full-brightness pixels with dark pixels. High contrast gives synth and piano. Low contrast with short notes gives harp and bells, and the handpan joins the harp. Low contrast with long notes gives a low synth and a handpan playing the same notes, the synth one octave below the handpan, over sustain strings.</p><dl class="fact"></dl></li>
+        <li data-rule="change"><h3>Change voices</h3><p>The size of change from the previous frame, doubled and capped at 100, drives the hang drum, balafon and string bass: the bigger the change, the louder, busier and higher they play. They are silent in the first frame. The oboe doubles every melody note.</p><dl class="fact"></dl></li>
       </ol>
     </section>
 
@@ -120,14 +128,8 @@
     </section>
 
     <section class="why wrap" aria-labelledby="h-why">
-      <div>
-        <h2 id="h-why">Built for listening.</h2>
-        <p>The Earth Information Jukebox challenge asks how NASA’s Earth Information Center visualizations can reach people who can’t see them. Our answer keeps the map’s numbers and gives them to the ear: every note on this page comes from a measurement of a real NASA frame.</p>
-      </div>
-      <blockquote>
-        <p>The important thing isn’t can you read music, it’s can you hear it. Can you hear the music, Robert?</p>
-        <footer><cite>Niels Bohr, as portrayed in <i>Oppenheimer</i> (2023)</cite></footer>
-      </blockquote>
+      <h2 id="h-why">Built for listening.</h2>
+      <p>The Earth Information Jukebox challenge asks how NASA’s Earth Information Center visualizations can reach people who can’t see them. Our answer keeps the map’s numbers and gives them to the ear: every note on this page comes from a measurement of a real NASA frame.</p>
     </section>
 
     <div class="ends wrap">

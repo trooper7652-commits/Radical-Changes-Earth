@@ -175,6 +175,61 @@ test("focus-reveal: every tabbed element is visible at 390x844 (no focus inside 
   expect(steps).toBeGreaterThan(15);
 });
 
+for (const [width, height] of [[1440, 900], [390, 844]]) {
+  test(`hero at ${width}x${height}: Earth on the left, the quote and the demo action on the first screen`, async ({ page }) => {
+    await page.setViewportSize({ width, height });
+    await ready(page);
+    const box = (selector) => page.locator(selector).evaluate((el) => {
+      const r = el.getBoundingClientRect();
+      return { left: r.left, right: r.right, bottom: r.bottom, centre: r.left + r.width / 2 };
+    });
+    const [earth, h1, quote, cta] = await Promise.all(["#earth", "h1", ".hero blockquote", "#cta"].map(box));
+    expect(earth.centre).toBeLessThan(h1.centre); // the globe sits left of the headline
+    expect(quote.bottom).toBeLessThanOrEqual(height); // the Bohr quote is in the first viewport
+    expect(cta.bottom).toBeLessThanOrEqual(height);
+    await expect(page.locator(".hero blockquote")).toContainText("Can you hear the music, Robert?");
+    await expect(page.locator(".hero blockquote cite")).toContainText("Niels Bohr, as portrayed in Oppenheimer (2023)");
+    await expect(page.locator("blockquote")).toHaveCount(1); // shown once
+  });
+}
+
+test("dark page: one night ground from top to footer, no light sections, rules set like the side notes", async ({ page }) => {
+  await ready(page);
+  const light = await page.evaluate(() => {
+    const luminance = (c) => { const [r, g, b] = c.match(/\d+(\.\d+)?/g).map(Number); return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255; };
+    const found = [getComputedStyle(document.body).backgroundColor];
+    for (const el of document.querySelectorAll("main section, main > div, footer.site-foot, .rules li, .frames li")) {
+      const bg = getComputedStyle(el).backgroundColor;
+      if (!/rgba\(0, 0, 0, 0\)|transparent/.test(bg) && luminance(bg) > 0.2) found.push(`${el.className}: ${bg}`);
+    }
+    return found;
+  });
+  expect(light).toEqual(["rgb(7, 9, 14)"]);
+  const style = (selector) => page.locator(selector).first().evaluate((el) => {
+    const cs = getComputedStyle(el);
+    return [cs.fontFamily.split(",")[0].replaceAll('"', ""), cs.textTransform];
+  });
+  expect(await style(".rules h3")).toEqual(await style("#notes .k"));
+  expect((await style(".rules dd"))[0]).toBe("Atkinson Hyperlegible Mono");
+  expect((await style(".rules p"))[0]).toBe("Atkinson Hyperlegible Next");
+});
+
+test("picker label: the bass picker's first option is not cut off at 390px", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await ready(page);
+  // A select never wraps, so its shown text must fit inside it (minus its padding and the 24 px arrow).
+  const { text, room } = await page.locator("#bass").evaluate((el) => {
+    const cs = getComputedStyle(el);
+    const ctx = document.createElement("canvas").getContext("2d");
+    ctx.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+    return {
+      text: ctx.measureText(el.options[el.selectedIndex].text).width,
+      room: el.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight) - 24,
+    };
+  });
+  expect(text).toBeLessThanOrEqual(room);
+});
+
 test("score: the strip and the score mark the current frame while the visuals play", async ({ page }) => {
   await ready(page);
   await page.evaluate(async () => {

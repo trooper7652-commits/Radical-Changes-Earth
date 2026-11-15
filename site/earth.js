@@ -41,7 +41,7 @@ const CRAFT_STYLE = `
 
 // Three orbits around the globe (viewBox -100..100, globe radius 76). The first carries the butterfly.
 const ORBITS = [
-  { rx: 97, ry: 22, tilt: -16, period: 96, phase: 2.35, size: 0.12, butterfly: true },
+  { rx: 97, ry: 22, tilt: -16, period: 96, phase: 1.9, size: 0.12, butterfly: true }, // starts low on the front, left of centre
   { rx: 86, ry: 36, tilt: 24, period: 44, phase: 0.5, size: 0.075 },
   { rx: 88, ry: 58, tilt: -60, period: 58, phase: 4.2, size: 0.065 },
 ];
@@ -60,6 +60,7 @@ void main() {
   float lo = atan(q.x, q.z) + lon;
   vec2 uv = vec2(fract(lo / 6.2831853 + 0.5), 0.5 - lat / 3.1415927);
   vec3 c = min(texture2D(map, uv).rgb * 1.3, 1.0);
+  c = max(c, vec3(0.063, 0.078, 0.110)); // the black ocean lifts to the field colour (#10141c), so the Earth stands off the ground without a glow
   float a = 1.0 - smoothstep(1.0 - 1.5 * px, 1.0, r);
   gl_FragColor = vec4(c * a, a);
 }`;
