@@ -58,6 +58,7 @@ export function scheduleFrame(frame, instrumentsByVoice, Tone, offset, at, playe
   const part = new Tone.Part((time, { note }) => {
     // Tone counts ticks lazily: after a quick stop and restart, the stopped run's leftover ticks can
     // reach this part too, at times before it starts. Only this run's own ticks play.
+    // The 1e-6 s tolerance keeps a note whose time rounds a hair below "at" (float error).
     if (time < at - 1e-6 || played.has(note)) return;
     played.add(note);
     const velocity = Tone.dbToGain(note.volumeDb); // the note's own volume (the change voices follow the change)
