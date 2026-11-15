@@ -160,6 +160,19 @@
 
 ---
 
+## Owner answers, second round (2026-11-15, midday)
+
+- **Website direction:** A ("The Score") with B's full-width dark band, plus the fallback (the playhead on the 7-frame strip if time runs short).
+- **Bass picker:** starts on the video's instruments ("Piano, then sustain strings (as in the video)").
+- **Handpan picker:** comes back, so Task 2 is dropped.
+- **Harmony (Task 1b):** the low synth and the handpan play the same notes, with the synth an octave or two lower. Builder call: `LOW_SYNTH_OCTAVES = 1` below the handpan, so the handpan stays in A3..D5 and the synth in A2..D4.
+- **No pauses (Task 1e):** "each frame should flow smoothly into the other one … absolutely no pauses whatsoever."
+  - Measured in the v3 WAV: near-silent from 3.85-4.0 s, 11.15-12.0 s, 15.1-16.4 s and 19.85-20.5 s. Each frame's last notes end before the next frame's first note.
+  - Fix: `MusicRules.joinNextFrame(plan)`, called from `Main` for every frame but the last. Each voice's last note rings until `OVERLAP_BEATS` after the next frame starts.
+  - Check: no gap in `song-data.json` note coverage, and no near-silent 50 ms window in the new WAV.
+  - If the player's crossfade dip still sounds like a pause after that, the manager asks the owner before changing the "about -12 dB" transition.
+- **Kitchen:** the FreeLLMAPI gateway is not running (127.0.0.1:31415 does not answer), and the no-pause rule is more than mechanical. So the Java goes to the Sonnet line cook, and the website goes to the Opus xhigh head chef (owner). Each works in its own worktree, and the manager merges, renders, tests and deploys.
+
 ## Part B: still open
 
 - **Website:** see `2026-11-15-website-design-plan.md`. It waits on the owner's direction pick.
