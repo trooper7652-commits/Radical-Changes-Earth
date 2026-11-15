@@ -10,16 +10,8 @@ const START_TILT = 0.32; // shows a little more of the north, where most of the 
 const easeInOut = (s) => (s < 0.5 ? 4 * s * s * s : 1 - (-2 * s + 2) ** 3 / 2);
 const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 
-// The craft: a satellite with two solar panels, and the butterfly hidden inside it.
-// Wings are drawn once for the left side and mirrored. page.js and the flight change only opacity and transforms.
-const WING = `<path d="M-5-6C-22-58-92-74-94-30C-96 0-50 6-5 0Z"/><path d="M-5 4C-40 6-72 30-60 56C-50 76-16 50-4 10Z"/>
-  <circle cx="-62" cy="-34" r="7" class="spot"/><circle cx="-36" cy="40" r="5" class="spot"/>`;
-export const CRAFT = `
-  <g class="wings" opacity="0">
-    <g class="flap">${WING}</g><g transform="scale(-1 1)"><g class="flap">${WING}</g></g>
-    <path d="M-2-24C-6-40-14-50-24-56M2-24C6-40 14-50 24-56" class="feelers"/>
-    <ellipse rx="6" ry="30" class="body"/>
-  </g>
+// The satellite: two solar panels and a hull, 176 units wide. In flight the panels fold away and the butterfly opens.
+const SAT = `
   <g class="panels">
     <rect x="-88" y="-11" width="72" height="22"/><rect x="16" y="-11" width="72" height="22"/>
     <path d="M-70-11v22M-52-11v22M-34-11v22M34-11v22M52-11v22M70-11v22M-88 0h72M16 0h72" class="grid"/>
@@ -28,16 +20,62 @@ export const CRAFT = `
     <rect x="-9" y="-16" width="18" height="32" class="hull"/>
     <path d="M0-16v-12" class="mast"/><circle cy="-30" r="3.5" class="beacon"/>
   </g>`;
-const CRAFT_STYLE = `
-  .wings path { fill: #ffb547; stroke: #07090e; stroke-width: 3; stroke-linejoin: round; }
-  .wings .spot { fill: #f3f5f8; }
-  .wings .body { fill: #07090e; stroke: #f3f5f8; stroke-width: 2; }
-  .wings .feelers { fill: none; stroke: #f3f5f8; stroke-width: 2.5; stroke-linecap: round; }
-  .panels rect { fill: #1a2030; stroke: #c9ced6; stroke-width: 2; }
-  .panels .grid { stroke: #c9ced6; stroke-width: 1; opacity: .55; fill: none; }
+const SAT_STYLE = `
+  .panels rect { fill: #10141c; stroke: #a3abba; stroke-width: 2; }
+  .panels .grid { stroke: #a3abba; stroke-width: 1; opacity: .6; fill: none; }
   .hull { fill: #f3f5f8; stroke: #07090e; stroke-width: 2; }
   .mast { stroke: #f3f5f8; stroke-width: 2; }
   .beacon { fill: #ffb547; }`;
+
+// The butterfly, in the site's colours only (night, ink, secondary, sodium, field). Body along the y axis, head up.
+// Each wing is drawn for the left side and mirrored. The fore- and hindwings overlap around the body, so the
+// rectangle CORE (x -60..60, y -28..44) is solid: scaled to contain the viewport, it covers every pixel.
+const FOREWING = `
+  <path class="wing" d="M-3-24C-12-46-48-80-92-76C-104-74-106-60-100-46C-96-34-92-26-84-16C-66 4-34 12-3 10Z"/>
+  <path class="base" d="M-3-24C-10-30-20-30-24-22C-18-14-10-8-3-6Z"/>
+  <path class="band" d="M-92-76C-104-74-106-60-100-46C-96-34-92-26-84-16L-75-20C-82-29-86-37-89-47C-92-58-88-64-80-66C-70-68-60-70-54-70C-66-77-80-78-92-76Z"/>
+  <path class="vein" d="M-4-20C-20-46-52-74-88-76M-4-15C-34-40-72-62-100-60M-4-10C-40-30-78-44-101-44M-4-5C-42-16-76-24-95-30M-4 0C-40-2-70-6-86-16M-4 5C-36 8-62 6-74 0"/>
+  <path class="vein" d="M-6-14C-18-22-28-24-36-21C-30-13-20-7-6-4"/>
+  <path class="bar" d="M-33-24L-39-21L-34-12L-29-15Z"/>
+  <path class="fur" d="M-5-20l-10-4M-5-15l-13-2M-5-10l-12 1"/>
+  <g class="dots"><circle cx="-100" cy="-61" r="1.8"/><circle cx="-101" cy="-51" r="1.8"/><circle cx="-97" cy="-40" r="1.8"/>
+    <circle cx="-92" cy="-30" r="1.8"/><circle cx="-86" cy="-21" r="1.8"/><circle cx="-84" cy="-73" r="1.8"/><circle cx="-72" cy="-73" r="1.8"/></g>
+  <g class="apical"><circle cx="-95" cy="-62" r="2.4"/><circle cx="-95" cy="-52" r="2.2"/><circle cx="-91" cy="-42" r="2"/></g>
+  <circle class="e1" cx="-48" cy="-10" r="4.6"/><circle class="e2 pale" cx="-48" cy="-10" r="3.1"/>
+  <circle class="e3" cx="-48" cy="-10" r="1.7"/><circle class="glint" cx="-47.3" cy="-10.7" r=".6"/>`;
+const HINDWING = `
+  <path class="wing" d="M-3-4C-30-10-70-6-86 20C-94 38-88 62-70 74C-56 84-36 84-24 74C-14 66-6 54-3 42Z"/>
+  <path class="base" d="M-3-4C-12-6-20-2-22 6C-14 10-8 12-3 14Z"/>
+  <path class="band" d="M-86 20C-94 38-88 62-70 74C-56 84-36 84-24 74L-27 66C-37 74-53 74-64 66C-78 56-83 40-78 24Z"/>
+  <path class="vein" d="M-4 0C-30-4-62 0-84 18M-4 6C-34 10-64 26-90 40M-4 12C-30 22-56 42-78 66M-4 18C-24 34-40 58-52 80M-4 26C-14 42-22 60-30 78"/>
+  <path class="vein" d="M-6 4C-20 6-30 12-34 20C-24 22-14 22-6 18"/>
+  <path class="fur" d="M-5 2l-12-2M-5 7l-12 2"/>
+  <g class="dots"><circle cx="-88" cy="34" r="1.8"/><circle cx="-87" cy="48" r="1.8"/><circle cx="-81" cy="62" r="1.8"/>
+    <circle cx="-69" cy="73" r="1.8"/><circle cx="-54" cy="79" r="1.8"/><circle cx="-40" cy="79" r="1.8"/><circle cx="-29" cy="73" r="1.8"/></g>
+  <circle class="e1" cx="-44" cy="25" r="6.2"/><circle class="e2" cx="-44" cy="25" r="4.4"/>
+  <circle class="e3" cx="-44" cy="25" r="2.6"/><circle class="glint" cx="-43" cy="24" r="1"/>`;
+const SIDE = `<g class="hw">${HINDWING}</g><g class="fw">${FOREWING}</g>`;
+const BODY = `
+  <path class="feeler" d="M-1.5-35C-6-50-14-62-22-70M1.5-35C6-50 14-62 22-70"/>
+  <ellipse class="club" cx="-23" cy="-71.5" rx="2.2" ry="3.8" transform="rotate(-40 -23 -71.5)"/>
+  <ellipse class="club" cx="23" cy="-71.5" rx="2.2" ry="3.8" transform="rotate(40 23 -71.5)"/>
+  <ellipse class="abdomen" cy="26" rx="5" ry="28"/>
+  <path class="seg" d="M-4.6 8h9.2M-4.9 14h9.8M-5 20h10M-5 26h10M-4.9 32h9.8M-4.6 38h9.2M-4 44h8M-3 50h6"/>
+  <ellipse class="thorax" cy="-12" rx="7" ry="14"/>
+  <path class="hair" d="M-5-19C-2-17 2-17 5-19M-6-12C-2-10 2-10 6-12M-5-5C-2-3 2-3 5-5"/>
+  <circle class="head" cy="-31" r="5.5"/><circle class="eyeball" cx="-3.2" cy="-32" r="1.9"/><circle class="eyeball" cx="3.2" cy="-32" r="1.9"/>`;
+const BUTTERFLY = `<g class="wings" opacity="0"><g>${SIDE}</g><g transform="scale(-1 1)">${SIDE}</g>${BODY}</g>`;
+const CORE = { x: 60, top: -28, bottom: 44 };
+const BUTTERFLY_STYLE = `
+  .wing { fill: #ffb547; stroke: #07090e; stroke-width: 1.6; stroke-linejoin: round; }
+  .base { fill: #10141c; } .band, .bar, .e1, .e3 { fill: #07090e; }
+  .vein { fill: none; stroke: #07090e; stroke-width: 1.1; stroke-linecap: round; stroke-linejoin: round; }
+  .fur, .hair, .seg { fill: none; stroke: #a3abba; stroke-width: .6; stroke-linecap: round; }
+  .dots circle, .glint { fill: #f3f5f8; } .apical circle, .e2 { fill: #ffb547; } .e2.pale { fill: #a3abba; }
+  .abdomen, .head { fill: #07090e; stroke: #a3abba; stroke-width: .7; }
+  .thorax { fill: #10141c; stroke: #a3abba; stroke-width: .7; }
+  .eyeball { fill: #10141c; stroke: #f3f5f8; stroke-width: .5; }
+  .feeler { fill: none; stroke: #a3abba; stroke-width: 1.1; stroke-linecap: round; } .club { fill: #a3abba; }`;
 
 // Three orbits around the globe (viewBox -100..100, globe radius 76). The first carries the butterfly.
 const ORBITS = [
@@ -76,7 +114,7 @@ export function startEarth(globe, { reduced }) {
   const canvas = globe.querySelector("canvas");
   const back = globe.querySelector(".orbits.back");
   const front = globe.querySelector(".orbits.front");
-  element("style", {}, back).textContent = CRAFT_STYLE;
+  element("style", {}, back).textContent = SAT_STYLE;
 
   // Orbits: the whole ellipse behind the globe, its near half in front of it.
   const sats = ORBITS.map((orbit) => {
@@ -84,12 +122,12 @@ export function startEarth(globe, { reduced }) {
     element("path", { class: "ring" + (orbit.butterfly ? " lit" : ""), transform: `rotate(${orbit.tilt})`,
       d: `M${-orbit.rx} 0A${orbit.rx} ${orbit.ry} 0 0 0 ${orbit.rx} 0` }, front);
     const craft = element("g", { class: "craft" });
-    craft.innerHTML = orbit.butterfly ? CRAFT
+    craft.innerHTML = orbit.butterfly ? SAT
       : `<rect x="-60" y="-9" width="44" height="18" class="panel"/><rect x="16" y="-9" width="44" height="18" class="panel"/><rect x="-12" y="-12" width="24" height="24" class="hull"/>`;
     return { ...orbit, craft, side: null };
   });
   element("circle", { class: "rim", r: GLOBE_R }, front);
-  element("style", {}, front).textContent = CRAFT_STYLE + ".panel { fill: #1a2030; stroke: #c9ced6; stroke-width: 3; }";
+  element("style", {}, front).textContent = SAT_STYLE + ".panel { fill: #10141c; stroke: #a3abba; stroke-width: 3; }";
   const butterfly = sats.find((s) => s.butterfly).craft;
 
   const placeSats = (seconds) => {
@@ -237,62 +275,135 @@ function setUpGl(gl, canvas, view, redraw) {
   };
 }
 
-// The flight: as the page scrolls from the top, the butterfly satellite leaves its orbit, unfolds,
-// drops to the bottom-left, then rises up and to the right, growing until it sweeps across the screen
-// and leaves past the top-right corner. Driven by scroll position, smoothed so it keeps a little momentum.
-export function startFlight(flight, anchor) {
-  // Drawn at 1000 px and scaled down, so it stays sharp when it grows to cover the screen.
-  flight.innerHTML = `<svg viewBox="-100 -70 200 140" width="1000" height="700"><style>${CRAFT_STYLE}</style>${CRAFT}</svg>`;
+// The transition from the first viewport into "Hear the map change." (owner rounds 16 and 18).
+// Scrolling down out of the hero plays a timed sequence over the page: the satellite unfolds into the
+// butterfly, dips to the bottom-left and flies up and to the right, growing until its wings cover the whole
+// screen; it holds for a moment while the page moves to the next section behind it, then flies off the
+// top-right. Scrolling input is held while it runs. Not started at all under reduced motion (see page.js).
+const T_UNFOLD = 280, T_COVER = 1050, T_HOLD = 1550, T_END = 2100; // ms
+const easeOut = (s) => 1 - (1 - s) ** 3;
+const easeIn = (s) => s * s * s;
+const smooth = (a, b, v) => { const s = clamp((v - a) / (b - a), 0, 1); return s * s * (3 - 2 * s); };
+
+export function startFlight(flight, anchor, section, heading) {
+  // A full-viewport SVG in CSS pixels, so the butterfly is drawn as vectors at every size, never a scaled bitmap.
+  flight.innerHTML = `<svg width="100%" height="100%"><style>${SAT_STYLE}${BUTTERFLY_STYLE}</style>` +
+    `<g class="craft-fly">${BUTTERFLY}${SAT}</g></svg>`;
+  const craft = flight.querySelector(".craft-fly");
   const wings = flight.querySelector(".wings");
   const panels = flight.querySelector(".panels");
   const hull = flight.querySelector(".hull-group");
-  const flaps = flight.querySelectorAll(".flap");
-  let shown = 0, raf = 0, last = 0, phase = 0, prevShown = 0;
-  const target = () => clamp(scrollY / (innerHeight * 1.15), 0, 1);
+  const fores = flight.querySelectorAll(".fw"), hinds = flight.querySelectorAll(".hw");
+  const sectionTop = () => section.getBoundingClientRect().top + scrollY;
+  const inHero = () => scrollY < sectionTop() - 2;
+  let running = null;
 
-  function frame(now) {
-    const dt = last ? Math.min((now - last) / 1000, 0.05) : 1 / 60;
-    last = now;
-    const goal = target();
-    shown += (goal - shown) * (1 - Math.exp(-dt * 9));
-    if (Math.abs(goal - shown) < 0.0005) shown = goal;
-    render(dt);
-    const moving = shown !== goal || (shown > 0 && shown < 1);
-    raf = moving ? requestAnimationFrame(frame) : 0;
-    if (!raf) last = 0;
+  function play() {
+    if (running) return running;
+    running = new Promise((resolve) => {
+      const w = innerWidth, h = innerHeight, big = Math.max(w, h);
+      const box = anchor.getBoundingClientRect();
+      const start = [box.left + box.width / 2, box.top + box.height / 2];
+      const s0 = Math.max(box.width / 176, 0.1); // the satellite's size on screen (176 units wide)
+      // The scale at which the solid CORE contains the viewport, with a margin; its centre goes to the screen's centre.
+      const cover = Math.max(w / (2 * CORE.x), h / (CORE.bottom - CORE.top)) * 1.08;
+      const centre = [w / 2, h / 2 - ((CORE.top + CORE.bottom) / 2) * cover];
+      const path = [start, [w * 0.06, h * 0.94], [w * 0.32, h * 0.92], centre];
+      let t0 = 0, last = 0, phase = 0, jumped = false;
+      anchor.style.opacity = "0";
+      flight.hidden = false;
+      flight.classList.add("run");
+
+      const frame = (now) => {
+        if (!t0) t0 = last = now;
+        const t = now - t0, dt = (now - last) / 1000;
+        last = now;
+        const unfold = easeOut(clamp(t / T_UNFOLD, 0, 1));
+        const s = easeInOut(clamp((t - 120) / (T_COVER - 120), 0, 1));
+        const out = easeIn(clamp((t - T_HOLD) / (T_END - T_HOLD), 0, 1));
+        flight.dataset.phase = t < T_COVER ? "fly" : t < T_HOLD ? "hold" : "exit";
+        let [x, y] = [0, 1].map((k) => (1 - s) ** 3 * path[0][k] + 3 * (1 - s) ** 2 * s * path[1][k] + 3 * (1 - s) * s * s * path[2][k] + s ** 3 * path[3][k]);
+        let scale = s0 * (cover / s0) ** s; // even zoom: the same growth ratio every frame
+        let turn = -16 * Math.sin(Math.PI * s); // banks through the turn, level when it covers the screen
+        if (out > 0) {
+          x += out * (w / 2 + 140 * scale);
+          y -= out * (h / 2 + 140 * scale);
+          scale *= 1 + 0.3 * out;
+          turn = 10 * out;
+        }
+        // Wing beats: forewing and hindwing slightly out of phase, each bending as it folds (a squeeze plus a
+        // skew reads as the wing turning away). Still while it covers the screen, so no gap opens.
+        const beat = t < T_HOLD ? 1 - smooth(0.7, 1, s) : clamp(out * 3, 0, 1);
+        phase += dt * TAU * 3.2;
+        const fold = (lag, depth) => 1 - beat * depth * (0.5 - 0.5 * Math.cos(phase - lag));
+        const fore = fold(0, 0.62), hind = fold(0.7, 0.5);
+        fores.forEach((el) => el.setAttribute("transform", `scale(${fore.toFixed(3)} 1) skewY(${((1 - fore) * 14).toFixed(2)})`));
+        hinds.forEach((el) => el.setAttribute("transform", `scale(${hind.toFixed(3)} 1) skewY(${((1 - hind) * 10).toFixed(2)})`));
+        // The satellite opens: its panels fold away as the wings spread from them.
+        wings.setAttribute("opacity", unfold.toFixed(3));
+        wings.setAttribute("transform", `scale(${(0.3 + 0.7 * unfold).toFixed(3)})`);
+        panels.setAttribute("opacity", (1 - unfold).toFixed(3));
+        hull.setAttribute("opacity", (1 - unfold).toFixed(3));
+        craft.setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${turn.toFixed(2)}) scale(${scale.toFixed(4)})`);
+        // Covered: the page moves to the next section behind the wings.
+        if (t >= T_COVER && !jumped) { jumped = true; scrollTo({ top: sectionTop(), behavior: "instant" }); }
+        if (t < T_END) return requestAnimationFrame(frame);
+        flight.hidden = true;
+        flight.classList.remove("run");
+        delete flight.dataset.phase;
+        anchor.style.opacity = "";
+        heading.focus({ preventScroll: true });
+        running = null;
+        resolve();
+      };
+      requestAnimationFrame(frame);
+    });
+    return running;
   }
 
-  function render(dt) {
-    const airborne = shown > 0.002 && shown < 0.999;
-    flight.hidden = !airborne;
-    anchor.style.opacity = shown > 0.002 ? "0" : ""; // the orbiting satellite becomes the flying one
-    if (!airborne) return;
-    const w = innerWidth, h = innerHeight, big = Math.max(w, h);
-    const box = anchor.getBoundingClientRect();
-    const start = [box.left + box.width / 2, box.top + box.height / 2];
-    const unfold = clamp(shown / 0.16, 0, 1);
-    const s = easeInOut(clamp((shown - 0.04) / 0.96, 0, 1));
-    // A cubic Bezier: the orbit, the bottom-left corner, low across the middle, then out past the top-right.
-    const pts = [start, [w * 0.06, h * 0.96], [w * 0.52, h * 0.86], [w + big * 0.35, -big * 0.4]];
-    const [x, y] = [0, 1].map((k) => (1 - s) ** 3 * pts[0][k] + 3 * (1 - s) ** 2 * s * pts[1][k] + 3 * (1 - s) * s * s * pts[2][k] + s ** 3 * pts[3][k]);
-    const startScale = Math.max(box.width / 176, 0.12); // the craft is 176 units wide at scale 1
-    const scale = startScale + ((big * 2.4) / 200 - startScale) * s ** 2.2;
-    const opacity = s < 0.8 ? 1 : 1 - (s - 0.8) / 0.2;
-    // Wings beat on their own while it flies, and faster while the page is moving.
-    phase += dt * TAU * 2.4 + Math.abs(shown - prevShown) * 60;
-    prevShown = shown;
-    const beat = 0.6 + 0.4 * Math.cos(phase);
-    flaps.forEach((el) => el.setAttribute("transform", `scale(${(0.2 + (beat - 0.2) * unfold).toFixed(3)} 1)`));
-    wings.setAttribute("opacity", unfold.toFixed(3));
-    panels.setAttribute("opacity", (1 - unfold).toFixed(3));
-    hull.setAttribute("opacity", (1 - unfold).toFixed(3));
-    panels.setAttribute("transform", `scale(${1 - 0.6 * unfold} ${1 - 0.8 * unfold})`);
-    flight.style.opacity = opacity.toFixed(3);
-    flight.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) rotate(${(-8 + 30 * s).toFixed(2)}deg) scale(${(scale / 5).toFixed(5)})`;
-  }
+  // Downward input in the hero starts it; while it runs, scrolling input is held (dropped), never queued.
+  const hold = (e) => { if (running) { e.preventDefault(); return true; } return false; };
+  addEventListener("wheel", (e) => {
+    if (hold(e) || e.deltaY <= 0 || e.ctrlKey || !inHero()) return;
+    e.preventDefault();
+    play();
+  }, { passive: false });
+  let touchY = null;
+  addEventListener("touchstart", (e) => (touchY = e.touches[0].clientY), { passive: true });
+  addEventListener("touchmove", (e) => {
+    if (hold(e) || touchY === null || touchY - e.touches[0].clientY < 6 || !inHero()) return;
+    e.preventDefault();
+    touchY = null;
+    play();
+  }, { passive: false });
+  const SCROLL_KEYS = ["ArrowDown", "ArrowUp", "PageDown", "PageUp", " ", "Home", "End"];
+  addEventListener("keydown", (e) => {
+    if (!SCROLL_KEYS.includes(e.key) || hold(e) || e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
+    // Arrow keys and Space belong to the focused control (the Earth, video, selects, buttons, links).
+    if (e.target.closest?.("input, select, textarea, button, a, video, canvas, [contenteditable]")) return;
+    if (!["ArrowDown", "PageDown", " "].includes(e.key) || !inHero()) return;
+    e.preventDefault();
+    play();
+  });
+  // In-page links: "Listen" plays it (the demo action calls play() itself); others jump without it.
+  let linkedAt = -Infinity;
+  document.addEventListener("click", (e) => {
+    const link = e.target.closest?.('a[href^="#"]');
+    if (!link) return;
+    linkedAt = performance.now();
+    if (link.getAttribute("href") !== "#listen" || e.defaultPrevented || !inHero()) return;
+    e.preventDefault();
+    play();
+  });
+  // Any other way down out of the hero (scrollbar, middle-click scroll), but not a link jump or a focus move.
+  let lastY = scrollY;
+  addEventListener("scroll", () => {
+    const y = scrollY, prev = lastY;
+    lastY = y;
+    if (running || performance.now() - linkedAt < 1500 || y <= prev) return;
+    const focusInHero = document.activeElement === document.body || anchor.closest(".hero")?.contains(document.activeElement);
+    if (prev < sectionTop() - 2 && y < sectionTop() + innerHeight / 2 && focusInHero) play();
+  }, { passive: true });
 
-  const wake = () => { if (!raf) raf = requestAnimationFrame(frame); };
-  addEventListener("scroll", wake, { passive: true });
-  addEventListener("resize", wake);
-  wake();
+  return { play };
 }

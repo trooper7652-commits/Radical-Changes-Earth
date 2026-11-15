@@ -175,7 +175,7 @@ test("focus-reveal: every tabbed element is visible at 390x844 (no focus inside 
   expect(steps).toBeGreaterThan(15);
 });
 
-for (const [width, height] of [[1440, 900], [390, 844]]) {
+for (const [width, height] of [[1440, 900], [1366, 768], [1280, 720], [390, 844]]) {
   test(`hero at ${width}x${height}: Earth on the left, the quote and the demo action on the first screen`, async ({ page }) => {
     await page.setViewportSize({ width, height });
     await ready(page);
@@ -286,16 +286,56 @@ test("earth: a labelled image that takes keyboard focus and turns with the arrow
   expect(await page.evaluate(() => scrollY)).toBe(0); // the arrow key turned the Earth, not the page
 });
 
-test("butterfly: it flies on scroll, and under reduced motion it stays a still satellite", async ({ page }) => {
-  await ready(page);
-  await expect(page.locator("#flight")).toBeHidden();
-  await page.evaluate(() => scrollTo(0, innerHeight * 0.4));
-  await expect(page.locator("#flight")).toBeVisible();
-  expect(await page.locator("#flight").evaluate((el) => getComputedStyle(el).pointerEvents)).toBe("none");
+// Waits (in the page) for the butterfly's hold, then lists the points of a 5x5 grid, corners included,
+// that its painted wings do NOT cover.
+const uncoveredDuringHold = (page) => page.evaluate(() => new Promise((resolve) => {
+  const flight = document.getElementById("flight");
+  const check = () => {
+    if (flight.dataset.phase !== "hold") return requestAnimationFrame(check);
+    const gaps = [];
+    for (const fx of [0, 0.25, 0.5, 0.75, 1]) for (const fy of [0, 0.25, 0.5, 0.75, 1]) {
+      const [x, y] = [Math.min(fx * innerWidth, innerWidth - 1), Math.min(fy * innerHeight, innerHeight - 1)];
+      if (!document.elementFromPoint(x, y)?.closest("#flight")) gaps.push([x, y]);
+    }
+    resolve(gaps);
+  };
+  check();
+}));
 
+for (const [width, height] of [[1440, 900], [390, 844]]) {
+  test(`butterfly at ${width}x${height}: scrolling down covers the whole screen, pauses, then shows "Hear the map change."`, async ({ page }) => {
+    await page.setViewportSize({ width, height });
+    await ready(page);
+    await expect(page.locator("#flight")).toBeHidden();
+    await page.mouse.move(width / 2, height / 2);
+    await page.mouse.wheel(0, 120);
+    expect(await uncoveredDuringHold(page)).toEqual([]);
+    await expect(page.locator("#flight")).toBeHidden({ timeout: 5000 });
+    expect(Math.abs(await page.evaluate(() => document.getElementById("listen").getBoundingClientRect().top))).toBeLessThanOrEqual(1);
+    await expect(page.locator("#h-listen")).toBeFocused();
+    // Afterwards the page scrolls normally, and the overlay never takes clicks.
+    await page.mouse.wheel(0, 200);
+    await expect.poll(() => page.evaluate(() => document.getElementById("listen").getBoundingClientRect().top)).toBeLessThan(-100);
+    expect(await page.locator("#flight").evaluate((el) => getComputedStyle(el).pointerEvents)).toBe("none");
+  });
+}
+
+test("cta: the demo action plays the transition and ends with the demo playing", async ({ page }) => {
+  await ready(page);
+  await page.locator("#cta").click();
+  await expect(page.locator("#flight")).toBeVisible();
+  await expect(page.locator("#flight")).toBeHidden({ timeout: 5000 });
+  await expect.poll(() => page.evaluate(() => !document.getElementById("demo").paused)).toBe(true);
+  expect(Math.abs(await page.evaluate(() => document.getElementById("listen").getBoundingClientRect().top))).toBeLessThanOrEqual(1);
+});
+
+test("butterfly: under reduced motion there is no overlay and no scroll capture", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await ready(page);
-  await page.evaluate(() => scrollTo(0, innerHeight * 0.4));
+  await page.mouse.move(400, 400);
+  await page.mouse.wheel(0, 150);
+  await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(0);
   await page.waitForTimeout(300);
   await expect(page.locator("#flight")).toBeHidden();
+  expect(await page.evaluate(() => scrollY)).toBeLessThan(400); // an ordinary scroll, not a jump to the next section
 });

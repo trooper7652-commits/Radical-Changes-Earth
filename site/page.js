@@ -31,10 +31,12 @@ visuals.addEventListener("playing", () => showState("playing"));
 visuals.addEventListener("pause", () => showState("paused"));
 visuals.addEventListener("ended", () => showState("paused"));
 
-// The primary action: go to the demo and play it with sound (the visitor asked for it with this click).
-$("cta").addEventListener("click", (event) => {
+// The primary action: go to the demo (through the butterfly transition) and play it with sound.
+let flight = null; // the transition, when motion is allowed
+$("cta").addEventListener("click", async (event) => {
   event.preventDefault();
-  $("listen").scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
+  if (flight) await flight.play(); // ends with "Hear the map change." at the top of the screen
+  else $("listen").scrollIntoView({ block: "start" });
   demo.focus({ preventScroll: true });
   demo.play().catch(() => {});
 });
@@ -143,7 +145,8 @@ function driveMeter(songData) {
 revealOnScroll();
 try { // decoration: a failure here must never stop the player below from loading
   const earth = startEarth(document.querySelector(".globe"), { reduced });
-  if (!reduced) startFlight($("flight"), earth.butterfly); // under reduced motion it stays a still satellite
+  // Under reduced motion there is no transition and no scroll capture: the satellite stays still.
+  if (!reduced) flight = startFlight($("flight"), earth.butterfly, $("listen"), $("h-listen"));
 } catch (error) {
   console.warn(error);
 }
