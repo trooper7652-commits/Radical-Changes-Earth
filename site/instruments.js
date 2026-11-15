@@ -57,6 +57,85 @@ export const INSTRUMENTS = {
     },
     release: 1.2,
   },
+  "string bass": {
+    label: "String bass",
+    kind: "sampler",
+    baseUrl: "samples/string-bass/",
+    urls: {
+      E1: "E1.mp3", "F#1": "Fs1.mp3", "G#1": "Gs1.mp3", B2: "B2.mp3",
+      "C#2": "Cs2.mp3", E2: "E2.mp3", "G#2": "Gs2.mp3",
+    },
+    release: 2.0,
+  },
+  bagpipes: {
+    label: "Bagpipes",
+    kind: "sampler",
+    baseUrl: "samples/bagpipes/",
+    urls: {
+      F4: "F4.mp3", G4: "G4.mp3", A4: "A4.mp3", C5: "C5.mp3",
+      D5: "D5.mp3", E5: "E5.mp3", "F#5": "Fs5.mp3", G5: "G5.mp3",
+    },
+    release: 1.5,
+  },
+  "pipe organ": {
+    label: "Pipe organ",
+    kind: "sampler",
+    baseUrl: "samples/pipe-organ/",
+    urls: {
+      C1: "C1.mp3", "D#1": "Ds1.mp3", "F#1": "Fs1.mp3", A1: "A1.mp3",
+      C2: "C2.mp3", "D#2": "Ds2.mp3", "F#2": "Fs2.mp3", C3: "C3.mp3",
+    },
+    release: 2.5,
+  },
+  guitar: {
+    label: "Guitar",
+    kind: "sampler",
+    baseUrl: "samples/guitar/",
+    urls: {
+      E2: "E2.mp3", G2: "G2.mp3", C3: "C3.mp3", E3: "E3.mp3",
+      G3: "G3.mp3", C4: "C4.mp3", E4: "E4.mp3", A4: "A4.mp3",
+    },
+    release: 1.5,
+  },
+  handpan: {
+    label: "Handpan (hang)",
+    kind: "sampler",
+    baseUrl: "samples/handpan/",
+    urls: {
+      A3: "A3.mp3", D4: "D4.mp3", E4: "E4.mp3", F4: "F4.mp3", G4: "G4.mp3",
+      A4: "A4.mp3", Bb4: "As4.mp3", C5: "C5.mp3", D5: "D5.mp3",
+    },
+    release: 1.0,
+  },
+  choir: {
+    label: "Choir",
+    kind: "sampler",
+    baseUrl: "samples/choir/",
+    urls: {
+      C3: "C3.mp3", "F#3": "Fs3.mp3", C4: "C4.mp3", "F#4": "Fs4.mp3", C5: "C5.mp3",
+    },
+    release: 2.0,
+  },
+  whistle: {
+    label: "Whistle",
+    kind: "sampler",
+    baseUrl: "samples/whistle/",
+    urls: {
+      C3: "C3.mp3", "F#3": "Fs3.mp3", C4: "C4.mp3", "F#4": "Fs4.mp3",
+      C5: "C5.mp3", "F#5": "Fs5.mp3", C6: "C6.mp3",
+    },
+    release: 1.0,
+  },
+  "pan pipes": {
+    label: "Pan pipes",
+    kind: "sampler",
+    baseUrl: "samples/pan-pipes/",
+    urls: {
+      C3: "C3.mp3", "F#3": "Fs3.mp3", C4: "C4.mp3", "F#4": "Fs4.mp3",
+      C5: "C5.mp3", "F#5": "Fs5.mp3", C6: "C6.mp3",
+    },
+    release: 1.0,
+  },
 };
 
 // One master chain per audio context (live or offline), shared by every instrument:
