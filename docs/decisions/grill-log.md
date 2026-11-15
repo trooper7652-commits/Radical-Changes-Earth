@@ -239,3 +239,10 @@ Q1 Tempo rules disagree · Q2 Short vs long notes · Q3 Contrast vs uniqueness �
 - A butterfly in the site's colours that looks like one of the satellites orbiting the Earth at first, then flies from the bottom left up and to the right, covering the screen as the visitor scrolls down.
 - The video in the middle, with the notes on how the music is made on the sides, while the visitor sees the video and hears the music.
 - "REMEMBER TO USE GOOD ANIMATIONS."
+
+## Round 17: website layout (owner, 2026-11-15 afternoon)
+- "Switch the location of the spinning globe and the text next to it. I like both of them, but I think it makes more sense for the globe to be on the left because the butterfly should appear from the bottom left."
+- "I also don't like how the page background turns from black to white, it hurts my eyes and makes the website less seamless." (The whole page goes dark; links use sodium amber.)
+- "Also the font in the seven rules in the white background part seems out of place, make it more consistent with the black background part of the website."
+- "Also make the Oppenheimer quote one of the first things the user sees when landing on the website."
+- DESIGN.md: overwrite with the new system after the fixes. Public Vercel link: update to the new site after the fixes pass review.

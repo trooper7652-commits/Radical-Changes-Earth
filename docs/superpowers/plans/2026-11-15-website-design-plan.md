@@ -258,6 +258,13 @@ Priority if time runs short:
 3. the butterfly
 4. the full score (the 7-frame strip is the fallback)
 
+## Owner round 17: layout and one dark page (2026-11-15 afternoon, binding)
+
+- **The globe on the left, the text on the right,** so the butterfly starts from the bottom left. On phones the globe sits behind the headline and bleeds off the left edge.
+- **One continuous dark page.** This replaces the paper sections. Everything sits on `--night` `#07090e`, with `#f3f5f8` text, `#a3abba` secondary text (8.62:1), and sodium `#ffb547` for links and the focus ring (11.34:1). `--paper` and `--sodium-ink` are no longer used. Still no glows and no gradients.
+- **The seven rules use the same type as the side notes:** a small uppercase label, a short mono value line, then the rule text.
+- **The Bohr quote moves into the first viewport.** It appears once, so it leaves the "Built for listening" section.
+
 ## Build handoff (after approval)
 
 **Head chef (Opus 5.5, xhigh):**
