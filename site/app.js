@@ -8,7 +8,7 @@ import { INSTRUMENTS, createInstrument } from "./instruments.js";
 const LATE_NOTE_SECONDS = 0.1;
 
 // The song's parts. A frame names each part's instrument in "<part>Instrument" (null: silent in that frame).
-export const VOICES = ["melody", "bass", "handpan", "bagpipes", "stringBass"];
+export const VOICES = ["melody", "bass", "handpan", "panHang", "panBalafon", "stringBass", "oboe"];
 
 // A frame fades out while the next one fades in, so even and odd frames play on separate copies of
 // their instruments, and each copy follows its own frame's volume.
@@ -40,7 +40,7 @@ function gainAt(envelope, time) {
 // Queues one frame from song time `offset`, which plays at audio time `at` (when the transport starts):
 // its notes as a Tone.Part (returned) and its volume envelope on the instruments it plays.
 // Notes in `played` are skipped and each note joins it as it plays, so starting again never doubles a note.
-// instrumentsByVoice: { melody, bass, handpan, bagpipes, stringBass }, each a Tone instrument.
+// instrumentsByVoice: { voice: Tone instrument } for each of VOICES.
 export function scheduleFrame(frame, instrumentsByVoice, Tone, offset, at, played = new Set()) {
   const envelope = frameEnvelope(frame);
   const from = Math.max(offset, envelope[0][0]); // the frame's start, or the offset once it has started
@@ -60,7 +60,7 @@ export function scheduleFrame(frame, instrumentsByVoice, Tone, offset, at, playe
     // reach this part too, at times before it starts. Only this run's own ticks play.
     if (time < at) return;
     played.add(note);
-    const velocity = Tone.dbToGain(note.volumeDb); // the note's own volume (bagpipes, string bass)
+    const velocity = Tone.dbToGain(note.volumeDb); // the note's own volume (the change voices follow the change)
     instrumentsByVoice[note.voice].triggerAttackRelease(note.pitch, note.duration, time, velocity);
   }, notes.map((note) => ({ time: Math.max(0, note.time - offset), note })));
   return part.start(0);

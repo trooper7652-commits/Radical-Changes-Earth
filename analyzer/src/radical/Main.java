@@ -56,15 +56,16 @@ public final class Main {
             MusicRules.FramePlan plan = MusicRules.plan(i, mine, change[i], stretched[i]);
             entries.add(new SongJson.FrameEntry(plan, raw[i], mine, change[i], LABELS[i], 3.0 * i));
 
-            // Each voice shows its instrument and note count; the last column is the bagpipes and string bass volume.
+            // Each voice shows its instrument and note count; the last column is the change voices' volume.
             console.printf("%-17s | %6.1f %6.1f %6.1f %6.1f %6.1f %6.1f | chg %6.1f | %5.1f bpm | %s %s | %s"
-                    + " | melody %s | bass %s | handpan %s | bagpipes %s | string bass %s | %s%n",
+                    + " | melody %s | bass %s | handpan %s | panHang %s | panBalafon %s | string bass %s | oboe %s | %s%n",
                 LABELS[i], mine[0], mine[1], mine[2], mine[3], mine[4], mine[5], change[i], plan.bpm(),
                 plan.mode(), plan.key(), plan.shortNotes() ? "short" : "long",
                 voice(plan, "melody", plan.melodyInstrument()), voice(plan, "bass", plan.bassInstrument()),
-                voice(plan, "handpan", plan.handpanInstrument()), voice(plan, "bagpipes", plan.bagpipesInstrument()),
-                voice(plan, "stringBass", plan.stringBassInstrument()),
-                change[i] > 0 ? String.format("%.1f dB", MusicRules.changeVoiceDb(MusicRules.presenceChange(change[i]))) : "-");
+                voice(plan, "handpan", plan.handpanInstrument()), voice(plan, "panHang", plan.panHangInstrument()),
+                voice(plan, "panBalafon", plan.panBalafonInstrument()),
+                voice(plan, "stringBass", plan.stringBassInstrument()), voice(plan, "oboe", plan.oboeInstrument()),
+                change[i] > 0 ? String.format("%.1f dB", MusicRules.boostedChangeVoiceDb(MusicRules.presenceChange(change[i]))) : "-");
         }
 
         if (out.getParent() != null) Files.createDirectories(out.getParent());

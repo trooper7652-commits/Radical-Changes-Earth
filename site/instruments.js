@@ -136,6 +136,25 @@ export const INSTRUMENTS = {
     },
     release: 1.0,
   },
+  oboe: {
+    label: "Oboe",
+    kind: "sampler",
+    baseUrl: "samples/oboe/",
+    urls: {
+      "A#2": "As2.mp3", D3: "D3.mp3", F3: "F3.mp3", "A#3": "As3.mp3", D4: "D4.mp3",
+      F4: "F4.mp3", "A#4": "As4.mp3", D5: "D5.mp3", F5: "F5.mp3",
+    },
+    release: 1.0,
+  },
+  balafon: {
+    label: "Balafon",
+    kind: "sampler",
+    baseUrl: "samples/balafon/",
+    urls: {
+      "C#3": "Cs3.mp3", F3: "F3.mp3", C4: "C4.mp3", F4: "F4.mp3", C5: "C5.mp3", F5: "F5.mp3",
+    },
+    release: 1.0,
+  },
 };
 
 // One master chain per audio context (live or offline), shared by every instrument:

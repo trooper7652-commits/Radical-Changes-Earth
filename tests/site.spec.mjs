@@ -187,20 +187,23 @@ test("handpan-voice: a frame with a handpan part plays it on the handpan", async
   await expect(playButton(page)).toBeEnabled();
   await recordNotes(page);
   await playButton(page).click();
-  const onHandpan = () =>
-    page.evaluate(() => window.triggered.filter((note) => note.name === "handpan").map((note) => note.pitch));
+  // Only frame 0's: from frame 1 on, the panHang voice plays the handpan too.
+  const onHandpan = () => page.evaluate((n) =>
+    window.triggered.filter((note) => note.name === "handpan").map((note) => note.pitch).slice(0, n), handpan.length);
   await expect.poll(onHandpan).toEqual(handpan.map((note) => note.pitch));
 });
 
-test("bagpipes and string bass: their volume follows the change", async ({ page }) => {
-  // In the data: -30 dB at change 1 up to -6 dB at 100, the change doubled first (owner's 2x presence).
+test("change voices (hang, balafon, string bass): their volume follows the change", async ({ page }) => {
+  // In the data: -30 dB at change 1 up to -6 dB at 100, the change doubled first (owner's 2x presence),
+  // then 10 dB louder, capped at -3 dB (song v3).
   const song = readSong();
-  const changeVoice = (note) => note.voice === "bagpipes" || note.voice === "stringBass";
+  const instrumentOf = { panHang: "handpan", panBalafon: "balafon", stringBass: "string bass" };
+  const changeVoice = (note) => Object.hasOwn(instrumentOf, note.voice);
   for (const frame of song.frames) {
     const presence = Math.min(100, frame.change * 2);
     const notes = frame.notes.filter(changeVoice);
     expect(notes.length > 0).toBe(frame.index > 0); // frame 0 has no previous frame
-    for (const note of notes) expect(note.volumeDb).toBeCloseTo(-30 + (24 * (presence - 1)) / 99, 9);
+    for (const note of notes) expect(note.volumeDb).toBeCloseTo(Math.min(-3, -30 + (24 * (presence - 1)) / 99 + 10), 9);
   }
 
   // In the player: each note sounds at its own volume.
@@ -210,12 +213,12 @@ test("bagpipes and string bass: their volume follows the change", async ({ page 
   await recordNotes(page);
   await playButton(page).click();
   const expected = song.frames[1].notes.filter(changeVoice).map((note) => ({
-    name: note.voice === "bagpipes" ? "bagpipes" : "string bass",
+    name: instrumentOf[note.voice],
     pitch: note.pitch,
     velocity: expect.closeTo(10 ** (note.volumeDb / 20), 6),
   }));
-  const onChangeVoices = () => page.evaluate(() =>
-    window.triggered.filter((note) => note.name === "bagpipes" || note.name === "string bass"));
+  const onChangeVoices = () => page.evaluate((names) =>
+    window.triggered.filter((note) => names.includes(note.name)), Object.values(instrumentOf));
   await expect.poll(onChangeVoices).toEqual(expected);
 });
 

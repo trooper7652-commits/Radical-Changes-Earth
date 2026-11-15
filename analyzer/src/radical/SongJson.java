@@ -43,8 +43,10 @@ final class SongJson {
             sb.append(",\"melodyInstrument\":").append(quote(e.plan().melodyInstrument()));
             sb.append(",\"bassInstrument\":").append(quote(e.plan().bassInstrument()));
             sb.append(",\"handpanInstrument\":").append(quoteOrNull(e.plan().handpanInstrument()));
-            sb.append(",\"bagpipesInstrument\":").append(quoteOrNull(e.plan().bagpipesInstrument()));
+            sb.append(",\"panHangInstrument\":").append(quoteOrNull(e.plan().panHangInstrument()));
+            sb.append(",\"panBalafonInstrument\":").append(quoteOrNull(e.plan().panBalafonInstrument()));
             sb.append(",\"stringBassInstrument\":").append(quoteOrNull(e.plan().stringBassInstrument()));
+            sb.append(",\"oboeInstrument\":").append(quoteOrNull(e.plan().oboeInstrument()));
             sb.append(",\"notes\":[");
 
             for (int j = 0; j < e.plan().notes().size(); j++) {
