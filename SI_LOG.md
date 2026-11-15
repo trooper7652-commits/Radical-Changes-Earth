@@ -17,3 +17,5 @@ Every AI model used on this project, as it is used. The project idea, the six me
 | 2026-11-14 | Task 5 | Claude Haiku 5.5 | Downloaded and converted free-licensed instrument samples, wrote instruments.js and LICENSES.md |
 | 2026-11-14 | Task 6 | Claude Fable 5.2 | Wrote the live player (app.js), page harness and Playwright tests; made the slowed visuals video with ffmpeg; Claude Sonnet 5.5 reviewed it |
 | 2026-11-14 | Task 7 | Claude Sonnet 5.5 | Wrote the offline renderer (render.js), WAV encoder, video build script, extra player fixes and tests; added a master limiter after manager review; a second Sonnet instance reviewed it |
+| 2026-11-14 | Task 7b | Claude Sonnet 5.5 | Switched the video to hold each chosen frame during its music (owner decision), added an alignment check |
+| 2026-11-14 | Task 8 step 1 | Claude Sonnet 5.5 | Made three visual-direction mockups with the design skills for the owner to choose from |

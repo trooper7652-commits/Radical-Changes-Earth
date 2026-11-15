@@ -4,61 +4,88 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Radical changes</title>
+  <meta name="description" content="A 27-second song made from seven frames of NASA's night-lights change map, so you can hear how light pollution is changing.">
+  <meta name="radical-changes:ai-assistance" content="Code and documentation written with AI assistance (Claude models and free models); the idea and all rules are the team's. See SI_DISCLOSURE.md.">
+  <meta name="theme-color" content="#05060d">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@600;800&family=Hanken+Grotesk:wght@400;600&display=swap">
+  <link rel="stylesheet" href="styles.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/15.1.22/Tone.js"></script>
 </head>
 <body>
-  <main>
-    <h1>Radical changes</h1>
-    <!-- Test harness for the player; Task 8 brings the real design. -->
-    <section id="player" aria-label="Song player">
-      <video id="visuals" src="media/radical-changes-visuals.mp4" muted playsinline preload="auto" width="960"></video>
-      <p>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="hero">
+    <div class="planet" aria-hidden="true"><img src="img/f3.jpg" alt="" width="1280" height="720"></div>
+    <div class="glow" data-decor aria-hidden="true"></div>
+    <p class="site" translate="no">Radical changes</p>
+    <blockquote>
+      <p>The important thing isn’t can you read music, it’s can you hear it. Can you hear the music, Robert?</p>
+      <footer><cite>— Niels Bohr, as portrayed in <i>Oppenheimer</i> (2023)</cite></footer>
+    </blockquote>
+  </header>
+
+  <main id="main">
+    <section aria-labelledby="h-demo">
+      <h2 id="h-demo">Hear 2012 to 2023 in 30 seconds</h2>
+      <p class="lede">Turn the sound on. Each frame of NASA’s night-lights change map becomes a few seconds of music.</p>
+      <div class="frame">
+        <video id="demo" controls preload="none" poster="img/f6.jpg" src="media/radical-changes-30s.mp4" aria-label="30-second demo with sound: the night-lights change map and its song"></video>
+      </div>
+    </section>
+
+    <section aria-labelledby="h-play">
+      <h2 id="h-play">Play it yourself</h2>
+      <p class="lede">The same song, live. Change the instruments and the notes stay the same.</p>
+      <div class="frame">
+        <video id="visuals" src="media/radical-changes-visuals.mp4" muted playsinline preload="auto" aria-hidden="true"></video>
+      </div>
+      <ol class="timeline" id="timeline" aria-hidden="true"></ol>
+      <div class="controls">
         <button id="play" type="button" data-state="paused" disabled>Play</button>
-        <span id="status" role="status"></span>
-      </p>
+        <label>Melody instrument <select id="melody" disabled></select></label>
+        <label>Bass instrument <select id="bass" disabled></select></label>
+      </div>
+      <span id="status" role="status"></span>
+      <p id="heard" class="heard" aria-live="polite"></p>
+    </section>
+
+    <section aria-labelledby="h-rules">
+      <h2 id="h-rules">How the music is made</h2>
+      <ul class="rules">
+        <li><span class="bar" style="--w:40%"></span><h3>Rhythm</h3><p>How far the frame’s main color is from red. The farther, the more offbeat the rhythm.</p></li>
+        <li><span class="bar" style="--w:50%"></span><h3>Melody and key</h3><p>The main color is compared with the average color of each column, left to right. That sets the melody’s pitch and the key within the list of keys.</p></li>
+        <li><span class="bar" style="--w:60%"></span><h3>Tempo</h3><p>Vibrancy is averaged 50/50 with the size of change from the previous frame.</p></li>
+        <li><span class="bar" style="--w:70%"></span><h3>Major or minor</h3><p>Happiness is the share of pixels at brightness 127 or more. More light means less happy, so minor.</p></li>
+        <li><span class="bar" style="--w:80%"></span><h3>Short or long notes</h3><p>Uniqueness compares a bright spot with the light around it. It sets short or long notes.</p></li>
+        <li><span class="bar" style="--w:90%"></span><h3>Instrument family</h3><p>Contrast compares connected full-brightness pixels with dark pixels. High contrast gives synth and piano; low contrast gives harp, bells, flute and sustain strings.</p></li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="h-heard">
+      <h2 id="h-heard">What you hear, frame by frame</h2>
+      <ol class="frames" id="frames"></ol>
+    </section>
+
+    <section class="small" aria-labelledby="h-credits">
+      <h2 id="h-credits">Sources and credits</h2>
+      <ul>
+        <li>Night-lights frames and video: <a href="https://svs.gsfc.nasa.gov/5313/">Change in Night Lights 2012-2023 (SVS 5313)</a>, NASA’s Scientific Visualization Studio.</li>
+        <li>Background on the subject: Wikipedia, “Light pollution”.</li>
+        <li>Harp, bells, flute and sustain strings: Versilian Studios, VSCO 2 Community Edition (recorded by Sam Gossner and Simon Dalzell), <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0 1.0</a>.</li>
+        <li>Piano: Salamander Grand Piano by Alexander Holm, <a href="https://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>. Synth: Tone.js, no samples.</li>
+        <li><a href="https://tonejs.github.io/">Tone.js</a>, MIT license.</li>
+        <li>Quote: Niels Bohr, as portrayed in <i>Oppenheimer</i> (2023).</li>
+      </ul>
+    </section>
+
+    <section class="small" aria-labelledby="h-ai">
+      <h2 id="h-ai">AI disclosure</h2>
+      <p>The idea, the six measurement rules, the music rules and the frame choice are the team’s. AI tools (Claude models and free models) helped write the code and documentation and checked the work; see SI_DISCLOSURE.md.</p>
     </section>
   </main>
 
-  <script type="module">
-    import { SongPlayer } from "./app.js";
-
-    const video = document.getElementById("visuals");
-    const button = document.getElementById("play");
-    const status = document.getElementById("status");
-
-    function showState(state) {
-      button.dataset.state = state;
-      button.textContent = state === "playing" ? "Pause" : "Play";
-    }
-    video.addEventListener("playing", () => showState("playing"));
-    video.addEventListener("pause", () => showState("paused"));
-    video.addEventListener("ended", () => showState("paused"));
-
-    const COULDNT_START = "Couldn't start the player";
-    status.textContent = "Loading sounds…";
-    try {
-      if (typeof Tone === "undefined") throw new Error(COULDNT_START); // the Tone.js CDN failed
-      let songData;
-      try {
-        const response = await fetch("song-data.json");
-        if (!response.ok) throw new Error(response.status);
-        songData = await response.json();
-        if (!Array.isArray(songData.frames)) throw new Error("no frames");
-      } catch {
-        throw new Error(COULDNT_START);
-      }
-      const player = new SongPlayer(video, songData, Tone);
-      window.songPlayer = player; // for the tests and the browser console
-      await player.load();
-      button.addEventListener("click", () => {
-        const action = button.dataset.state === "playing" ? player.pause() : player.play();
-        Promise.resolve(action).catch(() => (status.textContent = COULDNT_START));
-      });
-      button.disabled = false;
-      status.textContent = "Ready";
-    } catch (error) {
-      status.textContent = error.message;
-    }
-  </script>
+  <script type="module" src="page.js"></script>
 </body>
 </html>

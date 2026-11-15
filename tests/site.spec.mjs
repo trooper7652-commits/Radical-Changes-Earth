@@ -48,7 +48,7 @@ test("seek-follows-video", async ({ page }) => {
   await expect(playButton(page)).toBeEnabled();
   const frameAt = (seconds) =>
     page.evaluate(async (time) => {
-      const video = document.querySelector("video");
+      const video = document.getElementById("visuals");
       const seeked = new Promise((resolve) => video.addEventListener("seeked", resolve, { once: true }));
       video.currentTime = time;
       await seeked;
@@ -68,7 +68,7 @@ test("seek-follows-video", async ({ page }) => {
   const sixthFrame = await pitchesOfFrame(page, 5);
   await expect.poll(() => triggered(page, sixthFrame.length)).toEqual(sixthFrame);
   const drift = await page.evaluate(
-    () => document.querySelector("video").currentTime - 20 - Tone.getTransport().seconds,
+    () => document.getElementById("visuals").currentTime - 20 - Tone.getTransport().seconds,
   );
   expect(Math.abs(drift)).toBeLessThan(0.25);
 });
@@ -119,7 +119,7 @@ test("play-pause-seek-no-duplicates", async ({ page }) => {
   await expect(playButton(page)).toBeEnabled();
   const seekTo = (time) =>
     page.evaluate(async (t) => {
-      const video = document.querySelector("video");
+      const video = document.getElementById("visuals");
       const seeked = new Promise((resolve) => video.addEventListener("seeked", resolve, { once: true }));
       video.currentTime = t;
       await seeked;

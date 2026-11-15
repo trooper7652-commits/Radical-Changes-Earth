@@ -55,8 +55,8 @@ export class SongPlayer {
 
   // Plays one voice ("melody" or "bass") on the named instrument for the whole song.
   async setInstrument(voice, name) {
-    await this.#loadInstrument(name);
-    this.chosen[voice] = name;
+    if (name) await this.#loadInstrument(name); // an empty name goes back to the song's own choice
+    this.chosen[voice] = name || undefined;
     if (this.parts.length > 0) this.#startNotes();
   }
 
