@@ -243,6 +243,21 @@ This copy is drafted by Claude from the team's facts, so it needs the owner's ap
 3. **Default instruments:** the bass uses piano in 2012-2023 and sustain strings in the change maps. The plan's reading: each picker's first option names the video's instrument, e.g. "Synth (as in the video)", and for the bass "Piano, then sustain strings (as in the video)". Choosing another instrument overrides it. OK?
 4. **Handpan picker:** with the flute replaced by a low synth plus a handpan, the handpan voice now plays in the three change maps. Should its picker come back?
 
+## Owner round 16: more life (2026-11-15, binding; these are the owner's ideas)
+
+The owner's words: "I don't like how much blank space there is ... The website honestly looks dead." The owner asks for:
+- **A rotating, interactable Earth** on the landing page that belongs to the site's look. It sits on the full-width night band: flat and crisp, with no glow. The texture is the team's SVS 5313 map if it covers the whole world, otherwise NASA Black Marble 2016. It turns on its own, can be dragged and turned with the arrow keys, and stops moving under reduced motion.
+- **A satellite that becomes a butterfly.** One of the satellites orbiting the Earth is the folded butterfly, with its solar panels as wings. On scroll, it flies in the site's colours from the bottom-left up to the right, growing to cover the screen, then leaves. The flight is driven by scroll, with `pointer-events: none`, and it is aria-hidden.
+- **The video in the middle, the music rules on the sides.** While the video plays, the side notes show what each rule did for the current frame, using real values from `song-data.json`. On phones they stack.
+- **Less blank space:** no empty viewport-height padding.
+- **"REMEMBER TO USE GOOD ANIMATIONS":** use the emil-design-eng skill and impeccable's animate reference. Transform and opacity only, eased, orchestrated. The "no scroll-linked motion" rule in section 4 is lifted for the butterfly only.
+
+Priority if time runs short:
+1. the side notes around the video, and less blank space
+2. the Earth
+3. the butterfly
+4. the full score (the 7-frame strip is the fallback)
+
 ## Build handoff (after approval)
 
 **Head chef (Opus 5.5, xhigh):**
