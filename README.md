@@ -36,13 +36,16 @@ Windows: `analyzer/run.ps1`
 ## Run the site and tests
 
 ```
-npx http-server site
+npx http-server site -p 8081
 npm ci && npx playwright test
 ```
+
+The site runs on port 8081 so that port 8080 stays free for the tests, which start their own server there.
 
 ## Sources
 
 - NASA Scientific Visualization Studio, SVS 5313: https://svs.gsfc.nasa.gov/5313/
 - Wikipedia, "Light pollution": https://en.wikipedia.org/wiki/Light_pollution
-- Instrument samples and Tone.js: see `site/samples/LICENSES.md`
+- Hooktheory, "Key popularity" (key order): https://www.hooktheory.com/cheat-sheet/key-popularity
+- Instrument samples: see `site/samples/LICENSES.md`. Tone.js license: see `CREDITS.md`.
 - Full credits: `CREDITS.md`. AI use: `SI_DISCLOSURE.md` and `SI_LOG.md`. Design decisions: `docs/decisions/grill-log.md`.

@@ -94,7 +94,7 @@ select[aria-busy="true"] { animation: busy 1s ease-in-out infinite alternate; }
 .small li { margin-bottom: 8px; }
 
 .rules li:nth-child(1) { --w: .18; } .rules li:nth-child(2) { --w: .34; } .rules li:nth-child(3) { --w: .5; }
-.rules li:nth-child(4) { --w: .66; } .rules li:nth-child(5) { --w: .82; } .rules li:nth-child(6) { --w: 1; }
+.rules li:nth-child(4) { --w: .66; } .rules li:nth-child(5) { --w: .82; } .rules li:nth-child(6), .rules li:nth-child(7) { --w: 1; }
 
 /* Scroll reveal: only when JS marks the page and motion is allowed (see revealOnScroll in page.js) */
 @media (prefers-reduced-motion: no-preference) {

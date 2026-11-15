@@ -63,11 +63,12 @@
       <h2 id="h-rules">How the music is made</h2>
       <ul class="rules">
         <li><span class="bar" aria-hidden="true"></span><h3>Rhythm</h3><p>How far the frame’s main color is from red. The farther, the more offbeat the rhythm.</p></li>
-        <li><span class="bar" aria-hidden="true"></span><h3>Melody and key</h3><p>The main color is compared with the average color of each column, left to right. That sets the melody’s pitch and the key within the list of keys.</p></li>
+        <li><span class="bar" aria-hidden="true"></span><h3>Melody and key</h3><p>The main color is compared with the average color of each column, left to right. That sets the melody’s pitch and the key within the list of keys (key order from <a href="https://www.hooktheory.com/cheat-sheet/key-popularity">Hooktheory, “Key popularity”</a>).</p></li>
         <li><span class="bar" aria-hidden="true"></span><h3>Tempo</h3><p>Vibrancy is averaged 50/50 with the size of change from the previous frame.</p></li>
-        <li><span class="bar" aria-hidden="true"></span><h3>Major or minor</h3><p>Happiness is the share of pixels at brightness 127 or more. More light means less happy, so minor.</p></li>
+        <li><span class="bar" aria-hidden="true"></span><h3>Major or minor</h3><p>Happiness is 100 minus the share of pixels at brightness 127 or more, stretched across the seven frames to 1 to 100. More light means less happy. 50 or more gives a major key; below 50, a minor key.</p></li>
         <li><span class="bar" aria-hidden="true"></span><h3>Short or long notes</h3><p>Uniqueness compares a bright spot with the light around it. It sets short or long notes.</p></li>
         <li><span class="bar" aria-hidden="true"></span><h3>Instrument family</h3><p>Contrast compares connected full-brightness pixels with dark pixels. High contrast gives synth and piano; low contrast gives harp, bells, flute and sustain strings.</p></li>
+        <li><span class="bar" aria-hidden="true"></span><h3>Change voices</h3><p>The size of change from the previous frame, doubled and capped at 100, drives the hang drum, balafon and string bass: the bigger the change, the louder, busier and higher they play. They are silent in the first frame. The oboe doubles the melody’s D, F and B♭ notes.</p></li>
       </ul>
     </section>
 
@@ -80,8 +81,11 @@
       <h2 id="h-credits">Sources and credits</h2>
       <ul>
         <li>Night-lights frames and video: <a href="https://svs.gsfc.nasa.gov/5313/">Change in Night Lights 2012-2023 (SVS 5313)</a>, NASA’s Scientific Visualization Studio.</li>
-        <li>Background on the subject: Wikipedia, “Light pollution”.</li>
-        <li>Harp, bells, flute and sustain strings: Versilian Studios, VSCO 2 Community Edition (recorded by Sam Gossner and Simon Dalzell), <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0 1.0</a>.</li>
+        <li>Background on the subject: <a href="https://en.wikipedia.org/wiki/Light_pollution">Wikipedia, “Light pollution”</a>.</li>
+        <li>Harp, bells, flute, sustain strings, string bass and oboe: Versilian Studios, VSCO 2 Community Edition (recorded by Sam Gossner and Simon Dalzell), <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0 1.0</a>.</li>
+        <li>Balafon and pipe organ: Versilian Community Sample Library (VCSL), <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0 1.0</a>. Details in <a href="samples/LICENSES.md">samples/LICENSES.md</a>.</li>
+        <li>Hang drum, guitar and bagpipes: FreePats, <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0 1.0</a>. Details in <a href="samples/LICENSES.md">samples/LICENSES.md</a>.</li>
+        <li>Choir, whistle and pan pipes (picker only): FluidR3 GM by Frank Wen, <a href="https://opensource.org/licenses/MIT">MIT</a>. Details in <a href="samples/LICENSES.md">samples/LICENSES.md</a>.</li>
         <li>Piano: Salamander Grand Piano by Alexander Holm, <a href="https://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>. Synth: Tone.js, no samples.</li>
         <li><a href="https://tonejs.github.io/">Tone.js</a>, MIT license.</li>
         <li>Quote: Niels Bohr, as portrayed in <i>Oppenheimer</i> (2023).</li>

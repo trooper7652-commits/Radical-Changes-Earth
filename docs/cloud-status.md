@@ -12,3 +12,4 @@ One line per step: `UTC time | step | state`. Written by the 4:20 AM CST cloud r
 2026-11-15T10:41Z | C3 website polish | done (Playwright 28/28; Atkinson Hyperlegible 19 px body; 7-voice picker; per-frame voice list; exact footer; screenshots in design/final; builder call: unslop CC-BY credit added to Sources and credits)
 2026-11-15T10:41Z | C4 gate 2 | started
 2026-11-15T11:00Z | C4 gate 2 round 1 | NO (song+video pass; 11 site/docs fixes: focus reveal, page credits, happiness card, change-voice card, live description picks, restart rounding, disclosure builder calls, LICENSES table, README/DESIGN, final-check, Hooktheory cite)
+2026-11-15T11:02Z | C4 gate 2 fixes | applied (29/29 tests; seek-follows-video 10/10 repeats)

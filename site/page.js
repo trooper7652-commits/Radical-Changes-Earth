@@ -28,11 +28,12 @@ visuals.addEventListener("pause", () => showState("paused"));
 visuals.addEventListener("ended", () => showState("paused"));
 
 // Plain-words description of a frame, made from song-data.json.
-function describe(frame, total) {
+function describe(frame, total, chosen = {}) {
   const name = (n) => INSTRUMENTS[n]?.label.toLowerCase() ?? n;
   // Every voice that plays in this frame (a null instrument means that voice is silent).
+  // The visitor's picks replace the song's own instruments, but a voice that is silent here stays silent.
   const playing = VOICES.filter((voice) => frame[`${voice}Instrument`])
-    .map((voice) => `${VOICE_LABELS[voice].toLowerCase()} on ${name(frame[`${voice}Instrument`])}`).join(", ");
+    .map((voice) => `${VOICE_LABELS[voice].toLowerCase()} on ${name(chosen[voice] || frame[`${voice}Instrument`])}`).join(", ");
   return `Frame ${frame.index + 1} of ${total}, ${frame.label}. ${frame.key} ${frame.mode}, ` +
     `${Math.round(frame.bpm)} beats per minute, ${frame.shortNotes ? "short" : "long"} notes. ` +
     `Playing: ${playing}.`;
@@ -48,6 +49,8 @@ function revealOnScroll() {
     for (const entry of entries) if (entry.isIntersecting) { entry.target.classList.add("in"); watcher.unobserve(entry.target); }
   }, { rootMargin: "0px 0px -8% 0px" });
   items.forEach((el, i) => { el.dataset.reveal = ""; el.style.setProperty("--i", i % 6); watcher.observe(el); });
+  // A focused element must never sit invisible inside a block that has not been revealed yet.
+  document.addEventListener("focusin", (e) => e.target.closest?.("[data-reveal]")?.classList.add("in"));
   document.documentElement.classList.add("reveal-ready");
 }
 
@@ -122,7 +125,7 @@ try {
     shown = index;
     $("timeline").querySelectorAll("li").forEach((li, i) => li.classList.toggle("on", i === index));
     $("frames").querySelectorAll("li").forEach((li, i) => li.classList.toggle("now", i === index && !visuals.paused));
-    if (!visuals.paused) $("heard").textContent = descriptions[index];
+    if (!visuals.paused) $("heard").textContent = describe(songData.frames[index], total, player.chosen);
   };
   visuals.addEventListener("timeupdate", showFrame);
   visuals.addEventListener("playing", () => { shown = -1; showFrame(); });

@@ -17,7 +17,7 @@ AI was not used to come up with the idea of how to solve the challenge. Claude w
 |---|---|---|
 | Planning | Claude Opus 5.5 (Claude Code) | Asked the team questions, recorded the answers, measured the frames, and wrote the design and plan documents from the team's answers |
 | Research | Claude Sonnet 5.5, Claude Haiku 5.5 | Looked up sonification methods, data and testing sources, sound-sample licenses, and checked design tools for safety |
-| Code | Claude Fable 5.2, Claude Sonnet 5.5, Claude Haiku 5.5, and one free model via the FreeLLMAPI "line cook" chain (exact provider model not recorded) | Wrote the Java analyzer, the JSON writer, the in-browser player, the offline renderer, the video build script, the website and the tests, from the team's rules |
+| Code | Claude Fable 5.2, Claude Sonnet 5.5, Claude Haiku 5.5, Claude Opus 5.5 (song v2 and v3), and one free model via the FreeLLMAPI "line cook" chain (exact provider model not recorded) | Wrote the Java analyzer, the JSON writer, the in-browser player, the offline renderer, the video build script, the website and the tests, from the team's rules |
 | Reviews | Claude Fable 5.2, Claude Sonnet 5.5, Claude Opus 5.5 | Reviewed every task against the team's design |
 | Website design | Claude Sonnet 5.5 with design skills | Made three visual mockups (the team chose one) and built the page; all graphics are CSS/SVG code written with AI assistance |
 | Documentation | Claude Opus 5.5, Claude Sonnet | Drafted the docs, this disclosure, and the AI log |
@@ -26,6 +26,8 @@ AI was not used to come up with the idea of how to solve the challenge. Claude w
 ### Implementation choices made by AI (not the team's rules)
 
 Where the team's rules left a technical detail open, the AI builder chose it and the team reviewed it: brightness = HSV value; one copy of the world (pixels 1920-5760 of each frame); printed labels masked before measuring; "main color" = most common color after rounding each channel to 16 levels; the bright spot for uniqueness = largest connected bright area vs a ring around it; 32 column groups for the melody measurement; tempo range 60-160 BPM; two octaves for the melody; bass on every 4th beat; how "more offbeat" is spread across notes; note lengths; a volume limiter and end fade; holding each frame on screen during its music (chosen by the team).
+
+Song v2 and v3 builder calls (the team set the goals; the AI chose these details): pitch ranges (hang drum A3-D5, balafon C#3-F5, string bass in octave 2); change-voice formulas (base volume from -30 dB to -6 dB, max(1, round(N × change / 100)) notes, pitch raised by round(change / 100 × 7) scale steps); -12 dB crossfades between frames, each frame silent by 4i+8 s; the oboe as the stand-in for the aulos, playing only D, F and A#; the balafon as the second pan instrument; note overlap applied to every voice; a 1.0 s release for the oboe and balafon.
 
 ## Media
 

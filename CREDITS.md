@@ -5,6 +5,8 @@
 - NASA Scientific Visualization Studio, "Change in Night Lights 2012-2023", SVS 5313: https://svs.gsfc.nasa.gov/5313/
 - Wikipedia, "Light pollution" (basis for the happiness rule): https://en.wikipedia.org/wiki/Light_pollution
 
+- Hooktheory, "Key popularity" (source of the key order): https://www.hooktheory.com/cheat-sheet/key-popularity
+
 ## Instrument samples (details in `site/samples/LICENSES.md`)
 
 - Versilian Studios, VSCO 2 Community Edition (recorded by Sam Gossner and Simon Dalzell), CC0 1.0: https://github.com/sgossner/VSCO-2-CE (harp, glockenspiel, flute, sustain strings, string bass, oboe)
