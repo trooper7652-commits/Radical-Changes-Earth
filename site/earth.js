@@ -17,16 +17,22 @@ const WING = `<path d="M-5-6C-22-58-92-74-94-30C-96 0-50 6-5 0Z"/><path d="M-5 4
 export const CRAFT = `
   <g class="wings" opacity="0">
     <g class="flap">${WING}</g><g transform="scale(-1 1)"><g class="flap">${WING}</g></g>
+    <path d="M-2-24C-6-40-14-50-24-56M2-24C6-40 14-50 24-56" class="feelers"/>
+    <ellipse rx="6" ry="30" class="body"/>
   </g>
   <g class="panels">
     <rect x="-88" y="-11" width="72" height="22"/><rect x="16" y="-11" width="72" height="22"/>
     <path d="M-70-11v22M-52-11v22M-34-11v22M34-11v22M52-11v22M70-11v22M-88 0h72M16 0h72" class="grid"/>
   </g>
-  <rect x="-9" y="-16" width="18" height="32" class="hull"/>
-  <path d="M0-16v-12" class="mast"/><circle cy="-30" r="3.5" class="beacon"/>`;
+  <g class="hull-group">
+    <rect x="-9" y="-16" width="18" height="32" class="hull"/>
+    <path d="M0-16v-12" class="mast"/><circle cy="-30" r="3.5" class="beacon"/>
+  </g>`;
 const CRAFT_STYLE = `
   .wings path { fill: #ffb547; stroke: #07090e; stroke-width: 3; stroke-linejoin: round; }
   .wings .spot { fill: #f3f5f8; }
+  .wings .body { fill: #07090e; stroke: #f3f5f8; stroke-width: 2; }
+  .wings .feelers { fill: none; stroke: #f3f5f8; stroke-width: 2.5; stroke-linecap: round; }
   .panels rect { fill: #1a2030; stroke: #c9ced6; stroke-width: 2; }
   .panels .grid { stroke: #c9ced6; stroke-width: 1; opacity: .55; fill: none; }
   .hull { fill: #f3f5f8; stroke: #07090e; stroke-width: 2; }
@@ -234,9 +240,11 @@ function setUpGl(gl, canvas, view, redraw) {
 // drops to the bottom-left, then rises up and to the right, growing until it sweeps across the screen
 // and leaves past the top-right corner. Driven by scroll position, smoothed so it keeps a little momentum.
 export function startFlight(flight, anchor) {
-  flight.innerHTML = `<svg viewBox="-100 -70 200 140" width="200" height="140"><style>${CRAFT_STYLE}</style>${CRAFT}</svg>`;
+  // Drawn at 1000 px and scaled down, so it stays sharp when it grows to cover the screen.
+  flight.innerHTML = `<svg viewBox="-100 -70 200 140" width="1000" height="700"><style>${CRAFT_STYLE}</style>${CRAFT}</svg>`;
   const wings = flight.querySelector(".wings");
   const panels = flight.querySelector(".panels");
+  const hull = flight.querySelector(".hull-group");
   const flaps = flight.querySelectorAll(".flap");
   let shown = 0, raf = 0, last = 0, phase = 0, prevShown = 0;
   const target = () => clamp(scrollY / (innerHeight * 1.15), 0, 1);
@@ -276,9 +284,10 @@ export function startFlight(flight, anchor) {
     flaps.forEach((el) => el.setAttribute("transform", `scale(${(0.2 + (beat - 0.2) * unfold).toFixed(3)} 1)`));
     wings.setAttribute("opacity", unfold.toFixed(3));
     panels.setAttribute("opacity", (1 - unfold).toFixed(3));
+    hull.setAttribute("opacity", (1 - unfold).toFixed(3));
     panels.setAttribute("transform", `scale(${1 - 0.6 * unfold} ${1 - 0.8 * unfold})`);
     flight.style.opacity = opacity.toFixed(3);
-    flight.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) rotate(${(-8 + 30 * s).toFixed(2)}deg) scale(${scale.toFixed(4)})`;
+    flight.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) rotate(${(-8 + 30 * s).toFixed(2)}deg) scale(${(scale / 5).toFixed(5)})`;
   }
 
   const wake = () => { if (!raf) raf = requestAnimationFrame(frame); };

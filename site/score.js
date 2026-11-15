@@ -19,7 +19,7 @@ export function drawScore(host, songData, rows) {
     const width = Math.round(host.clientWidth);
     if (!width) return;
     const narrow = width < 600;
-    const lane = narrow ? 16 : 28, label = narrow ? 13 : 17, gap = narrow ? 6 : 10;
+    const lane = narrow ? 16 : 28, label = narrow ? 16 : 18, gap = narrow ? 6 : 10;
     const rowH = label + lane + gap, height = rows.length * rowH + 4;
     toX = (t) => (Math.min(Math.max(t, 0), end) / end) * width;
     const parts = [];
