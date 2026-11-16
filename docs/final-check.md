@@ -18,7 +18,7 @@ From design spec section 12, plus the 2026-11-15 cloud-run items. "OWNER" means 
 - done: Song v3
 - done: Media re-render
 - done: Website polish
-- done: Deploy to Vercel (public: https://radical-changes.vercel.app, 2026-11-15)
+- done: Deploy to Vercel (public: https://radical-changes.vercel.app, final build live 2026-11-15 about 9:55 PM)
 - OWNER: Point the radicalchanges.earth DNS (Porkbun) at it
-- OWNER: Make the Radical-Changes-Earth repo public
+- OWNER: Make the Radical-Changes-Earth repo public (PR #1 merged and main/build updated to the final build on 2026-11-15 at about 9:55 PM; the visibility change itself is the owner's step)
 - OWNER: Submit on the Space Apps site
