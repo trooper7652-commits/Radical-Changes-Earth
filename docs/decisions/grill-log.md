@@ -260,3 +260,8 @@ Q1 Tempo rules disagree · Q2 Short vs long notes · Q3 Contrast vs uniqueness �
 - "Does rhythm change at all during the song? If not, remove the rhythm variable entirely."
 - Finding: the main color's distance from red is 247.258974 in all seven frames (scaled 50 each time), so the off-beat pattern never changed.
 - Owner's choice: **remove it entirely**: the measurement, the off-beat rule, and its place in the change average. There are now five measurements. Notes sit on the beat. The change values grow by about 20 %, tempos rise by 0-3 bpm (the first change map goes from 75.8 to 79.0 bpm), and the change voices get slightly louder and busier.
+
+## Round 21: shorter pause, highlighter headings (owner, 2026-11-15 evening)
+- "Make the pause a just a tad shorter." (Builder reading: both still moments shortened by about a quarter: the cover hold 0.5 → about 0.38 s, the blank screen 0.6 → about 0.45 s.)
+- "when scrolling down the page, highlight the headers of information in a highlighter yellow that pops out. the highlight should go down left to right, up to down, the same way you would read english, and the highlight should highlight it and then unhighlight in the same left to right, up to down fashion as the user scrolls further down."
+- Builder reading: the section and block headings below the hero; a new highlighter-yellow token used only for this, with dark text under it; scroll-driven; off under reduced motion.
