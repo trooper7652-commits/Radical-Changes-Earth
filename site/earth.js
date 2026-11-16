@@ -29,53 +29,51 @@ const SAT_STYLE = `
 
 // The butterfly, in the site's colours only (night, ink, secondary, sodium, field). Body along the y axis, head up.
 // Each wing is drawn for the left side and mirrored. The fore- and hindwings overlap around the body, so the
-// rectangle CORE (x -60..60, y -28..44) is solid: scaled to contain the viewport, it covers every pixel.
+// rectangles in COVER are solid: scaled to contain the viewport, they cover every pixel. The banded spot rows
+// and eyespots sit inside them, so the full-screen hold shows the wing pattern, not just the body.
 const FOREWING = `
   <path class="wing" d="M-3-24C-12-46-48-80-92-76C-104-74-106-60-100-46C-96-34-92-26-84-16C-66 4-34 12-3 10Z"/>
   <path class="base" d="M-3-24C-10-30-20-30-24-22C-18-14-10-8-3-6Z"/>
-  <path class="band" d="M-92-76C-104-74-106-60-100-46C-96-34-92-26-84-16L-75-20C-82-29-86-37-89-47C-92-58-88-64-80-66C-70-68-60-70-54-70C-66-77-80-78-92-76Z"/>
+  <path class="band" d="M-46-29C-42-18-36-6-27 7L-18 6C-27-6-32-18-36-29Z"/>
   <path class="vein" d="M-4-20C-20-46-52-74-88-76M-4-15C-34-40-72-62-100-60M-4-10C-40-30-78-44-101-44M-4-5C-42-16-76-24-95-30M-4 0C-40-2-70-6-86-16M-4 5C-36 8-62 6-74 0"/>
-  <path class="vein" d="M-6-14C-18-22-28-24-36-21C-30-13-20-7-6-4"/>
-  <path class="bar" d="M-33-24L-39-21L-34-12L-29-15Z"/>
-  <path class="fur" d="M-5-20l-10-4M-5-15l-13-2M-5-10l-12 1"/>
-  <g class="dots"><circle cx="-100" cy="-61" r="1.8"/><circle cx="-101" cy="-51" r="1.8"/><circle cx="-97" cy="-40" r="1.8"/>
-    <circle cx="-92" cy="-30" r="1.8"/><circle cx="-86" cy="-21" r="1.8"/><circle cx="-84" cy="-73" r="1.8"/><circle cx="-72" cy="-73" r="1.8"/></g>
-  <g class="apical"><circle cx="-95" cy="-62" r="2.4"/><circle cx="-95" cy="-52" r="2.2"/><circle cx="-91" cy="-42" r="2"/></g>
-  <circle class="e1" cx="-48" cy="-10" r="4.6"/><circle class="e2 pale" cx="-48" cy="-10" r="3.1"/>
-  <circle class="e3" cx="-48" cy="-10" r="1.7"/><circle class="glint" cx="-47.3" cy="-10.7" r=".6"/>`;
+  <path class="vein" d="M-6-14C-14-20-20-22-26-20C-22-13-15-8-6-5"/>
+  <g class="dots"><circle cx="-41" cy="-22" r="1.5"/><circle cx="-37.5" cy="-13" r="1.5"/><circle cx="-32.5" cy="-4" r="1.5"/><circle cx="-27" cy="4" r="1.4"/></g>
+  <g class="apical"><circle cx="-36.5" cy="-22" r="1.6"/><circle cx="-33.5" cy="-13" r="1.6"/><circle cx="-29" cy="-4" r="1.5"/><circle cx="-22.5" cy="4" r="1.4"/></g>
+  <circle class="e1" cx="-50" cy="0" r="4.4"/><circle class="e2 pale" cx="-50" cy="0" r="3"/><circle class="e3" cx="-50" cy="0" r="1.6"/>`;
 const HINDWING = `
   <path class="wing" d="M-3-4C-30-10-70-6-86 20C-94 38-88 62-70 74C-56 84-36 84-24 74C-14 66-6 54-3 42Z"/>
   <path class="base" d="M-3-4C-12-6-20-2-22 6C-14 10-8 12-3 14Z"/>
-  <path class="band" d="M-86 20C-94 38-88 62-70 74C-56 84-36 84-24 74L-27 66C-37 74-53 74-64 66C-78 56-83 40-78 24Z"/>
+  <path class="band" d="M-46 26C-38 32-26 34-14 30L-12 37C-26 42-40 40-50 33Z"/>
   <path class="vein" d="M-4 0C-30-4-62 0-84 18M-4 6C-34 10-64 26-90 40M-4 12C-30 22-56 42-78 66M-4 18C-24 34-40 58-52 80M-4 26C-14 42-22 60-30 78"/>
-  <path class="vein" d="M-6 4C-20 6-30 12-34 20C-24 22-14 22-6 18"/>
-  <path class="fur" d="M-5 2l-12-2M-5 7l-12 2"/>
-  <g class="dots"><circle cx="-88" cy="34" r="1.8"/><circle cx="-87" cy="48" r="1.8"/><circle cx="-81" cy="62" r="1.8"/>
-    <circle cx="-69" cy="73" r="1.8"/><circle cx="-54" cy="79" r="1.8"/><circle cx="-40" cy="79" r="1.8"/><circle cx="-29" cy="73" r="1.8"/></g>
-  <circle class="e1" cx="-44" cy="25" r="6.2"/><circle class="e2" cx="-44" cy="25" r="4.4"/>
-  <circle class="e3" cx="-44" cy="25" r="2.6"/><circle class="glint" cx="-43" cy="24" r="1"/>`;
+  <path class="vein" d="M-6 4C-14 6-20 9-24 13C-17 15-11 15-6 14"/>
+  <g class="dots"><circle cx="-44" cy="31" r="1.5"/><circle cx="-36" cy="34.5" r="1.5"/><circle cx="-27" cy="35.5" r="1.5"/><circle cx="-18" cy="34" r="1.5"/></g>
+  <circle class="e1" cx="-32" cy="17" r="4.2"/><circle class="e2" cx="-32" cy="17" r="2.9"/><circle class="e3" cx="-32" cy="17" r="1.6"/>`;
 const SIDE = `<g class="hw">${HINDWING}</g><g class="fw">${FOREWING}</g>`;
 const BODY = `
   <path class="feeler" d="M-1.5-35C-6-50-14-62-22-70M1.5-35C6-50 14-62 22-70"/>
   <ellipse class="club" cx="-23" cy="-71.5" rx="2.2" ry="3.8" transform="rotate(-40 -23 -71.5)"/>
   <ellipse class="club" cx="23" cy="-71.5" rx="2.2" ry="3.8" transform="rotate(40 23 -71.5)"/>
-  <ellipse class="abdomen" cy="26" rx="5" ry="28"/>
-  <path class="seg" d="M-4.6 8h9.2M-4.9 14h9.8M-5 20h10M-5 26h10M-4.9 32h9.8M-4.6 38h9.2M-4 44h8M-3 50h6"/>
+  <path class="abdomen" d="M0-2C4-2 5.5 6 5.5 16C5.5 32 3.5 46 0 56C-3.5 46-5.5 32-5.5 16C-5.5 6-4-2 0-2Z"/>
+  <path class="seg" d="M-5.3 8h10.6M-5.5 14h11M-5.5 20h11M-5.3 26h10.6M-5 32h10M-4.5 38h9M-3.8 44h7.6M-2.6 50h5.2"/>
   <ellipse class="thorax" cy="-12" rx="7" ry="14"/>
   <path class="hair" d="M-5-19C-2-17 2-17 5-19M-6-12C-2-10 2-10 6-12M-5-5C-2-3 2-3 5-5"/>
   <circle class="head" cy="-31" r="5.5"/><circle class="eyeball" cx="-3.2" cy="-32" r="1.9"/><circle class="eyeball" cx="3.2" cy="-32" r="1.9"/>`;
 const BUTTERFLY = `<g class="wings" opacity="0"><g>${SIDE}</g><g transform="scale(-1 1)">${SIDE}</g>${BODY}</g>`;
-const CORE = { x: 60, top: -28, bottom: 44 };
+// Solid rectangles (butterfly units, checked against the paths): the centre for wide screens; for tall ones,
+// one side's wing junction, with the body at the screen's right edge.
+const COVER = { wide: { left: -60, right: 60, top: -28, bottom: 44 }, tall: { left: -40, right: -3, top: -22, bottom: 40 } };
+// Strokes keep their screen width at every scale (vector-effect), so the lines stay fine when it fills the screen.
 const BUTTERFLY_STYLE = `
-  .wing { fill: #ffb547; stroke: #07090e; stroke-width: 1.6; stroke-linejoin: round; }
-  .base { fill: #10141c; } .band, .bar, .e1, .e3 { fill: #07090e; }
-  .vein { fill: none; stroke: #07090e; stroke-width: 1.1; stroke-linecap: round; stroke-linejoin: round; }
-  .fur, .hair, .seg { fill: none; stroke: #a3abba; stroke-width: .6; stroke-linecap: round; }
-  .dots circle, .glint { fill: #f3f5f8; } .apical circle, .e2 { fill: #ffb547; } .e2.pale { fill: #a3abba; }
-  .abdomen, .head { fill: #07090e; stroke: #a3abba; stroke-width: .7; }
-  .thorax { fill: #10141c; stroke: #a3abba; stroke-width: .7; }
-  .eyeball { fill: #10141c; stroke: #f3f5f8; stroke-width: .5; }
-  .feeler { fill: none; stroke: #a3abba; stroke-width: 1.1; stroke-linecap: round; } .club { fill: #a3abba; }`;
+  .wing { fill: #ffb547; stroke: #07090e; stroke-width: 2.5; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+  .base { fill: #10141c; } .band, .e1, .e3 { fill: #07090e; }
+  .vein { fill: none; stroke: #07090e; stroke-width: 1.25; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+  .hair { fill: none; stroke: #a3abba; stroke-width: 1; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+  .seg { fill: none; stroke: #10141c; stroke-width: 1; vector-effect: non-scaling-stroke; }
+  .dots circle { fill: #f3f5f8; } .apical circle, .e2 { fill: #ffb547; } .e2.pale { fill: #a3abba; }
+  .abdomen, .head { fill: #07090e; stroke: #a3abba; stroke-width: 1; vector-effect: non-scaling-stroke; }
+  .thorax { fill: #10141c; stroke: #a3abba; stroke-width: 1; vector-effect: non-scaling-stroke; }
+  .eyeball { fill: #10141c; stroke: #f3f5f8; stroke-width: 1; vector-effect: non-scaling-stroke; }
+  .feeler { fill: none; stroke: #a3abba; stroke-width: 1; stroke-linecap: round; vector-effect: non-scaling-stroke; } .club { fill: #a3abba; }`;
 
 // Three orbits around the globe (viewBox -100..100, globe radius 76). The first carries the butterfly.
 const ORBITS = [
@@ -275,41 +273,76 @@ function setUpGl(gl, canvas, view, redraw) {
   };
 }
 
-// The transition from the first viewport into "Hear the map change." (owner rounds 16 and 18).
-// Scrolling down out of the hero plays a timed sequence over the page: the satellite unfolds into the
-// butterfly, dips to the bottom-left and flies up and to the right, growing until its wings cover the whole
-// screen; it holds for a moment while the page moves to the next section behind it, then flies off the
-// top-right. Scrolling input is held while it runs. Not started at all under reduced motion (see page.js).
-const T_UNFOLD = 280, T_COVER = 1050, T_HOLD = 1550, T_END = 2100; // ms
+// The transition from the first viewport into "Hear the map change." (owner rounds 16, 18 and 19).
+// Scrolling down out of the hero, once its text has been seen, plays a timed sequence over the page:
+//   fly   the satellite unfolds into the butterfly, dips to the bottom-left and flies up and to the right,
+//         unhurried, growing until its wings cover the whole screen;
+//   hold  fully covered for a moment, while the page moves to the next section behind it (kept hidden);
+//   exit  it flies off the top-right, accelerating gently, wings beating;
+//   blank only the night ground, for a short pause;
+//   rise  the section rises into place from below, in up to four staggered groups; what is below it follows.
+// Scrolling input is held while it runs. Never started under reduced motion (see page.js).
+const T = { fly: 1300, hold: 1800, exit: 2800, blank: 3400 }; // phase ends, ms
+const RISE = { ms: 800, stagger: 70 }; // the section's rise, per group
 const easeOut = (s) => 1 - (1 - s) ** 3;
-const easeIn = (s) => s * s * s;
+const easeInQuad = (s) => s * s;
 const smooth = (a, b, v) => { const s = clamp((v - a) / (b - a), 0, 1); return s * s * (3 - 2 * s); };
+const RISE_EASE = "cubic-bezier(0.23, 1, 0.32, 1)";
 
 export function startFlight(flight, anchor, section, heading) {
   // A full-viewport SVG in CSS pixels, so the butterfly is drawn as vectors at every size, never a scaled bitmap.
   flight.innerHTML = `<svg width="100%" height="100%"><style>${SAT_STYLE}${BUTTERFLY_STYLE}</style>` +
     `<g class="craft-fly">${BUTTERFLY}${SAT}</g></svg>`;
-  const craft = flight.querySelector(".craft-fly");
-  const wings = flight.querySelector(".wings");
-  const panels = flight.querySelector(".panels");
-  const hull = flight.querySelector(".hull-group");
-  const fores = flight.querySelectorAll(".fw"), hinds = flight.querySelectorAll(".hw");
+  let craft, wings, panels, hull, fores, hinds;
+  const parts = () => {
+    craft = flight.querySelector(".craft-fly");
+    [wings, panels, hull] = [".wings", ".panels", ".hull-group"].map((s) => flight.querySelector(s));
+    [fores, hinds] = [".fw", ".hw"].map((s) => flight.querySelectorAll(s));
+  };
+  parts();
+  // Chrome can leave parts of the drawing unpainted after a long zoom (the spots, eyespots and veins vanished
+  // at full size, while a fresh copy of the same nodes painted them). A fresh copy is swapped in at each phase.
+  const repaint = () => { craft.replaceWith(craft.cloneNode(true)); parts(); };
+  const copy = anchor.closest(".hero").querySelector(".hero-copy");
   const sectionTop = () => section.getBoundingClientRect().top + scrollY;
   const inHero = () => scrollY < sectionTop() - 2;
+  // The hero's text has been on screen to its end (on phones the lede runs below the first view): until then
+  // scrolling is native, so nothing is skipped unread.
+  const heroSeen = (y = scrollY) => copy.getBoundingClientRect().bottom + scrollY - y <= innerHeight + 8;
+  // The section rises in these groups (heading, left notes, video, right notes); everything after it follows.
+  const groups = [".listen-head", ".notes ul:first-child", ".screen", ".notes ul:last-child"]
+    .map((selector) => section.querySelector(selector)).filter(Boolean);
+  const below = () => [...document.querySelectorAll(".listen ~ *, .band ~ *, .site-foot")];
   let running = null;
+
+  // Keeps the section and what follows it hidden until their turn, then lifts them in.
+  function veilAndRise(delay) {
+    // Settle the scroll-reveal state now, under the veil, so it never fights the rise.
+    for (const el of [...groups, ...below()]) el.closest("[data-reveal]")?.classList.add("in");
+    const shift = `translateY(${Math.round(innerHeight * 0.1)}px)`;
+    const rises = groups.map((el, i) => el.animate(
+      [{ opacity: 0, transform: shift }, { opacity: 1, transform: "none" }],
+      { duration: RISE.ms, delay: delay + i * RISE.stagger, easing: RISE_EASE, fill: "backwards" }));
+    const after = delay + (groups.length - 1) * RISE.stagger + RISE.ms;
+    below().forEach((el) => el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 240, delay: after, fill: "backwards" }));
+    return Promise.all(rises.map((a) => a.finished.catch(() => {})));
+  }
 
   function play() {
     if (running) return running;
     running = new Promise((resolve) => {
-      const w = innerWidth, h = innerHeight, big = Math.max(w, h);
+      const w = innerWidth, h = innerHeight;
       const box = anchor.getBoundingClientRect();
       const start = [box.left + box.width / 2, box.top + box.height / 2];
       const s0 = Math.max(box.width / 176, 0.1); // the satellite's size on screen (176 units wide)
-      // The scale at which the solid CORE contains the viewport, with a margin; its centre goes to the screen's centre.
-      const cover = Math.max(w / (2 * CORE.x), h / (CORE.bottom - CORE.top)) * 1.08;
-      const centre = [w / 2, h / 2 - ((CORE.top + CORE.bottom) / 2) * cover];
+      // The scale at which the solid rectangle contains the viewport, with a margin. Wide screens centre it;
+      // tall ones put the body at the right edge so the screen shows one side's wing pattern.
+      const r = h > w ? COVER.tall : COVER.wide;
+      const cover = Math.max(w / (r.right - r.left), h / (r.bottom - r.top)) * 1.08;
+      const cx = h > w ? r.right - 0.5 - w / cover / 2 : (r.left + r.right) / 2;
+      const centre = [w / 2 - cx * cover, h / 2 - ((r.top + r.bottom) / 2) * cover];
       const path = [start, [w * 0.06, h * 0.94], [w * 0.32, h * 0.92], centre];
-      let t0 = 0, last = 0, phase = 0, jumped = false;
+      let t0 = 0, last = 0, phase = 0, jumped = null, painted = "";
       anchor.style.opacity = "0";
       flight.hidden = false;
       flight.classList.add("run");
@@ -318,36 +351,49 @@ export function startFlight(flight, anchor, section, heading) {
         if (!t0) t0 = last = now;
         const t = now - t0, dt = (now - last) / 1000;
         last = now;
-        const unfold = easeOut(clamp(t / T_UNFOLD, 0, 1));
-        const s = easeInOut(clamp((t - 120) / (T_COVER - 120), 0, 1));
-        const out = easeIn(clamp((t - T_HOLD) / (T_END - T_HOLD), 0, 1));
-        flight.dataset.phase = t < T_COVER ? "fly" : t < T_HOLD ? "hold" : "exit";
+        flight.dataset.phase = t < T.fly ? "fly" : t < T.hold ? "hold" : t < T.exit ? "exit" : t < T.blank ? "blank" : "rise";
+        // Covered: the page moves to the next section behind the wings; it stays hidden until it rises in.
+        if (t >= T.fly && !jumped) {
+          scrollTo({ top: sectionTop(), behavior: "instant" });
+          jumped = veilAndRise(T.blank - t);
+        }
+        if (t >= T.exit) {
+          flight.hidden = true; // gone: the blank night ground, then the rise
+          if (t >= T.blank) return jumped.then(finish);
+          return requestAnimationFrame(frame);
+        }
+        const unfold = easeOut(clamp(t / 280, 0, 1));
+        const s = easeInOut(clamp((t - 120) / (T.fly - 120), 0, 1));
+        const out = easeInQuad(clamp((t - T.hold) / (T.exit - T.hold), 0, 1));
         let [x, y] = [0, 1].map((k) => (1 - s) ** 3 * path[0][k] + 3 * (1 - s) ** 2 * s * path[1][k] + 3 * (1 - s) * s * s * path[2][k] + s ** 3 * path[3][k]);
         let scale = s0 * (cover / s0) ** s; // even zoom: the same growth ratio every frame
         let turn = -16 * Math.sin(Math.PI * s); // banks through the turn, level when it covers the screen
         if (out > 0) {
-          x += out * (w / 2 + 140 * scale);
-          y -= out * (h / 2 + 140 * scale);
-          scale *= 1 + 0.3 * out;
+          x += out * (w / 2 + 150 * scale);
+          y -= out * (h / 2 + 150 * scale);
+          scale *= 1 + 0.25 * out;
           turn = 10 * out;
         }
         // Wing beats: forewing and hindwing slightly out of phase, each bending as it folds (a squeeze plus a
         // skew reads as the wing turning away). Still while it covers the screen, so no gap opens.
-        const beat = t < T_HOLD ? 1 - smooth(0.7, 1, s) : clamp(out * 3, 0, 1);
-        phase += dt * TAU * 3.2;
+        const beat = t < T.hold ? 1 - smooth(0.7, 1, s) : clamp(((t - T.hold) / (T.exit - T.hold)) * 2.5, 0, 1);
+        phase += dt * TAU * 2.8;
         const fold = (lag, depth) => 1 - beat * depth * (0.5 - 0.5 * Math.cos(phase - lag));
         const fore = fold(0, 0.62), hind = fold(0.7, 0.5);
-        fores.forEach((el) => el.setAttribute("transform", `scale(${fore.toFixed(3)} 1) skewY(${((1 - fore) * 14).toFixed(2)})`));
-        hinds.forEach((el) => el.setAttribute("transform", `scale(${hind.toFixed(3)} 1) skewY(${((1 - hind) * 10).toFixed(2)})`));
+        // CSS transforms, not SVG transform attributes: Chrome stops repainting some of a group's children when an
+        // ancestor's transform attribute changes every frame (the spots and veins vanished at full size).
+        fores.forEach((el) => (el.style.transform = `scale(${fore.toFixed(3)}, 1) skewY(${((1 - fore) * 14).toFixed(2)}deg)`));
+        hinds.forEach((el) => (el.style.transform = `scale(${hind.toFixed(3)}, 1) skewY(${((1 - hind) * 10).toFixed(2)}deg)`));
         // The satellite opens: its panels fold away as the wings spread from them.
-        wings.setAttribute("opacity", unfold.toFixed(3));
-        wings.setAttribute("transform", `scale(${(0.3 + 0.7 * unfold).toFixed(3)})`);
-        panels.setAttribute("opacity", (1 - unfold).toFixed(3));
-        hull.setAttribute("opacity", (1 - unfold).toFixed(3));
-        craft.setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${turn.toFixed(2)}) scale(${scale.toFixed(4)})`);
-        // Covered: the page moves to the next section behind the wings.
-        if (t >= T_COVER && !jumped) { jumped = true; scrollTo({ top: sectionTop(), behavior: "instant" }); }
-        if (t < T_END) return requestAnimationFrame(frame);
+        wings.style.opacity = unfold.toFixed(3);
+        wings.style.transform = `scale(${(0.3 + 0.7 * unfold).toFixed(3)})`;
+        panels.style.opacity = (1 - unfold).toFixed(3);
+        hull.style.opacity = (1 - unfold).toFixed(3);
+        craft.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) rotate(${turn.toFixed(2)}deg) scale(${scale.toFixed(4)})`;
+        if (painted !== flight.dataset.phase) { painted = flight.dataset.phase; if (painted !== "fly") repaint(); }
+        requestAnimationFrame(frame);
+      };
+      const finish = () => {
         flight.hidden = true;
         flight.classList.remove("run");
         delete flight.dataset.phase;
@@ -361,17 +407,18 @@ export function startFlight(flight, anchor, section, heading) {
     return running;
   }
 
-  // Downward input in the hero starts it; while it runs, scrolling input is held (dropped), never queued.
+  // Downward input in the hero, once its text has been seen, starts it; while it runs, input is held (dropped).
   const hold = (e) => { if (running) { e.preventDefault(); return true; } return false; };
+  const ready = () => inHero() && heroSeen();
   addEventListener("wheel", (e) => {
-    if (hold(e) || e.deltaY <= 0 || e.ctrlKey || !inHero()) return;
+    if (hold(e) || e.deltaY <= 0 || e.ctrlKey || !ready()) return;
     e.preventDefault();
     play();
   }, { passive: false });
   let touchY = null;
   addEventListener("touchstart", (e) => (touchY = e.touches[0].clientY), { passive: true });
   addEventListener("touchmove", (e) => {
-    if (hold(e) || touchY === null || touchY - e.touches[0].clientY < 6 || !inHero()) return;
+    if (hold(e) || touchY === null || touchY - e.touches[0].clientY < 6 || !ready()) return;
     e.preventDefault();
     touchY = null;
     play();
@@ -381,10 +428,12 @@ export function startFlight(flight, anchor, section, heading) {
     if (!SCROLL_KEYS.includes(e.key) || hold(e) || e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
     // Arrow keys and Space belong to the focused control (the Earth, video, selects, buttons, links).
     if (e.target.closest?.("input, select, textarea, button, a, video, canvas, [contenteditable]")) return;
-    if (!["ArrowDown", "PageDown", " "].includes(e.key) || !inHero()) return;
+    if (!["ArrowDown", "PageDown", " "].includes(e.key) || !ready()) return;
     e.preventDefault();
     play();
   });
+  // Clicks are held too while it runs.
+  document.addEventListener("click", (e) => { if (running) { e.preventDefault(); e.stopPropagation(); } }, true);
   // In-page links: "Listen" plays it (the demo action calls play() itself); others jump without it.
   let linkedAt = -Infinity;
   document.addEventListener("click", (e) => {
@@ -395,14 +444,15 @@ export function startFlight(flight, anchor, section, heading) {
     e.preventDefault();
     play();
   });
-  // Any other way down out of the hero (scrollbar, middle-click scroll), but not a link jump or a focus move.
+  // Any other way down out of the hero (scrollbar, middle-click scroll), once its text was already on screen,
+  // but not a link jump or a focus move.
   let lastY = scrollY;
   addEventListener("scroll", () => {
     const y = scrollY, prev = lastY;
     lastY = y;
     if (running || performance.now() - linkedAt < 1500 || y <= prev) return;
     const focusInHero = document.activeElement === document.body || anchor.closest(".hero")?.contains(document.activeElement);
-    if (prev < sectionTop() - 2 && y < sectionTop() + innerHeight / 2 && focusInHero) play();
+    if (prev < sectionTop() - 2 && heroSeen(prev) && y < sectionTop() + innerHeight / 2 && focusInHero) play();
   }, { passive: true });
 
   return { play };

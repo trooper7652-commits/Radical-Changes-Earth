@@ -302,16 +302,44 @@ const uncoveredDuringHold = (page) => page.evaluate(() => new Promise((resolve) 
   check();
 }));
 
+// Waits (in the page) for the blank pause after the butterfly leaves, and reports what is on screen then.
+const duringBlank = (page) => page.evaluate(() => new Promise((resolve) => {
+  const flight = document.getElementById("flight");
+  const check = () => {
+    if (flight.dataset.phase !== "blank") return requestAnimationFrame(check);
+    const opacity = (selector) => Number(getComputedStyle(document.querySelector(selector)).opacity);
+    resolve({
+      heading: opacity(".listen-head"), video: opacity("#listen .screen"), notes: opacity(".notes ul"),
+      butterfly: !!document.elementFromPoint(innerWidth / 2, innerHeight / 2)?.closest("#flight"),
+    });
+  };
+  check();
+}));
+// Brings the end of the hero's text on screen without starting anything (a plain scroll from the top).
+const toHeroEnd = (page) => page.evaluate(() => {
+  const copy = document.querySelector(".hero-copy");
+  scrollTo({ top: Math.max(0, copy.getBoundingClientRect().bottom + scrollY - innerHeight), behavior: "instant" });
+});
+const sequenceDone = (page) => expect(page.locator("#flight")).not.toHaveAttribute("data-phase", /./, { timeout: 8000 });
+
 for (const [width, height] of [[1440, 900], [390, 844]]) {
-  test(`butterfly at ${width}x${height}: scrolling down covers the whole screen, pauses, then shows "Hear the map change."`, async ({ page }) => {
+  test(`butterfly at ${width}x${height}: covers the screen, pauses, leaves, blank pause, then "Hear the map change." rises in`, async ({ page }) => {
     await page.setViewportSize({ width, height });
     await ready(page);
     await expect(page.locator("#flight")).toBeHidden();
+    await toHeroEnd(page);
     await page.mouse.move(width / 2, height / 2);
     await page.mouse.wheel(0, 120);
     expect(await uncoveredDuringHold(page)).toEqual([]);
-    await expect(page.locator("#flight")).toBeHidden({ timeout: 5000 });
+    // After it leaves: only the night ground, the section still hidden and no butterfly painted.
+    const blank = await duringBlank(page);
+    expect(blank.butterfly).toBe(false);
+    for (const value of [blank.heading, blank.video, blank.notes]) expect(value).toBeLessThan(0.05);
+    await sequenceDone(page);
     expect(Math.abs(await page.evaluate(() => document.getElementById("listen").getBoundingClientRect().top))).toBeLessThanOrEqual(1);
+    for (const selector of [".listen-head", "#listen .screen", ".notes ul"]) {
+      await expect(page.locator(selector).first()).toHaveCSS("opacity", "1");
+    }
     await expect(page.locator("#h-listen")).toBeFocused();
     // Afterwards the page scrolls normally, and the overlay never takes clicks.
     await page.mouse.wheel(0, 200);
@@ -320,11 +348,25 @@ for (const [width, height] of [[1440, 900], [390, 844]]) {
   });
 }
 
+test("phone: the first swipe scrolls natively while the end of the hero's text is still below the screen", async ({ page }) => {
+  // At 390x844 the hero's text now ends on the first screen (822 px); a shorter phone still runs it below.
+  await page.setViewportSize({ width: 375, height: 667 });
+  await ready(page);
+  const copyBelow = () => page.evaluate(() => document.querySelector(".hero-copy").getBoundingClientRect().bottom > innerHeight + 8);
+  expect(await copyBelow()).toBe(true);
+  await page.mouse.move(187, 333);
+  await page.mouse.wheel(0, 60);
+  await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(0);
+  await page.waitForTimeout(300);
+  await expect(page.locator("#flight")).toBeHidden();
+  await expect(page.locator("#flight")).not.toHaveAttribute("data-phase", /./);
+});
+
 test("cta: the demo action plays the transition and ends with the demo playing", async ({ page }) => {
   await ready(page);
   await page.locator("#cta").click();
   await expect(page.locator("#flight")).toBeVisible();
-  await expect(page.locator("#flight")).toBeHidden({ timeout: 5000 });
+  await sequenceDone(page);
   await expect.poll(() => page.evaluate(() => !document.getElementById("demo").paused)).toBe(true);
   expect(Math.abs(await page.evaluate(() => document.getElementById("listen").getBoundingClientRect().top))).toBeLessThanOrEqual(1);
 });
@@ -338,4 +380,36 @@ test("butterfly: under reduced motion there is no overlay and no scroll capture"
   await page.waitForTimeout(300);
   await expect(page.locator("#flight")).toBeHidden();
   expect(await page.evaluate(() => scrollY)).toBeLessThan(400); // an ordinary scroll, not a jump to the next section
+});
+
+test("score labels follow the pickers, and go back to the video's instruments", async ({ page }) => {
+  await ready(page);
+  const song = JSON.parse(fs.readFileSync("site/song-data.json", "utf8"));
+  const labels = await page.evaluate(async () => Object.fromEntries(
+    Object.entries((await import("./instruments.js")).INSTRUMENTS).map(([key, spec]) => [key, spec.label])));
+  // The video's own label: the same instruments, in frame order, as the picker's first option.
+  const videoRow = (name, voice) =>
+    `${name}: ${[...new Set(song.frames.map((f) => f[`${voice}Instrument`]).filter(Boolean))].map((n) => labels[n]).join(", then ").toLowerCase()}`;
+  for (const [voice, name, pick] of [["melody", "Melody", "piano"], ["bass", "Bass", "harp"]]) {
+    const row = page.locator(`#score .row-label[data-voice="${voice}"]`);
+    await expect(row).toHaveText(videoRow(name, voice));
+    await page.locator(`#${voice}`).selectOption(pick);
+    await expect(row).toHaveText(`${name}: ${labels[pick]}`);
+    await page.locator(`#${voice}`).selectOption("");
+    await expect(row).toHaveText(videoRow(name, voice));
+  }
+  await expect(page.locator("#score .row-label[data-voice=bass]")).toHaveText("Bass: piano, then sustain strings");
+});
+
+test("rhythm is gone: six side notes, six rules, five measurements, no red", async ({ page }) => {
+  await ready(page);
+  await expect(page.locator("#notes li")).toHaveCount(6);
+  await expect(page.locator("#notes ul").first().locator("li")).toHaveCount(3);
+  await expect(page.locator(".rules li")).toHaveCount(6);
+  await expect(page.locator("#h-rules")).toHaveText("Six rules, measured from the pixels.");
+  await expect(page.locator("#h-ai + p")).toContainText("five measurement rules");
+  const text = (await page.locator("main").innerText()).toLowerCase();
+  for (const word of ["rhythm", "offbeat", "from red", "seven rules", "six measurement"]) expect(text).not.toContain(word);
+  // Every value is filled, with or without the old field in the song data.
+  for (const value of await page.locator("#notes .v, .rules dd").allTextContents()) expect(value).not.toMatch(/undefined|NaN/);
 });

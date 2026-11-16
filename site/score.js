@@ -27,7 +27,7 @@ export function drawScore(host, songData, rows) {
     for (let i = 1; i < frames.length; i++) parts.push(`<line class="barline" x1="${toX(i * barSeconds)}" x2="${toX(i * barSeconds)}" y1="0" y2="${height}"/>`);
     rows.forEach(({ voice, label: text }, row) => {
       const y = row * rowH + label;
-      parts.push(`<text class="row-label" x="4" y="${y - 4}">${text}</text>`);
+      parts.push(`<text class="row-label" data-voice="${voice}" x="4" y="${y - 4}">${text}</text>`);
       parts.push(`<line class="staff" x1="0" x2="${width}" y1="${y + lane / 2}" y2="${y + lane / 2}"/>`);
     });
     // Pitch sets each note's height inside its own row; length sets its width.

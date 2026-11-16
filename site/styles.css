@@ -154,7 +154,7 @@ select[aria-busy="true"] { animation: busy 600ms var(--ease) infinite alternate;
 .words-head h2 { grid-column: 1 / span 6; }
 .words-head p { grid-column: 8 / span 5; color: var(--text-2); }
 /* Each rule reads like a side note: label, short mono values, then the team's rule text */
-.rules { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr)); gap: 0 40px; }
+.rules { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 30rem), 1fr)); gap: 0 40px; }
 .rules li { display: flex; flex-direction: column; padding-block: 16px 32px; border-top: 1px solid var(--hair); }
 .rules .fact { order: 1; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px 16px; margin-block: 8px 10px;
   font: 400 1.0625rem/1.4 var(--mono); }
@@ -227,6 +227,12 @@ select[aria-busy="true"] { animation: busy 600ms var(--ease) infinite alternate;
   .words-head p { margin-top: 16px; }
   .frames { grid-template-columns: minmax(0, 1fr); }
   .ends > :last-child { margin-top: 48px; }
+  .meter { order: 0; } /* on its own line the readout starts flush left, so the meter follows it */
+}
+@media (min-width: 600px) and (max-width: 1023px) {
+  /* Tablets: the Earth gets its own row, still on the left, so no orbit runs behind the text */
+  .globe { position: relative; transform: none; width: min(56vw, 420px); justify-self: start; margin: 0 0 -6% calc(var(--gutter) * -1); }
+  .hero-copy { grid-row: 2; }
 }
 @media (max-width: 767px) {
   .top nav .wide { display: none; }
@@ -244,7 +250,8 @@ select[aria-busy="true"] { animation: busy 600ms var(--ease) infinite alternate;
   select { font-size: 1rem; }
   .cta { width: 100%; }
   .cta span { display: block; font-size: 1rem; }
-  .meter { order: 0; } /* on its own line the readout starts flush left, so the meter follows it */
+  .rules .fact { grid-template-columns: minmax(0, 1fr); } /* each label over its value */
+  .rules dd { margin-bottom: 6px; }
   .frames li { grid-template-columns: minmax(0, 7rem) minmax(0, 1fr); column-gap: 14px; }
   .frames img { grid-row: 1 / span 2; }
   .frames p { grid-column: 1 / span 2; }

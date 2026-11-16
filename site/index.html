@@ -60,7 +60,6 @@
           </figure>
           <div class="notes" id="notes" role="group" aria-label="What each rule does in the frame on screen">
           <ul>
-            <li data-rule="rhythm"><span class="k">Rhythm</span><span class="v"></span><span class="w">How far the main color is from red. Farther means more offbeat.</span></li>
             <li data-rule="key"><span class="k">Melody and key</span><span class="v"></span><span class="w">The main color against each column, left to right, sets the pitch and the key.</span></li>
             <li data-rule="tempo"><span class="k">Tempo</span><span class="v"></span><span class="w">Vibrancy, averaged 50/50 with the size of change.</span></li>
             <li data-rule="mode"><span class="k">Major or minor</span><span class="v"></span><span class="w">Happiness 50 or more gives major. More light means less happy.</span></li>
@@ -107,9 +106,8 @@
     </div>
 
     <section class="how wrap" id="how" aria-labelledby="h-rules">
-      <h2 id="h-rules">Seven rules, measured from the pixels.</h2>
+      <h2 id="h-rules">Six rules, measured from the pixels.</h2>
       <ol class="rules">
-        <li data-rule="rhythm"><h3>Rhythm</h3><p>How far the frame’s main color is from red. The farther, the more offbeat the rhythm.</p><dl class="fact"></dl></li>
         <li data-rule="key"><h3>Melody and key</h3><p>The main color is compared with the average color of each column, left to right. That sets the melody’s pitch and the key within the list of keys (key order from <a href="https://www.hooktheory.com/cheat-sheet/key-popularity">Hooktheory, “Key popularity”</a>).</p><dl class="fact"></dl></li>
         <li data-rule="tempo"><h3>Tempo</h3><p>Vibrancy is averaged 50/50 with the size of change from the previous frame.</p><dl class="fact"></dl></li>
         <li data-rule="mode"><h3>Major or minor</h3><p>Happiness is 100 minus the share of pixels at brightness 127 or more, stretched across the seven frames to 1 to 100. More light means less happy. 50 or more gives a major key; below 50, a minor key.</p><dl class="fact"></dl></li>
@@ -152,7 +150,7 @@
 
       <section class="small" aria-labelledby="h-ai">
         <h2 id="h-ai">AI disclosure</h2>
-        <p>The idea, the six measurement rules, the music rules and the frame choice are the team’s. AI tools (Claude models and free models) helped write the code and documentation and checked the work; see SI_DISCLOSURE.md.</p>
+        <p>The idea, the five measurement rules, the music rules and the frame choice are the team’s. AI tools (Claude models and free models) helped write the code and documentation and checked the work; see SI_DISCLOSURE.md.</p>
       </section>
     </div>
   </main>

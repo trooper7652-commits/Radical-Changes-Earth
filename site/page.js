@@ -71,7 +71,6 @@ function ruleValues(frame) {
   const changeNotes = frame.notes.filter((n) => ["panHang", "panBalafon", "stringBass"].includes(n.voice));
   const family = ["melody", "handpan", "bass"].map((v) => frame[`${v}Instrument`]).filter(Boolean).map((n) => label(n).toLowerCase());
   return {
-    rhythm: `Distance from red ${r(s.distanceFromRed)}`,
     key: `${frame.key} · melody ${r(s.melody)}`,
     tempo: `${r(frame.bpm)} bpm · vibrancy ${r(s.vibrancy)}`,
     mode: `${frame.mode[0].toUpperCase()}${frame.mode.slice(1)} · happiness ${r(s.happiness)}`,
@@ -205,10 +204,21 @@ try {
   showNotes(0);
 
   // The score: rows labelled by the instruments the video uses, for every voice with notes.
+  // A row's label names what that voice plays: the visitor's pick, or the video's own instruments (the same
+  // source as the picker's first option, so the two never disagree).
+  const rowLabel = (voice, chosen) => chosen ? `${VOICE_LABELS[voice]}: ${label(chosen)}`
+    : voice === "melody" || voice === "bass"
+      ? `${VOICE_LABELS[voice]}: ${videoInstruments(frames, voice).join(", then ").toLowerCase()}` : VOICE_LABELS[voice];
   const rows = VOICES.filter((voice) => frames.some((f) => f.notes.some((n) => n.voice === voice)))
-    .map((voice) => ({ voice, label: voice === "melody" || voice === "bass"
-      ? `${VOICE_LABELS[voice]}: ${videoInstruments(frames, voice).join(", then ").toLowerCase()}` : VOICE_LABELS[voice] }));
+    .map((voice) => ({ voice, label: rowLabel(voice) }));
   const markScore = drawScore($("score"), songData, rows);
+  const relabelRow = (voice, chosen) => { // rows keep the label, so a redraw on resize keeps it too
+    const row = rows.find((r) => r.voice === voice);
+    if (!row) return;
+    row.label = rowLabel(voice, chosen);
+    const text = $("score").querySelector(`.row-label[data-voice="${voice}"]`);
+    if (text) text.textContent = row.label;
+  };
   let scoreRaf = 0;
   const followScore = () => {
     markScore(visuals.currentTime, { playing: !visuals.paused, stepped: reduced });
@@ -244,7 +254,9 @@ try {
       if (select.getAttribute("aria-busy")) { select.value = current; return; }
       current = select.value;
       select.setAttribute("aria-busy", "true");
-      player.setInstrument(voice, select.value)
+      const picked = select.value;
+      player.setInstrument(voice, picked)
+        .then(() => relabelRow(voice, picked)) // only once the sound has loaded; a failed load keeps the old label
         .catch((error) => (status.textContent = error.message))
         .finally(() => select.removeAttribute("aria-busy"));
     });
