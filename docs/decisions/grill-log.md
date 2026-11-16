@@ -265,3 +265,8 @@ Q1 Tempo rules disagree · Q2 Short vs long notes · Q3 Contrast vs uniqueness �
 - "Make the pause a just a tad shorter." (Builder reading: both still moments shortened by about a quarter: the cover hold 0.5 → about 0.38 s, the blank screen 0.6 → about 0.45 s.)
 - "when scrolling down the page, highlight the headers of information in a highlighter yellow that pops out. the highlight should go down left to right, up to down, the same way you would read english, and the highlight should highlight it and then unhighlight in the same left to right, up to down fashion as the user scrolls further down."
 - Builder reading: the section and block headings below the hero; a new highlighter-yellow token used only for this, with dark text under it; scroll-driven; off under reduced motion.
+
+## Round 22: last polish before submission (owner, 2026-11-15, 9:40 PM)
+- "Make the earth have higher contrast so that it pops out more to the user."
+- "when I scroll down, the header gets highlighted partially, only the "change" is highlighted in the hear the map change section." (Bug: the transition lands with the heading already in the clearing band.)
+- "have the butterfly fills less of the screen and have it take longer to fill up the screen, I don't want the user to get jumpscared by the butterfly. Make the butterfly smooth and intentional." This changes round 18: the butterfly peaks at about 70-80 % of the width, and a night curtain fades in under it to hide the jump.
