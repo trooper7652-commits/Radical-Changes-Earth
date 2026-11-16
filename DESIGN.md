@@ -7,6 +7,7 @@ colors:
   text: "#f3f5f8"
   text-2: "#a3abba"
   sodium: "#ffb547"
+  highlight: "#ffe900"
   ink: "#0c0e13"
   hair: "rgba(201, 206, 214, .18)"
   note-idle: "#7b8396"
@@ -251,7 +252,8 @@ Thumbnail (11rem, 7rem on phones) beside an Archivo title, a sodium mono data li
 - The Earth turns once every 90s, can be dragged (with inertia) and turned with the arrow keys (15 degrees per press); it pauses off screen and when the tab is hidden.
 - Hero entrance once: copy rises 16px with 60ms stagger; the globe settles from 0.94 scale and 4 degrees over 700ms.
 - Scroll reveal once per block: 20px rise, at most four staggered children at 60ms. Focus inside an unrevealed block reveals it.
-- The satellite-to-butterfly transition, on the first downward input after the hero copy has been seen, or on the primary action or the Listen link: fly (0-1.3s: panels fold, wings open in 280ms, curved path from the bottom left, even zoom to cover the viewport), hold (to 1.8s, fully covered, wings still, the page jumps to the listen section behind it), exit (to 2.8s, off the top right with beating wings), blank (to 3.4s, bare night), rise (section groups rise 10% of the viewport over 800ms, 70ms stagger; what follows fades in over 240ms). Input is held while it runs; focus then lands on the listen heading.
+- The satellite-to-butterfly transition, on the first downward input after the hero copy has been seen, or on the primary action or the Listen link: fly (0-1.3s: panels fold, wings open in 280ms, curved path from the bottom left, even zoom to cover the viewport), hold (to 1.68s, fully covered, wings still, the page jumps to the listen section behind it), exit (to 2.68s, off the top right with beating wings), blank (to 3.13s, bare night), rise (section groups rise 10% of the viewport over 800ms, 70ms stagger; what follows fades in over 240ms). Input is held while it runs; focus then lands on the listen heading. The four lengths live in one `DURATION` object in `site/earth.js` (owner round 21 shortened the hold and the blank).
+- The reading-order highlighter (owner round 21): the section headings and the rule and frame headings below the hero get a highlighter-yellow `--highlight` (#ffe900, night text on it at 16.0:1) that sweeps left to right, line by line, as the heading rises from 85% to 55% of the viewport height, then clears in the same reading order from 30% to 10%. It is driven by scroll position and moves with transforms only, and is off under reduced motion. Yellow is used for nothing else.
 - Reduced motion: all animation and transitions off, no transition layer, the Earth moves only while dragged or stepped by keys, the playhead jumps bar to bar, everything visible by default.
 
 ## Do's and Don'ts
