@@ -10,15 +10,15 @@ From design spec section 12, plus the 2026-11-15 cloud-run items. "OWNER" means 
 - done: Every source cited (`CREDITS.md`, `site/samples/LICENSES.md`)
 - done: At least one Resources-tab item used (NASA SVS 5313)
 - done: Demo is 30 s or less (29.4 s MP4)
-- OWNER: Demo has a public, no-login link
+- OWNER: Demo has a public, no-login link (the MP4 is public at https://radical-changes.vercel.app/media/radical-changes-30s.mp4; use it, or upload to YouTube with the AI note in the description)
 - done: English
 - OWNER: Team on the Chicago event
 - done: No unlicensed sounds or images
-- OWNER: Site link public
+- done: Site link public (https://radical-changes.vercel.app). OWNER: confirm which URL goes in the submission
 - done: Song v3
 - done: Media re-render
 - done: Website polish
-- OWNER: Deploy to Vercel
+- done: Deploy to Vercel (public: https://radical-changes.vercel.app, 2026-11-15)
 - OWNER: Point the radicalchanges.earth DNS (Porkbun) at it
 - OWNER: Make the Radical-Changes-Earth repo public
 - OWNER: Submit on the Space Apps site
