@@ -11,8 +11,17 @@ let highlighted = false;
 function startHighlight() {
   if (highlighted || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   highlighted = true;
-  try { highlightHeadings(document.querySelectorAll("main h2, .rules h3, #frames h3")); } catch (error) { console.warn(error); }
+  try { highlighter = highlightHeadings(document.querySelectorAll("main h2, .rules h3, #frames h3")); } catch (error) { console.warn(error); }
 }
+let highlighter = null;
+// After an in-page link jump, settle the headings near the top so none rests half-highlighted.
+document.addEventListener("click", (event) => {
+  if (event.defaultPrevented || !event.target.closest?.('a[href^="#"]')) return;
+  let done = false;
+  const settle = () => { if (!done) { done = true; highlighter?.settle(); } };
+  addEventListener("scrollend", settle, { once: true });
+  setTimeout(settle, 1200);
+});
 
 const $ = (id) => document.getElementById(id);
 const demo = $("demo");
@@ -154,7 +163,8 @@ revealOnScroll();
 try { // decoration: a failure here must never stop the player below from loading
   const earth = startEarth(document.querySelector(".globe"), { reduced });
   // Under reduced motion there is no transition and no scroll capture: the satellite stays still.
-  if (!reduced) flight = startFlight($("flight"), earth.butterfly, $("listen"), $("h-listen"));
+  // As the section rises in after the transition, its heading is highlighted in full (round 22).
+  if (!reduced) flight = startFlight($("flight"), earth.butterfly, $("listen"), $("h-listen"), () => highlighter?.land($("h-listen")));
 } catch (error) {
   console.warn(error);
 }

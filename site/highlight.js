@@ -6,6 +6,8 @@
 
 // The reading band, as fractions of the viewport height measured at the heading's top.
 const BAND = { start: 0.85, full: 0.55, retract: 0.3, gone: 0.1 };
+// A landed heading (round 22): its sweep time, and how far the page moves on (share of the height) to clear it.
+const LAND = { ms: 600, clear: 0.4 };
 const clamp01 = (v) => Math.min(1, Math.max(0, v));
 
 export function highlightHeadings(headings) {
@@ -60,12 +62,24 @@ export function highlightHeadings(headings) {
   // x0, and the ink moves back by x0, so the text copy stays exactly over the heading's own letters.
   function update() {
     raf = 0;
-    const H = innerHeight;
+    const H = innerHeight, now = performance.now();
     const tops = items.map((item) => item.el.getBoundingClientRect().top);
     items.forEach((item, i) => {
       const top = tops[i];
-      const on = clamp01((BAND.start * H - top) / ((BAND.start - BAND.full) * H)) * item.total;
-      const off = clamp01((BAND.retract * H - top) / ((BAND.retract - BAND.gone) * H)) * item.total;
+      let on = clamp01((BAND.start * H - top) / ((BAND.start - BAND.full) * H)) * item.total;
+      let off = clamp01((BAND.retract * H - top) / ((BAND.retract - BAND.gone) * H)) * item.total;
+      // Landed (after a jump to it): sweep in over LAND.ms, hold, and clear only as the page moves on from there.
+      if (item.landed) {
+        if (top > H || top < -H) item.landed = null;
+        else {
+          const sweep = clamp01((now - item.landed.at) / LAND.ms);
+          // Until the reader scrolls, follow the heading as it settles (it may still be rising into place).
+          if (!item.landed.moved) item.landed.top = top;
+          on = (sweep < 1 ? sweep * sweep * (3 - 2 * sweep) : 1) * item.total;
+          off = clamp01((item.landed.top - top) / (LAND.clear * H)) * item.total;
+          if (!item.landed.moved && now - item.landed.at < 1500) schedule();
+        }
+      }
       let before = 0;
       for (const l of item.lines) {
         const x1 = Math.min(Math.max(on - before, 0), l.w), x0 = Math.min(Math.max(off - before, 0), l.w);
@@ -99,7 +113,28 @@ export function highlightHeadings(headings) {
     resized.observe(el);
   }
   document.fonts?.ready.then(() => { items.forEach(measure); schedule(); });
-  addEventListener("scroll", schedule, { passive: true });
+  addEventListener("scroll", () => {
+    for (const item of items) if (item.landed) item.landed.moved = true; // from here, clearing is relative
+    schedule();
+  }, { passive: true });
   addEventListener("resize", schedule);
   schedule();
+
+  // A heading the page has just jumped to: highlight it in full, in reading order, and hold it there.
+  function land(el) {
+    const item = items.find((it) => it.el === el);
+    if (!item) return;
+    item.landed = { at: performance.now(), top: el.getBoundingClientRect().top };
+    schedule();
+  }
+  // After a link jump, a heading left part-way through the clearing band would sit half-highlighted at rest:
+  // land it instead, so it shows in full until the reader scrolls on.
+  function settle() {
+    const H = innerHeight;
+    for (const item of items) {
+      const top = item.el.getBoundingClientRect().top;
+      if (top >= BAND.gone * H - 1 && top < BAND.retract * H) land(item.el);
+    }
+  }
+  return { land, settle };
 }

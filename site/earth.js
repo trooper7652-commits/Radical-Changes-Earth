@@ -7,7 +7,6 @@ const SVG = "http://www.w3.org/2000/svg";
 const AUTO_SPIN = TAU / 90; // radians per second: one turn in 90 s
 const START_LON = 2.0; // faces the Atlantic, between the Americas and Europe
 const START_TILT = 0.32; // shows a little more of the north, where most of the lights are
-const easeInOut = (s) => (s < 0.5 ? 4 * s * s * s : 1 - (-2 * s + 2) ** 3 / 2);
 const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 
 // The satellite: two solar panels and a hull, 176 units wide. In flight the panels fold away and the butterfly opens.
@@ -28,9 +27,7 @@ const SAT_STYLE = `
   .beacon { fill: #ffb547; }`;
 
 // The butterfly, in the site's colours only (night, ink, secondary, sodium, field). Body along the y axis, head up.
-// Each wing is drawn for the left side and mirrored. The fore- and hindwings overlap around the body, so the
-// rectangles in COVER are solid: scaled to contain the viewport, they cover every pixel. The banded spot rows
-// and eyespots sit inside them, so the full-screen hold shows the wing pattern, not just the body.
+// Each wing is drawn for the left side and mirrored: veins, banded spot rows and eyespots on each.
 const FOREWING = `
   <path class="wing" d="M-3-24C-12-46-48-80-92-76C-104-74-106-60-100-46C-96-34-92-26-84-16C-66 4-34 12-3 10Z"/>
   <path class="base" d="M-3-24C-10-30-20-30-24-22C-18-14-10-8-3-6Z"/>
@@ -59,9 +56,6 @@ const BODY = `
   <path class="hair" d="M-5-19C-2-17 2-17 5-19M-6-12C-2-10 2-10 6-12M-5-5C-2-3 2-3 5-5"/>
   <circle class="head" cy="-31" r="5.5"/><circle class="eyeball" cx="-3.2" cy="-32" r="1.9"/><circle class="eyeball" cx="3.2" cy="-32" r="1.9"/>`;
 const BUTTERFLY = `<g class="wings" opacity="0"><g>${SIDE}</g><g transform="scale(-1 1)">${SIDE}</g>${BODY}</g>`;
-// Solid rectangles (butterfly units, checked against the paths): the centre for wide screens; for tall ones,
-// one side's wing junction, with the body at the screen's right edge.
-const COVER = { wide: { left: -60, right: 60, top: -28, bottom: 44 }, tall: { left: -40, right: -3, top: -22, bottom: 40 } };
 // Strokes keep their screen width at every scale (vector-effect), so the lines stay fine when it fills the screen.
 const BUTTERFLY_STYLE = `
   .wing { fill: #ffb547; stroke: #07090e; stroke-width: 2.5; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
@@ -95,7 +89,9 @@ void main() {
   float lat = asin(clamp(q.y, -1.0, 1.0));
   float lo = atan(q.x, q.z) + lon;
   vec2 uv = vec2(fract(lo / 6.2831853 + 0.5), 0.5 - lat / 3.1415927);
-  vec3 c = min(texture2D(map, uv).rgb * 1.3, 1.0);
+  // Round 22: more contrast. A gain of 1.6 with a gentle curve brings the city lights up toward sodium-white
+  // and lifts the dim lights and the land a little; the ocean stays at the field colour below.
+  vec3 c = min(pow(texture2D(map, uv).rgb, vec3(0.9)) * 1.6, 1.0);
   c = max(c, vec3(0.063, 0.078, 0.110)); // the black ocean lifts to the field colour (#10141c), so the Earth stands off the ground without a glow
   float a = 1.0 - smoothstep(1.0 - 1.5 * px, 1.0, r);
   gl_FragColor = vec4(c * a, a);
@@ -282,22 +278,34 @@ function setUpGl(gl, canvas, view, redraw) {
 //   blank only the night ground, for a short pause;
 //   rise  the section rises into place from below, in up to four staggered groups; what is below it follows.
 // Scrolling input is held while it runs. Never started under reduced motion (see page.js).
-// How long each phase lasts (ms): the owner's tuning knobs. Round 21 shortened the two still moments.
-export const DURATION = { fly: 1300, hold: 380, exit: 1000, blank: 450 };
+// How long each phase lasts (ms): the owner's tuning knobs. Round 21 shortened the two still moments;
+// round 22 made the fly-in and exit slower and calmer.
+export const DURATION = { fly: 2200, hold: 380, exit: 1200, blank: 450 };
+// At its largest the wings span this share of the screen's width (round 22: no longer the whole screen).
+const PEAK = { wide: 0.75, tall: 0.88, height: 0.86 };
+const SPAN = { width: 212, top: -76, bottom: 84 }; // the open butterfly's extent, in its own units
+// The calm ease of the flight, cubic-bezier(0.45, 0, 0.25, 1), solved for x by bisection.
+const calm = (x) => {
+  const at = (t, a, b) => 3 * a * (1 - t) ** 2 * t + 3 * b * (1 - t) * t * t + t ** 3;
+  let lo = 0, hi = 1;
+  for (let i = 0; i < 20; i++) { const mid = (lo + hi) / 2; if (at(mid, 0.45, 0.25) < x) lo = mid; else hi = mid; }
+  return at((lo + hi) / 2, 0, 1);
+};
 const T = { fly: DURATION.fly }; // phase ends, ms
 T.hold = T.fly + DURATION.hold;
 T.exit = T.hold + DURATION.exit;
 T.blank = T.exit + DURATION.blank;
 const RISE = { ms: 800, stagger: 70 }; // the section's rise, per group
 const easeOut = (s) => 1 - (1 - s) ** 3;
-const easeInQuad = (s) => s * s;
 const smooth = (a, b, v) => { const s = clamp((v - a) / (b - a), 0, 1); return s * s * (3 - 2 * s); };
 const RISE_EASE = "cubic-bezier(0.23, 1, 0.32, 1)";
 
-export function startFlight(flight, anchor, section, heading) {
-  // A full-viewport SVG in CSS pixels, so the butterfly is drawn as vectors at every size, never a scaled bitmap.
-  flight.innerHTML = `<svg width="100%" height="100%"><style>${SAT_STYLE}${BUTTERFLY_STYLE}</style>` +
+export function startFlight(flight, anchor, section, heading, onRise = () => {}) {
+  // A night curtain under a full-viewport SVG in CSS pixels, so the butterfly is drawn as vectors at every size.
+  // The curtain fades in under the butterfly near the end of the fly-in and hides the jump to the next section.
+  flight.innerHTML = `<div class="curtain"></div><svg width="100%" height="100%"><style>${SAT_STYLE}${BUTTERFLY_STYLE}</style>` +
     `<g class="craft-fly">${BUTTERFLY}${SAT}</g></svg>`;
+  const curtain = flight.querySelector(".curtain");
   let craft, wings, panels, hull, fores, hinds;
   const parts = () => {
     craft = flight.querySelector(".craft-fly");
@@ -340,14 +348,11 @@ export function startFlight(flight, anchor, section, heading) {
       const box = anchor.getBoundingClientRect();
       const start = [box.left + box.width / 2, box.top + box.height / 2];
       const s0 = Math.max(box.width / 176, 0.1); // the satellite's size on screen (176 units wide)
-      // The scale at which the solid rectangle contains the viewport, with a margin. Wide screens centre it;
-      // tall ones put the body at the right edge so the screen shows one side's wing pattern.
-      const r = h > w ? COVER.tall : COVER.wide;
-      const cover = Math.max(w / (r.right - r.left), h / (r.bottom - r.top)) * 1.08;
-      const cx = h > w ? r.right - 0.5 - w / cover / 2 : (r.left + r.right) / 2;
-      const centre = [w / 2 - cx * cover, h / 2 - ((r.top + r.bottom) / 2) * cover];
+      // Its largest size: the wings span PEAK of the width, and it stays fully on screen with room around it.
+      const peak = Math.min(((h > w ? PEAK.tall : PEAK.wide) * w) / SPAN.width, (PEAK.height * h) / (SPAN.bottom - SPAN.top));
+      const centre = [w / 2, h / 2 - ((SPAN.top + SPAN.bottom) / 2) * peak];
       const path = [start, [w * 0.06, h * 0.94], [w * 0.32, h * 0.92], centre];
-      let t0 = 0, last = 0, phase = 0, jumped = null, painted = "";
+      let t0 = 0, last = 0, phase = 0, jumped = null, painted = "", rose = false;
       anchor.style.opacity = "0";
       flight.hidden = false;
       flight.classList.add("run");
@@ -364,25 +369,28 @@ export function startFlight(flight, anchor, section, heading) {
         }
         if (t >= T.exit) {
           flight.hidden = true; // gone: the blank night ground, then the rise
+          if (t >= T.blank && !rose) { rose = true; onRise(); }
           if (t >= T.blank) return jumped.then(finish);
           return requestAnimationFrame(frame);
         }
-        const unfold = easeOut(clamp(t / 280, 0, 1));
-        const s = easeInOut(clamp((t - 120) / (T.fly - 120), 0, 1));
-        const out = easeInQuad(clamp((t - T.hold) / (T.exit - T.hold), 0, 1));
+        const unfold = easeOut(clamp(t / 400, 0, 1));
+        const s = calm(clamp((t - 120) / (T.fly - 120), 0, 1));
+        const out = calm(clamp((t - T.hold) / (T.exit - T.hold), 0, 1));
         let [x, y] = [0, 1].map((k) => (1 - s) ** 3 * path[0][k] + 3 * (1 - s) ** 2 * s * path[1][k] + 3 * (1 - s) * s * s * path[2][k] + s ** 3 * path[3][k]);
-        let scale = s0 * (cover / s0) ** s; // even zoom: the same growth ratio every frame
-        let turn = -16 * Math.sin(Math.PI * s); // banks through the turn, level when it covers the screen
+        let scale = s0 + (peak - s0) * s; // grows steadily with the eased flight, no zoom burst at the end
+        let turn = -12 * Math.sin(Math.PI * s); // banks through the turn, level when it arrives
         if (out > 0) {
-          x += out * (w / 2 + 150 * scale);
-          y -= out * (h / 2 + 150 * scale);
-          scale *= 1 + 0.25 * out;
-          turn = 10 * out;
+          x += out * (w / 2 + 130 * scale);
+          y -= out * (h / 2 + 110 * scale);
+          turn = 8 * out;
         }
-        // Wing beats: forewing and hindwing slightly out of phase, each bending as it folds (a squeeze plus a
-        // skew reads as the wing turning away). Still while it covers the screen, so no gap opens.
-        const beat = t < T.hold ? 1 - smooth(0.7, 1, s) : clamp(((t - T.hold) / (T.exit - T.hold)) * 2.5, 0, 1);
-        phase += dt * TAU * 2.8;
+        // The night curtain fades in under it over the last part of the fly-in, so the page jump is hidden.
+        curtain.style.opacity = smooth(0.55, 0.95, s).toFixed(3);
+        // Wing beats: calm, forewing and hindwing slightly out of phase, each bending as it folds (a squeeze plus a
+        // skew reads as the wing turning away). The wings settle fully open as it arrives and rest through the
+        // pause, then beat again as it leaves.
+        const beat = 0.85 * (t < T.hold ? 1 - smooth(0.75, 1, s) : clamp((t - T.hold) / 400, 0, 1));
+        phase += dt * TAU * 1.6;
         const fold = (lag, depth) => 1 - beat * depth * (0.5 - 0.5 * Math.cos(phase - lag));
         const fore = fold(0, 0.62), hind = fold(0.7, 0.5);
         // CSS transforms, not SVG transform attributes: Chrome stops repainting some of a group's children when an
@@ -400,6 +408,7 @@ export function startFlight(flight, anchor, section, heading) {
       };
       const finish = () => {
         flight.hidden = true;
+        curtain.style.opacity = "0";
         flight.classList.remove("run");
         delete flight.dataset.phase;
         anchor.style.opacity = "";

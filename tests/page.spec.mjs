@@ -286,9 +286,10 @@ test("earth: a labelled image that takes keyboard focus and turns with the arrow
   expect(await page.evaluate(() => scrollY)).toBe(0); // the arrow key turned the Earth, not the page
 });
 
-// Waits (in the page) for the butterfly's hold, then lists the points of a 5x5 grid, corners included,
-// that its painted wings do NOT cover.
-const uncoveredDuringHold = (page) => page.evaluate(() => new Promise((resolve) => {
+// Waits (in the page) for the butterfly's hold. Reports the points of a 5x5 grid, corners included, where the
+// page shows through (the night curtain and the butterfly hide it), the curtain's opacity, and the butterfly's
+// painted width as a share of the screen's (round 22: it no longer fills the screen).
+const atHold = (page) => page.evaluate(() => new Promise((resolve) => {
   const flight = document.getElementById("flight");
   const check = () => {
     if (flight.dataset.phase !== "hold") return requestAnimationFrame(check);
@@ -297,7 +298,11 @@ const uncoveredDuringHold = (page) => page.evaluate(() => new Promise((resolve) 
       const [x, y] = [Math.min(fx * innerWidth, innerWidth - 1), Math.min(fy * innerHeight, innerHeight - 1)];
       if (!document.elementFromPoint(x, y)?.closest("#flight")) gaps.push([x, y]);
     }
-    resolve(gaps);
+    const wings = flight.querySelector(".wings").getBoundingClientRect();
+    resolve({
+      gaps, curtain: Number(getComputedStyle(flight.querySelector(".curtain")).opacity),
+      span: wings.width / innerWidth, inside: wings.top >= 0 && wings.bottom <= innerHeight && wings.left >= 0 && wings.right <= innerWidth,
+    });
   };
   check();
 }));
@@ -322,15 +327,21 @@ const toHeroEnd = (page) => page.evaluate(() => {
 });
 const sequenceDone = (page) => expect(page.locator("#flight")).not.toHaveAttribute("data-phase", /./, { timeout: 8000 });
 
-for (const [width, height] of [[1440, 900], [390, 844]]) {
-  test(`butterfly at ${width}x${height}: covers the screen, pauses, leaves, blank pause, then "Hear the map change." rises in`, async ({ page }) => {
+for (const [width, height, span] of [[1440, 900, [0.65, 0.85]], [390, 844, [0.85, 0.95]]]) {
+  test(`butterfly at ${width}x${height}: flies in over a night curtain, pauses, leaves, blank pause, then "Hear the map change." rises in`, async ({ page }) => {
     await page.setViewportSize({ width, height });
     await ready(page);
     await expect(page.locator("#flight")).toBeHidden();
     await toHeroEnd(page);
     await page.mouse.move(width / 2, height / 2);
     await page.mouse.wheel(0, 120);
-    expect(await uncoveredDuringHold(page)).toEqual([]);
+    // During the hold: the page is hidden (curtain and butterfly), and the butterfly is fully on screen at its size.
+    const hold = await atHold(page);
+    expect(hold.gaps).toEqual([]);
+    expect(hold.curtain).toBeGreaterThan(0.99);
+    expect(hold.span).toBeGreaterThan(span[0]);
+    expect(hold.span).toBeLessThan(span[1]);
+    expect(hold.inside).toBe(true);
     // After it leaves: only the night ground, the section still hidden and no butterfly painted.
     const blank = await duringBlank(page);
     expect(blank.butterfly).toBe(false);
@@ -367,7 +378,7 @@ test("cta: the demo action plays the transition and ends with the demo playing",
   await page.locator("#cta").click();
   await expect(page.locator("#flight")).toBeVisible();
   await sequenceDone(page);
-  await expect.poll(() => page.evaluate(() => !document.getElementById("demo").paused)).toBe(true);
+  await expect.poll(() => page.evaluate(() => !document.getElementById("demo").paused), { timeout: 10000 }).toBe(true);
   expect(Math.abs(await page.evaluate(() => document.getElementById("listen").getBoundingClientRect().top))).toBeLessThanOrEqual(1);
 });
 
@@ -414,11 +425,11 @@ test("rhythm is gone: six side notes, six rules, five measurements, no red", asy
   for (const value of await page.locator("#notes .v, .rules dd").allTextContents()) expect(value).not.toMatch(/undefined|NaN/);
 });
 
-test("transition: the hold and the blank pause follow the tunable durations (round 21: shorter)", async ({ page }) => {
+test("transition: each phase follows the tunable durations (round 22: slower fly-in and exit)", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await ready(page);
   const duration = await page.evaluate(async () => (await import("./earth.js")).DURATION);
-  expect(duration).toEqual({ fly: 1300, hold: 380, exit: 1000, blank: 450 });
+  expect(duration).toEqual({ fly: 2200, hold: 380, exit: 1200, blank: 450 });
   // Record when each phase starts, then run the transition once.
   await page.evaluate(() => {
     window.phases = {};
@@ -431,8 +442,29 @@ test("transition: the hold and the blank pause follow the tunable durations (rou
   await page.mouse.wheel(0, 120);
   await sequenceDone(page);
   const p = await page.evaluate(() => window.phases);
+  expect(Math.abs(p.hold - p.fly - duration.fly)).toBeLessThan(120);
   expect(Math.abs(p.exit - p.hold - duration.hold)).toBeLessThan(90);
+  expect(Math.abs(p.blank - p.exit - duration.exit)).toBeLessThan(90);
   expect(Math.abs(p.rise - p.blank - duration.blank)).toBeLessThan(90);
+});
+
+test("landing: after the transition, \"Hear the map change.\" is highlighted in full, then clears from the left as the page moves on", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await ready(page);
+  await toHeroEnd(page);
+  await page.mouse.move(720, 450);
+  await page.mouse.wheel(0, 120);
+  await sequenceDone(page);
+  await page.waitForTimeout(300); // the 600 ms sweep started with the rise
+  const windows = () => page.locator("#h-listen .hl-line").evaluateAll((lines) => lines.map((l) => ({
+    x0: Number(l.dataset.x0), x1: Number(l.dataset.x1), w: l.getBoundingClientRect().width })));
+  for (const line of await windows()) { expect(line.x0).toBe(0); expect(line.x1).toBeGreaterThan(line.w - 1); }
+  // The first scroll down, about 30% of the screen, starts clearing it from the left.
+  await page.mouse.wheel(0, 270);
+  await page.waitForTimeout(400);
+  const first = (await windows())[0];
+  expect(first.x0).toBeGreaterThan(0);
+  expect(first.x0).toBeLessThan(first.w - 1);
 });
 
 // Puts a heading's top at a fraction of the viewport height and returns each line's highlighted window.
