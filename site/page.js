@@ -4,6 +4,15 @@ import { SongPlayer, VOICES } from "./app.js";
 import { INSTRUMENTS } from "./instruments.js";
 import { startEarth, startFlight } from "./earth.js";
 import { drawScore } from "./score.js";
+import { highlightHeadings } from "./highlight.js";
+
+// The reading-order highlighter on the headings below the hero (owner round 21); decoration, so never fatal.
+let highlighted = false;
+function startHighlight() {
+  if (highlighted || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  highlighted = true;
+  try { highlightHeadings(document.querySelectorAll("main h2, .rules h3, #frames h3")); } catch (error) { console.warn(error); }
+}
 
 const $ = (id) => document.getElementById(id);
 const demo = $("demo");
@@ -171,6 +180,7 @@ try {
   $("frames").innerHTML = frames.map((f, i) => `<li><img src="img/f${i}.jpg" alt="" width="1280" height="720" loading="lazy">` +
     `<h3>${f.label}</h3><span class="data">${Math.round(f.bpm)} bpm · ${f.key} ${f.mode}</span><p>${descriptions[i]}</p></li>`).join("");
   $("timeline").innerHTML = frames.map((f, i) => `<li><img src="img/f${i}.jpg" alt="" width="1280" height="720" loading="lazy"><span>${short(f)}</span></li>`).join("");
+  startHighlight(); // now that every frame's heading exists
 
   // The rules, with what each did in the first frame and in the last.
   const first = ruleValues(frames[0]), lastValues = ruleValues(frames[total - 1]);
@@ -273,4 +283,5 @@ try {
   driveMeter(songData);
 } catch (error) {
   status.textContent = error.message;
+  startHighlight(); // the static headings, even when the song data could not load
 }

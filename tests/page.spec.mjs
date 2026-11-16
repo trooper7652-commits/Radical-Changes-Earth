@@ -406,10 +406,108 @@ test("rhythm is gone: six side notes, six rules, five measurements, no red", asy
   await expect(page.locator("#notes li")).toHaveCount(6);
   await expect(page.locator("#notes ul").first().locator("li")).toHaveCount(3);
   await expect(page.locator(".rules li")).toHaveCount(6);
-  await expect(page.locator("#h-rules")).toHaveText("Six rules, measured from the pixels.");
+  await expect(page.locator("#h-rules")).toHaveAccessibleName("Six rules, measured from the pixels.");
   await expect(page.locator("#h-ai + p")).toContainText("five measurement rules");
   const text = (await page.locator("main").innerText()).toLowerCase();
   for (const word of ["rhythm", "offbeat", "from red", "seven rules", "six measurement"]) expect(text).not.toContain(word);
   // Every value is filled, with or without the old field in the song data.
   for (const value of await page.locator("#notes .v, .rules dd").allTextContents()) expect(value).not.toMatch(/undefined|NaN/);
+});
+
+test("transition: the hold and the blank pause follow the tunable durations (round 21: shorter)", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await ready(page);
+  const duration = await page.evaluate(async () => (await import("./earth.js")).DURATION);
+  expect(duration).toEqual({ fly: 1300, hold: 380, exit: 1000, blank: 450 });
+  // Record when each phase starts, then run the transition once.
+  await page.evaluate(() => {
+    window.phases = {};
+    const flight = document.getElementById("flight");
+    new MutationObserver(() => { const p = flight.dataset.phase; if (p && !(p in window.phases)) window.phases[p] = performance.now(); })
+      .observe(flight, { attributes: true, attributeFilter: ["data-phase"] });
+  });
+  await toHeroEnd(page);
+  await page.mouse.move(720, 450);
+  await page.mouse.wheel(0, 120);
+  await sequenceDone(page);
+  const p = await page.evaluate(() => window.phases);
+  expect(Math.abs(p.exit - p.hold - duration.hold)).toBeLessThan(90);
+  expect(Math.abs(p.rise - p.blank - duration.blank)).toBeLessThan(90);
+});
+
+// Puts a heading's top at a fraction of the viewport height and returns each line's highlighted window.
+const linesAt = async (page, selector, fraction) => {
+  await page.evaluate(([s, f]) => {
+    const h = document.querySelector(s);
+    scrollTo({ top: h.getBoundingClientRect().top + scrollY - innerHeight * f, behavior: "instant" });
+  }, [selector, fraction]);
+  await page.waitForTimeout(150);
+  return page.locator(`${selector} .hl-line`).evaluateAll((lines) => lines.map((l) => ({
+    x0: Number(l.dataset.x0), x1: Number(l.dataset.x1), w: l.getBoundingClientRect().width })));
+};
+
+test("highlighter: headings highlight in reading order as they rise, then clear in the same order", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await ready(page);
+  // "Six rules, measured from the pixels." sets on two lines at this width.
+  const mid = await linesAt(page, "#h-rules", 0.72);
+  expect(mid.length).toBeGreaterThanOrEqual(2);
+  expect(mid[0].x0).toBe(0);
+  expect(mid[0].x1).toBeGreaterThan(0);
+  expect(mid[0].x1).toBeLessThan(mid[0].w - 1); // line 1 part-way
+  expect(mid[1].x1).toBe(0); // line 2 not yet
+  const full = await linesAt(page, "#h-rules", 0.45);
+  for (const line of full) { expect(line.x0).toBe(0); expect(line.x1).toBeGreaterThan(line.w - 1); }
+  const out = await linesAt(page, "#h-rules", 0.22);
+  expect(out[0].x0).toBeGreaterThan(0);
+  expect(out[0].x0).toBeLessThan(out[0].w - 1); // line 1 clearing from the left
+  expect(out[1].x0).toBe(0);
+  expect(out[1].x1).toBeGreaterThan(out[1].w - 1); // later lines still full
+  // Text on the yellow is night ink, about 16:1; the marks are hidden from assistive technology.
+  const colours = await page.locator("#h-rules .hl").evaluate((mark) => ({
+    ink: getComputedStyle(mark.querySelector(".hl-text")).color,
+    yellow: getComputedStyle(mark.querySelector(".hl-ink")).backgroundColor,
+    hidden: mark.getAttribute("aria-hidden"),
+  }));
+  expect(colours.ink).toBe("rgb(7, 9, 14)");
+  expect(colours.hidden).toBe("true");
+  const luminance = (c) => {
+    const [r, g, b] = c.match(/\d+/g).slice(0, 3).map((v) => { const s = v / 255; return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4; });
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  };
+  expect((luminance(colours.yellow) + 0.05) / (luminance(colours.ink) + 0.05)).toBeGreaterThan(15);
+  // Every dark copy breaks its lines exactly like its heading (the same lines), at a wide and a narrow width.
+  for (const width of [1440, 390]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.waitForTimeout(300);
+    const mismatched = await page.locator(".hl").evaluateAll((marks) => {
+      // The text of each rendered line, read from the rects of each character.
+      const lines = (node) => {
+        const out = new Map(), range = document.createRange();
+        for (let i = 0; i < node.data.length; i++) {
+          range.setStart(node, i); range.setEnd(node, i + 1);
+          const r = range.getClientRects()[0];
+          if (!r) continue;
+          const key = Math.round(r.top);
+          out.set(key, (out.get(key) ?? "") + node.data[i]);
+        }
+        return [...out.values()].map((s) => s.trim()).join(" | ");
+      };
+      return marks.map((mark) => [lines(mark.parentElement.firstChild), lines(mark.querySelector(".hl-text").firstChild)])
+        .filter(([own, copy]) => own !== copy);
+    });
+    expect(mismatched).toEqual([]);
+  }
+  // Which headings carry it: the section headings and the rule and frame names, not the hero or the side notes.
+  await expect(page.locator("main h2 .hl")).toHaveCount(7);
+  await expect(page.locator(".rules h3 .hl")).toHaveCount(6);
+  await expect(page.locator("#frames h3 .hl")).toHaveCount(7);
+  await expect(page.locator("h1 .hl, #notes .hl")).toHaveCount(0);
+});
+
+test("highlighter: none under reduced motion", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await ready(page);
+  await linesAt(page, "#h-rules", 0.5);
+  await expect(page.locator(".hl")).toHaveCount(0);
 });

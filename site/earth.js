@@ -282,7 +282,12 @@ function setUpGl(gl, canvas, view, redraw) {
 //   blank only the night ground, for a short pause;
 //   rise  the section rises into place from below, in up to four staggered groups; what is below it follows.
 // Scrolling input is held while it runs. Never started under reduced motion (see page.js).
-const T = { fly: 1300, hold: 1800, exit: 2800, blank: 3400 }; // phase ends, ms
+// How long each phase lasts (ms): the owner's tuning knobs. Round 21 shortened the two still moments.
+export const DURATION = { fly: 1300, hold: 380, exit: 1000, blank: 450 };
+const T = { fly: DURATION.fly }; // phase ends, ms
+T.hold = T.fly + DURATION.hold;
+T.exit = T.hold + DURATION.exit;
+T.blank = T.exit + DURATION.blank;
 const RISE = { ms: 800, stagger: 70 }; // the section's rise, per group
 const easeOut = (s) => 1 - (1 - s) ** 3;
 const easeInQuad = (s) => s * s;

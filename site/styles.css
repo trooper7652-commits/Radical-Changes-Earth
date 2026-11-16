@@ -5,6 +5,7 @@
   --night: #07090e; --field: #10141c; --text: #f3f5f8; --text-2: #a3abba; --sodium: #ffb547;
   --ink: #0c0e13; /* text on sodium and on the light Play button */
   --hair: rgba(201, 206, 214, .18); /* the staff colour at low alpha: hairlines, decoration only */
+  --highlight: #ffe900; /* highlighter yellow, only behind headings as they are read; night text on it is 16:1 */
   --ease: cubic-bezier(0.23, 1, 0.32, 1);
   --t-press: 120ms; --t-hover: 200ms; --t-state: 350ms; --t-reveal: 600ms;
   --display: "Archivo", "Arial Narrow", sans-serif;
@@ -187,6 +188,16 @@ select[aria-busy="true"] { animation: busy 600ms var(--ease) infinite alternate;
 .site-foot p { max-width: 62ch; }
 
 /* The satellite that becomes a butterfly (driven by page.js from scroll) */
+/* The reading-order highlighter on headings (page.js, highlight.js): per line, two clipping boxes moved by
+   translateX over a yellow band with a dark copy of the text, so the text on yellow is always dark. */
+main h2, .rules h3, #frames h3 { position: relative; }
+.hl { position: absolute; inset: 0; pointer-events: none; user-select: none; }
+.hl-line { position: absolute; display: block; overflow: hidden; }
+.hl-in, .hl-ink { display: block; width: 100%; height: 100%; }
+.hl-in { overflow: hidden; }
+.hl-ink { position: relative; background: var(--highlight); }
+.hl-text { position: absolute; display: block; color: var(--night); }
+
 .flight { position: fixed; inset: 0; z-index: 30; pointer-events: none; }
 .flight svg { display: block; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
 .flight.run .craft-fly { pointer-events: visiblePainted; } /* while it runs, its wings take the clicks */
