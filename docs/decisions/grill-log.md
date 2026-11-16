@@ -270,3 +270,6 @@ Q1 Tempo rules disagree · Q2 Short vs long notes · Q3 Contrast vs uniqueness �
 - "Make the earth have higher contrast so that it pops out more to the user."
 - "when I scroll down, the header gets highlighted partially, only the "change" is highlighted in the hear the map change section." (Bug: the transition lands with the heading already in the clearing band.)
 - "have the butterfly fills less of the screen and have it take longer to fill up the screen, I don't want the user to get jumpscared by the butterfly. Make the butterfly smooth and intentional." This changes round 18: the butterfly peaks at about 70-80 % of the width, and a night curtain fades in under it to hide the jump.
+
+## Round 23: the name on the wings (owner, 2026-11-15, about 10:55 PM)
+- "I want the butterfly to have the Radical Changes name across its wings to get the judges to remember our name." Built as RADICAL on the left forewing and CHANGES on the right, in Archivo, flapping with the wings.

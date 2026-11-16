@@ -45,7 +45,10 @@ const HINDWING = `
   <path class="vein" d="M-6 4C-14 6-20 9-24 13C-17 15-11 15-6 14"/>
   <g class="dots"><circle cx="-44" cy="31" r="1.5"/><circle cx="-36" cy="34.5" r="1.5"/><circle cx="-27" cy="35.5" r="1.5"/><circle cx="-18" cy="34" r="1.5"/></g>
   <circle class="e1" cx="-32" cy="17" r="4.2"/><circle class="e2" cx="-32" cy="17" r="2.9"/><circle class="e3" cx="-32" cy="17" r="1.6"/>`;
-const SIDE = `<g class="hw">${HINDWING}</g><g class="fw">${FOREWING}</g>`;
+// Owner: the name across the wings ("RADICAL" left, "CHANGES" right). The right side is mirrored, so its word is flipped back.
+const NAME = (word, flip) =>
+  `<text class="name" x="${flip ? 60 : -60}" y="-42" text-anchor="middle"${flip ? ' transform="scale(-1 1)"' : ""}>${word}</text>`;
+const SIDE = (word, flip) => `<g class="hw">${HINDWING}</g><g class="fw">${FOREWING}${NAME(word, flip)}</g>`;
 const BODY = `
   <path class="feeler" d="M-1.5-35C-6-50-14-62-22-70M1.5-35C6-50 14-62 22-70"/>
   <ellipse class="club" cx="-23" cy="-71.5" rx="2.2" ry="3.8" transform="rotate(-40 -23 -71.5)"/>
@@ -55,10 +58,11 @@ const BODY = `
   <ellipse class="thorax" cy="-12" rx="7" ry="14"/>
   <path class="hair" d="M-5-19C-2-17 2-17 5-19M-6-12C-2-10 2-10 6-12M-5-5C-2-3 2-3 5-5"/>
   <circle class="head" cy="-31" r="5.5"/><circle class="eyeball" cx="-3.2" cy="-32" r="1.9"/><circle class="eyeball" cx="3.2" cy="-32" r="1.9"/>`;
-const BUTTERFLY = `<g class="wings" opacity="0"><g>${SIDE}</g><g transform="scale(-1 1)">${SIDE}</g>${BODY}</g>`;
+const BUTTERFLY = `<g class="wings" opacity="0"><g>${SIDE("RADICAL", false)}</g><g transform="scale(-1 1)">${SIDE("CHANGES", true)}</g>${BODY}</g>`;
 // Strokes keep their screen width at every scale (vector-effect), so the lines stay fine when it fills the screen.
 const BUTTERFLY_STYLE = `
   .wing { fill: #ffb547; stroke: #07090e; stroke-width: 2.5; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+  .name { font-family: "Archivo", sans-serif; font-stretch: 125%; font-weight: 600; font-size: 11px; letter-spacing: .04em; fill: #07090e; }
   .base { fill: #10141c; } .band, .e1, .e3 { fill: #07090e; }
   .vein { fill: none; stroke: #07090e; stroke-width: 1.25; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
   .hair { fill: none; stroke: #a3abba; stroke-width: 1; stroke-linecap: round; vector-effect: non-scaling-stroke; }

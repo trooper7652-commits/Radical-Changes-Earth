@@ -35,3 +35,4 @@ Every AI model used on this project, as it is used. The project idea, the six me
 | 2026-11-15 | Song: rhythm removed | Claude Sonnet 5.5 (line cook) | Removed the distance-from-red measurement, its off-beat rule and its place in the change average (owner round 20) |
 | 2026-11-15 | DESIGN.md | Claude Opus 5.5 (impeccable documenter) | Rewrote DESIGN.md from the shipped site (the owner chose to overwrite the old direction) |
 | 2026-11-15 | Deploy | Claude Opus 5.5 (manager) | Deployed previews and, with the owner's OK, the public Vercel link |
+| 2026-11-15 | Name on the butterfly | Claude Opus 5.5 (manager) | Added the team name across the butterfly's wings (owner round 23) |
